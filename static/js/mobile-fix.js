@@ -1,120 +1,137 @@
-// Mobile UI Fix - Direct Event Handling
+// MOBILE FIX - DIRECT APPROACH
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait for main.js to load and setup multiple times to ensure it works
-    setTimeout(() => {
-        setupMobileFixes();
-    }, 100);
-    
-    setTimeout(() => {
-        setupMobileFixes();
-    }, 500);
-    
-    setTimeout(() => {
-        setupMobileFixes();
-    }, 1000);
-});
-
-function setupMobileFixes() {
-    // Fix mobile add replay buttons (both in add screen and replays screen)
-    const mobileAddReplay = document.getElementById('mobileAddReplay');
-    const mobileAddReplayBtn = document.getElementById('mobileAddReplayBtn');
-    
-    [mobileAddReplay, mobileAddReplayBtn].forEach(button => {
-        if (button) {
-            // Remove any existing listeners
-            const newButton = button.cloneNode(true);
-            button.parentNode.replaceChild(newButton, button);
-            
-            newButton.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Mobile add replay clicked');
-                const modal = document.getElementById('newReplayModal');
-                if (modal) {
-                    modal.style.display = 'flex';
-                    console.log('Modal opened');
-                }
-            });
+    // Force fix mobile issues every time mobile UI is activated
+    document.addEventListener('click', function(e) {
+        if (e.target.id === 'mobileUiToggle' || e.target.closest('#mobileUiToggle')) {
+            setTimeout(forceMobileFix, 200);
         }
     });
     
-    // Fix mobile folder clicks with delegation
+    // Also fix on page load
+    setTimeout(forceMobileFix, 500);
+    setTimeout(forceMobileFix, 1000);
+    setTimeout(forceMobileFix, 2000);
+});
+
+function forceMobileFix() {
+    console.log('FORCING MOBILE FIX');
+    
+    // 1. FIX ADD REPLAY BUTTONS
+    const addReplayButtons = [
+        document.getElementById('mobileAddReplay'),
+        document.getElementById('mobileAddReplayBtn')
+    ];
+    
+    addReplayButtons.forEach(btn => {
+        if (btn) {
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('ADD REPLAY CLICKED');
+                document.getElementById('newReplayModal').style.display = 'flex';
+                return false;
+            };
+        }
+    });
+    
+    // 2. FIX FOLDER CLICKS - BRUTE FORCE
     const mobileFoldersGrid = document.getElementById('mobileFoldersGrid');
     if (mobileFoldersGrid) {
-        mobileFoldersGrid.addEventListener('click', function(e) {
-            const folderCard = e.target.closest('.folder-card:not(.create-folder-card)');
-            if (folderCard) {
-                const folderIcon = e.target.closest('.folder-icon');
-                const folderTitle = e.target.closest('.folder-title');
-                
-                if (folderIcon || folderTitle) {
-                    e.preventDefault();
-                    e.stopPropagation();
+        // Remove all existing click handlers
+        mobileFoldersGrid.onclick = null;
+        
+        // Add new click handler
+        mobileFoldersGrid.onclick = function(e) {
+            console.log('FOLDER GRID CLICKED', e.target);
+            
+            const folderCard = e.target.closest('.folder-card');
+            if (folderCard && !folderCard.classList.contains('create-folder-card')) {
+                const folderTitle = folderCard.querySelector('.folder-title');
+                if (folderTitle) {
+                    const folderName = folderTitle.textContent.trim();
+                    console.log('FOLDER NAME:', folderName);
                     
-                    // Get folder data
                     const folders = JSON.parse(localStorage.getItem('folders') || '[]');
-                    const folderName = folderCard.querySelector('.folder-title').textContent;
                     const folder = folders.find(f => f.name === folderName);
                     
-                    if (folder && window.openFolderView) {
-                        console.log('Opening folder:', folder.name);
+                    if (folder) {
+                        console.log('OPENING FOLDER:', folder);
+                        
+                        // Direct call to openFolderView
+                        if (window.openFolderView) {
+                            window.openFolderView(folder);
+                        } else {
+                            // Manual folder view opening
+                            document.getElementById('folderViewTitle').textContent = folder.name;
+                            
+                            // Get replays in folder
+                            const replayHistory = JSON.parse(localStorage.getItem('replayHistory') || '[]');
+                            const folderReplays = replayHistory.filter(r => r.folderId === folder.id);
+                            
+                            const folderReplaysGrid = document.getElementById('folderReplaysGrid');
+                            folderReplaysGrid.innerHTML = '';
+                            
+                            if (folderReplays.length === 0) {
+                                folderReplaysGrid.innerHTML = '<div class="empty-state"><i class="fas fa-film"></i><p>No replays in this folder</p></div>';
+                            } else {
+                                folderReplays.forEach(replay => {
+                                    const replayCard = document.createElement('div');
+                                    replayCard.className = 'replay-card';
+                                    replayCard.innerHTML = `
+                                        <div class="replay-thumbnail">
+                                            <i class="fas fa-play-circle"></i>
+                                        </div>
+                                        <div class="replay-info">
+                                            <div class="replay-title">${replay.name || 'Unnamed Replay'}</div>
+                                            <div class="replay-date">${replay.date}</div>
+                                        </div>
+                                    `;
+                                    replayCard.onclick = () => {
+                                        if (window.playReplay) {
+                                            window.playReplay(replay.link, replay.name);
+                                        }
+                                    };
+                                    folderReplaysGrid.appendChild(replayCard);
+                                });
+                            }
+                            
+                            document.getElementById('folderViewModal').style.display = 'flex';
+                        }
+                    }
+                }
+            }
+        };
+    }
+    
+    // 3. ALSO FIX INDIVIDUAL FOLDER CARDS
+    const folderCards = document.querySelectorAll('#mobileFoldersGrid .folder-card:not(.create-folder-card)');
+    folderCards.forEach(card => {
+        card.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const folderTitle = card.querySelector('.folder-title');
+            if (folderTitle) {
+                const folderName = folderTitle.textContent.trim();
+                const folders = JSON.parse(localStorage.getItem('folders') || '[]');
+                const folder = folders.find(f => f.name === folderName);
+                
+                if (folder) {
+                    console.log('DIRECT FOLDER CLICK:', folder);
+                    if (window.openFolderView) {
                         window.openFolderView(folder);
                     }
                 }
             }
-        });
-    }
-    
-    // Also add a direct observer for when mobile folders are populated
-    const observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-            if (mutation.type === 'childList' && mutation.target.id === 'mobileFoldersGrid') {
-                // Re-setup folder clicks after content changes
-                setTimeout(setupMobileFolderClicks, 50);
-            }
-        });
+        };
     });
     
-    if (mobileFoldersGrid) {
-        observer.observe(mobileFoldersGrid, { childList: true, subtree: true });
-    }
+    console.log('MOBILE FIX COMPLETE');
 }
 
-function setupMobileFolderClicks() {
-    const mobileFolderCards = document.querySelectorAll('#mobileFoldersGrid .folder-card:not(.create-folder-card)');
-    const folders = JSON.parse(localStorage.getItem('folders') || '[]');
-    
-    mobileFolderCards.forEach((folderCard, index) => {
-        const folderIcon = folderCard.querySelector('.folder-icon');
-        const folderTitle = folderCard.querySelector('.folder-title');
-        
-        if (folderIcon && folderTitle && folders[index]) {
-            const folder = folders[index];
-            
-            // Remove existing listeners and add new ones
-            const newFolderIcon = folderIcon.cloneNode(true);
-            const newFolderTitle = folderTitle.cloneNode(true);
-            
-            folderIcon.parentNode.replaceChild(newFolderIcon, folderIcon);
-            folderTitle.parentNode.replaceChild(newFolderTitle, folderTitle);
-            
-            newFolderIcon.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Folder icon clicked:', folder.name);
-                if (window.openFolderView) {
-                    window.openFolderView(folder);
-                }
-            });
-            
-            newFolderTitle.addEventListener('click', function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                console.log('Folder title clicked:', folder.name);
-                if (window.openFolderView) {
-                    window.openFolderView(folder);
-                }
-            });
-        }
-    });
-}
+// Also run when mobile screens change
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('mobile-nav-item') && e.target.getAttribute('data-view') === 'folders') {
+        setTimeout(forceMobileFix, 100);
+    }
+});

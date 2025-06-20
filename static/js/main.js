@@ -40,14 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let searchQuery = '';
     let selectedColor = '#4a6bff';
     
+    // Make functions globally accessible FIRST
+    window.openFolderView = openFolderView;
+    window.playReplay = playReplay;
+    
     // Initialize
     loadReplayHistory();
     loadFolders();
     setupEventListeners();
-    
-    // Make functions globally accessible for mobile UI
-    window.openFolderView = openFolderView;
-    window.playReplay = playReplay;
     
     // Functions
     function loadReplayHistory() {
