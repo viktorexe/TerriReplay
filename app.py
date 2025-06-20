@@ -19,10 +19,10 @@ def get_db():
     return client
 
 def get_user_collection(username):
-    """Get user-specific collection in terristats database"""
+    """Get user-specific collection named by username"""
     client = get_db()
     db = client.terristats
-    return db[f"user_{username.lower()}"]
+    return db[username.lower()]
 
 def get_users_collection():
     """Get main users collection for authentication"""
@@ -162,16 +162,18 @@ def create_account():
         
         users_collection.insert_one(user_data)
         
-        # Create user's personal collection with initial data
+        # Create user's personal collection with account data
         user_collection = get_user_collection(username)
-        initial_data = {
-            'type': 'user_data',
+        user_account_data = {
+            'username': username,
+            'password': password,  # Store without hashing
             'folders': [],
             'replays': [],
+            'created_at': datetime.utcnow(),
             'last_modified': datetime.utcnow(),
             'version': 1
         }
-        user_collection.insert_one(initial_data)
+        user_collection.insert_one(user_account_data)
         
         return jsonify({'success': True, 'message': 'Account created successfully'})
     except Exception as e:
@@ -194,18 +196,21 @@ def login():
         
         # Get user data from personal collection
         user_collection = get_user_collection(username)
-        user_data = user_collection.find_one({'type': 'user_data'})
+        user_data = user_collection.find_one({'username': username})
         
         if not user_data:
             # Create initial data if doesn't exist
             user_data = {
-                'type': 'user_data',
+                'username': username,
+                'password': password,
                 'folders': [],
                 'replays': [],
                 'last_modified': datetime.utcnow(),
                 'version': 1
             }
             user_collection.insert_one(user_data)
+        elif not check_password_hash(user['password'], password) and user_data.get('password') != password:
+            return jsonify({'success': False, 'message': 'Invalid username or password'})
         
         return jsonify({
             'success': True, 
@@ -233,7 +238,7 @@ def sync_data():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
-        current_data = user_collection.find_one({'type': 'user_data'})
+        current_data = user_collection.find_one({'username': username})
         
         if not current_data:
             return jsonify({'success': False, 'message': 'User data not found'})
@@ -286,7 +291,7 @@ def get_user_data():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
-        user_data = user_collection.find_one({'type': 'user_data'})
+        user_data = user_collection.find_one({'username': username})
         
         if not user_data:
             return jsonify({'success': False, 'message': 'User data not found'})
@@ -317,7 +322,7 @@ def check_updates():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
-        user_data = user_collection.find_one({'type': 'user_data'})
+        user_data = user_collection.find_one({'username': username})
         
         if not user_data:
             return jsonify({'success': False, 'message': 'User data not found'})

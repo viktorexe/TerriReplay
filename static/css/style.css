@@ -944,6 +944,10 @@ body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
   width: 400px;
   max-width: 90%;
   text-align: center;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .loading-container {
@@ -953,6 +957,7 @@ body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
   align-items: center;
   justify-content: center;
   text-align: center;
+  position: relative;
 }
 
 .loading-spinner-large {
@@ -962,9 +967,8 @@ body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
   border-radius: 50%;
   border-top-color: var(--primary);
   animation: spin 1s linear infinite;
-  margin: 0 auto 20px;
-  position: relative;
-  display: block;
+  margin: 0 0 20px 0;
+  flex-shrink: 0;
 }
 
 .progress-bar {
