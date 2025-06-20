@@ -33,48 +33,24 @@ def get_db():
         return None
 
 def get_user_collection(username):
-    """Get user-specific collection with safe name"""
+    """Get user-specific collection - each user has their own collection"""
     try:
         client = get_db()
         if client is None:
             return None
             
+        # Each user gets their own collection in terristats database
         db = client.terristats
-        # Use a safe collection name - alphanumeric only
-        safe_name = re.sub(r'[^a-zA-Z0-9]', '_', username)
+        safe_name = re.sub(r'[^a-zA-Z0-9]', '_', username.lower())
         
-        # Create collection if it doesn't exist
-        collection_names = db.list_collection_names()
-        if safe_name not in collection_names:
-            print(f"Creating new collection: {safe_name}")
-            db.create_collection(safe_name)
-            
         return db[safe_name]
     except Exception as e:
         print(f"Error getting user collection: {str(e)}")
         return None
 
-def get_users_collection():
-    """Get main users collection for authentication"""
-    try:
-        client = get_db()
-        if client is None:
-            return None
-            
-        # Make sure the collection exists
-        collection_names = client.terrireplay.list_collection_names()
-        if 'user_accounts' not in collection_names:
-            print("Creating user_accounts collection")
-            client.terrireplay.create_collection('user_accounts')
-            
-        return client.terrireplay.user_accounts
-    except Exception as e:
-        print(f"Error getting users collection: {str(e)}")
-        return None
-
 # Always use latest_version.html if it exists
 LATEST_VERSION = "latest_version.html"
-FALLBACK_VERSION = "version3N.html"  # Fallback if latest_version.html doesn't exist
+FALLBACK_VERSION = "version3N.html"
 
 # Advertisement data
 ADS_DATA = [
@@ -112,12 +88,10 @@ def privacy():
 
 @app.route('/emulated_versions/<path:filename>')
 def serve_game_version(filename):
-    """Serve the game version files from the emulated_versions directory."""
     return send_from_directory('emulated_versions', filename)
 
 @app.route('/get_version', methods=['POST'])
 def get_version():
-    """Always return the latest version if it exists, otherwise fallback."""
     if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)):
         return jsonify({'version': LATEST_VERSION})
     else:
@@ -125,63 +99,44 @@ def get_version():
 
 @app.route('/api/ads', methods=['GET'])
 def get_ads():
-    """Return advertisement data."""
     return jsonify(ADS_DATA)
 
 @app.route('/sitemap.xml')
 def sitemap():
-    """Serve the sitemap.xml file for SEO."""
     return send_from_directory('static', 'sitemap.xml')
 
 @app.route('/robots.txt')
 def robots():
-    """Serve the robots.txt file for search engines."""
     return send_from_directory('static', 'robots.txt')
 
 @app.route('/google9f5a8a1f7c3e8e09.html')
 def google_verification():
-    """Serve the Google Search Console verification file."""
     return send_from_directory('static', 'google9f5a8a1f7c3e8e09.html')
 
 @app.route('/api/folders', methods=['GET'])
 def get_folders():
-    """Return a placeholder for folders API - actual implementation is client-side."""
     return jsonify({"success": True, "message": "Folders are managed client-side"})
 
-# API endpoints for folder management
 @app.route('/api/folders', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def manage_folders():
-    """
-    Handle folder operations:
-    - GET: Get all folders
-    - POST: Create a new folder
-    - PUT: Rename a folder
-    - DELETE: Delete a folder
-    """
     if request.method == 'GET':
-        # This is just a placeholder - folders will be managed client-side in localStorage
         return jsonify({"success": True, "message": "Folders are managed client-side"})
     elif request.method == 'POST':
-        # For future server-side implementation
         return jsonify({"success": True, "message": "Folder creation is handled client-side"})
     elif request.method == 'PUT':
-        # For future server-side implementation
         return jsonify({"success": True, "message": "Folder rename is handled client-side"})
     elif request.method == 'DELETE':
-        # For future server-side implementation
         return jsonify({"success": True, "message": "Folder deletion is handled client-side"})
 
-# Account API endpoints
+# ADVANCED ACCOUNT SYSTEM - NO SEPARATE USER_ACCOUNTS COLLECTION
 @app.route('/api/create_account', methods=['POST'])
 def create_account():
     try:
-        users_collection = get_users_collection()
-        if users_collection is None:
-            return jsonify({'success': False, 'message': 'Database connection error'})
-            
         data = request.get_json()
         username = data.get('username', '').strip()
         password = data.get('password', '')
+        local_folders = data.get('local_folders', [])
+        local_replays = data.get('local_replays', [])
         
         if not username or not password:
             return jsonify({'success': False, 'message': 'Username and password required'})
@@ -192,31 +147,22 @@ def create_account():
         if len(password) < 6:
             return jsonify({'success': False, 'message': 'Password must be at least 6 characters'})
         
-        # Check if username exists
-        existing_user = users_collection.find_one({'username': username})
+        # Get user's collection
+        user_collection = get_user_collection(username)
+        if user_collection is None:
+            return jsonify({'success': False, 'message': 'Database connection error'})
+        
+        # Check if username exists by checking if collection has any data
+        existing_user = user_collection.find_one({'username': username})
         if existing_user is not None:
             return jsonify({'success': False, 'message': 'Username already exists'})
         
-        # Create account in main collection
-        user_data = {
-            'username': username,
-            'password': generate_password_hash(password),
-            'created_at': datetime.utcnow(),
-            'last_sync': datetime.utcnow()
-        }
-        
-        users_collection.insert_one(user_data)
-        
-        # Create user's personal collection with account data
-        user_collection = get_user_collection(username)
-        if user_collection is None:
-            return jsonify({'success': False, 'message': 'Error creating user collection'})
-            
+        # Create user account with all local data
         user_account_data = {
             'username': username,
-            'password': password,  # Store without hashing
-            'folders': [],
-            'replays': [],
+            'password': password,  # Store without hashing for simplicity
+            'folders': local_folders,  # Import all local folders
+            'replays': local_replays,  # Import all local replays
             'settings': {
                 'theme': 'light',
                 'sortOrder': 'date-desc'
@@ -224,11 +170,22 @@ def create_account():
             'created_at': datetime.utcnow(),
             'last_modified': datetime.utcnow(),
             'last_login': datetime.utcnow(),
-            'version': 1
+            'version': 1,
+            'total_replays': len(local_replays),
+            'total_folders': len(local_folders)
         }
+        
         user_collection.insert_one(user_account_data)
         
-        return jsonify({'success': True, 'message': 'Account created successfully'})
+        return jsonify({
+            'success': True, 
+            'message': 'Account created successfully',
+            'synced_data': {
+                'folders': local_folders,
+                'replays': local_replays,
+                'version': 1
+            }
+        })
     except Exception as e:
         print(f"Create account error: {str(e)}")
         print(traceback.format_exc())
@@ -237,10 +194,6 @@ def create_account():
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
-        users_collection = get_users_collection()
-        if users_collection is None:
-            return jsonify({'success': False, 'message': 'Database connection error'})
-            
         data = request.get_json()
         username = data.get('username', '').strip()
         password = data.get('password', '')
@@ -248,39 +201,21 @@ def login():
         if not username or not password:
             return jsonify({'success': False, 'message': 'Username and password required'})
         
-        user = users_collection.find_one({'username': username})
-        if user is None or not check_password_hash(user['password'], password):
-            return jsonify({'success': False, 'message': 'Invalid username or password'})
-        
-        # Get user data from personal collection
+        # Get user's collection
         user_collection = get_user_collection(username)
         if user_collection is None:
-            return jsonify({'success': False, 'message': 'Error accessing user data'})
-            
-        user_data = user_collection.find_one({'username': username})
+            return jsonify({'success': False, 'message': 'Database connection error'})
         
-        if user_data is None:
-            # Create initial data if doesn't exist
-            user_data = {
-                'username': username,
-                'password': password,
-                'folders': [],
-                'replays': [],
-                'settings': {
-                    'theme': 'light',
-                    'sortOrder': 'date-desc'
-                },
-                'last_modified': datetime.utcnow(),
-                'last_login': datetime.utcnow(),
-                'version': 1
-            }
-            user_collection.insert_one(user_data)
-        else:
-            # Update last login time
-            user_collection.update_one(
-                {'username': username},
-                {'$set': {'last_login': datetime.utcnow()}}
-            )
+        # Find user data
+        user_data = user_collection.find_one({'username': username})
+        if user_data is None or user_data.get('password') != password:
+            return jsonify({'success': False, 'message': 'Invalid username or password'})
+        
+        # Update last login time
+        user_collection.update_one(
+            {'username': username},
+            {'$set': {'last_login': datetime.utcnow()}}
+        )
         
         return jsonify({
             'success': True, 
@@ -298,6 +233,7 @@ def login():
         print(traceback.format_exc())
         return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
 
+# REAL-TIME SYNC SYSTEM
 @app.route('/api/sync_data', methods=['POST'])
 def sync_data():
     try:
@@ -314,22 +250,11 @@ def sync_data():
         user_collection = get_user_collection(username)
         if user_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
-            
+        
         current_data = user_collection.find_one({'username': username})
         
         if current_data is None:
-            # Create new user data if it doesn't exist
-            user_data = {
-                'username': username,
-                'folders': folders,
-                'replays': replays,
-                'settings': settings,
-                'created_at': datetime.utcnow(),
-                'last_modified': datetime.utcnow(),
-                'version': 1
-            }
-            user_collection.insert_one(user_data)
-            return jsonify({'success': True, 'message': 'Initial data created', 'version': 1})
+            return jsonify({'success': False, 'message': 'User not found'})
         
         server_version = current_data.get('version', 1)
         
@@ -350,7 +275,7 @@ def sync_data():
         # Update with new version
         new_version = server_version + 1
         
-        # Save detailed replay data
+        # Advanced sync - preserve all data
         detailed_replays = []
         for replay in replays:
             detailed_replay = {
@@ -360,12 +285,11 @@ def sync_data():
                 'date': replay.get('date', ''),
                 'timestamp': replay.get('timestamp', 0),
                 'folderId': replay.get('folderId'),
-                'last_played': replay.get('last_played', None),
+                'last_played': replay.get('last_played'),
                 'play_count': replay.get('play_count', 0)
             }
             detailed_replays.append(detailed_replay)
         
-        # Save detailed folder data
         detailed_folders = []
         for folder in folders:
             detailed_folder = {
@@ -376,7 +300,8 @@ def sync_data():
             }
             detailed_folders.append(detailed_folder)
         
-        result = user_collection.update_one(
+        # Update everything
+        user_collection.update_one(
             {'username': username},
             {'$set': {
                 'folders': detailed_folders,
@@ -412,7 +337,7 @@ def get_user_data():
         user_collection = get_user_collection(username)
         if user_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
-            
+        
         user_data = user_collection.find_one({'username': username})
         
         if user_data is None:
@@ -426,15 +351,6 @@ def get_user_data():
             {'$set': {'last_access': datetime.utcnow()}}
         )
         
-        # Convert datetime objects to strings
-        last_modified = user_data.get('last_modified')
-        if isinstance(last_modified, datetime):
-            last_modified = last_modified.isoformat()
-            
-        created_at = user_data.get('created_at')
-        if isinstance(created_at, datetime):
-            created_at = created_at.isoformat()
-        
         return jsonify({
             'success': True,
             'user': {
@@ -442,9 +358,7 @@ def get_user_data():
                 'folders': user_data.get('folders', []),
                 'replays': user_data.get('replays', []),
                 'settings': user_data.get('settings', {}),
-                'version': server_version,
-                'last_modified': last_modified,
-                'created_at': created_at
+                'version': server_version
             },
             'has_updates': server_version > client_version
         })
@@ -466,7 +380,7 @@ def check_updates():
         user_collection = get_user_collection(username)
         if user_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
-            
+        
         user_data = user_collection.find_one({'username': username})
         
         if user_data is None:
@@ -475,16 +389,10 @@ def check_updates():
         server_version = user_data.get('version', 1)
         has_updates = server_version > client_version
         
-        # Convert datetime to string
-        last_modified = user_data.get('last_modified')
-        if isinstance(last_modified, datetime):
-            last_modified = last_modified.isoformat()
-        
         response = {
             'success': True, 
             'has_updates': has_updates, 
-            'server_version': server_version,
-            'last_modified': last_modified
+            'server_version': server_version
         }
         
         if has_updates:
@@ -507,7 +415,6 @@ def check_updates():
         print(traceback.format_exc())
         return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
 
-# Add endpoint to track replay plays
 @app.route('/api/track_play', methods=['POST'])
 def track_play():
     try:
@@ -521,7 +428,7 @@ def track_play():
         user_collection = get_user_collection(username)
         if user_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
-            
+        
         user_data = user_collection.find_one({'username': username})
         
         if user_data is None:
@@ -535,9 +442,16 @@ def track_play():
                 replay['play_count'] = replay.get('play_count', 0) + 1
                 break
         
+        # Update version for sync
+        new_version = user_data.get('version', 1) + 1
+        
         user_collection.update_one(
             {'username': username},
-            {'$set': {'replays': replays}}
+            {'$set': {
+                'replays': replays,
+                'version': new_version,
+                'last_modified': datetime.utcnow()
+            }}
         )
         
         return jsonify({'success': True, 'message': 'Play tracked successfully'})
@@ -545,26 +459,6 @@ def track_play():
         print(f"Track play error: {str(e)}")
         print(traceback.format_exc())
         return jsonify({'success': False, 'message': f'Error tracking play: {str(e)}'})
-
-def extract_replay_data(replay_link):
-    """Extract the replay data from the URL."""
-    if not replay_link or '?' not in replay_link:
-        return ''
-    
-    try:
-        # Get everything after the question mark
-        query_part = replay_link.split('?', 1)[1]
-        
-        # Remove parameter names if present
-        if 'replay=' in query_part:
-            query_part = query_part.replace('replay=', '')
-        elif 'data=' in query_part:
-            query_part = query_part.replace('data=', '')
-        
-        return query_part
-    except Exception:
-        # If any error occurs, return empty string
-        return ''
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)

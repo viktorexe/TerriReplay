@@ -207,6 +207,10 @@ document.addEventListener('DOMContentLoaded', function() {
                         const continueBtn = successModal.querySelector('button');
                         continueBtn.onclick = function() {
                             document.body.removeChild(successModal);
+                            
+                            // Trigger login event for sync system
+                            document.dispatchEvent(new CustomEvent('userLoggedIn'));
+                            
                             location.reload();
                         };
                     } else {
@@ -282,10 +286,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 document.body.appendChild(loadingModal);
                 
+                // Get local data to sync with new account
+                const localFolders = JSON.parse(localStorage.getItem('folders') || '[]');
+                const localReplays = JSON.parse(localStorage.getItem('replayHistory') || '[]');
+                
                 fetch('/api/create_account', {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({username, password})
+                    body: JSON.stringify({
+                        username, 
+                        password,
+                        local_folders: localFolders,
+                        local_replays: localReplays
+                    })
                 })
                 .then(response => response.json())
                 .then(result => {
@@ -328,6 +341,30 @@ document.addEventListener('DOMContentLoaded', function() {
                             // Pre-fill login form
                             document.getElementById('loginUsername').value = username;
                             document.getElementById('loginModal').style.display = 'flex';
+                            
+                            // Show sync notification
+                            const notification = document.createElement('div');
+                            notification.style.cssText = `
+                                position: fixed;
+                                top: 20px;
+                                right: 20px;
+                                background: #2196F3;
+                                color: white;
+                                padding: 10px 20px;
+                                border-radius: 5px;
+                                z-index: 10000;
+                                font-size: 14px;
+                                box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                            `;
+                            notification.textContent = `Account created! ${localFolders.length} folders and ${localReplays.length} replays synced to cloud.`;
+                            
+                            document.body.appendChild(notification);
+                            
+                            setTimeout(() => {
+                                if (notification.parentNode) {
+                                    notification.remove();
+                                }
+                            }, 5000);
                         };
                     } else {
                         alert(result.message || 'Account creation failed');
