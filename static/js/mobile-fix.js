@@ -19,7 +19,8 @@ function forceMobileFix() {
     // 1. FIX ADD REPLAY BUTTONS
     const addReplayButtons = [
         document.getElementById('mobileAddReplay'),
-        document.getElementById('mobileAddReplayBtn')
+        document.getElementById('mobileAddReplayBtn'),
+        document.getElementById('addFirstReplayBtn')
     ];
     
     addReplayButtons.forEach(btn => {
@@ -33,6 +34,21 @@ function forceMobileFix() {
             };
         }
     });
+    
+    // ALSO FIX ANY "ADD FIRST REPLAY" BUTTONS IN MOBILE REPLAYS GRID
+    const mobileReplaysGrid = document.getElementById('mobileReplaysGrid');
+    if (mobileReplaysGrid) {
+        const addFirstBtn = mobileReplaysGrid.querySelector('#addFirstReplayBtn');
+        if (addFirstBtn) {
+            addFirstBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('ADD FIRST REPLAY CLICKED');
+                document.getElementById('newReplayModal').style.display = 'flex';
+                return false;
+            };
+        }
+    }
     
     // 2. FIX FOLDER CLICKS - BRUTE FORCE
     const mobileFoldersGrid = document.getElementById('mobileFoldersGrid');
@@ -125,6 +141,20 @@ function forceMobileFix() {
             }
         };
     });
+    
+    // 4. FIX ANY DYNAMICALLY CREATED ADD FIRST REPLAY BUTTONS
+    setTimeout(() => {
+        const allAddFirstBtns = document.querySelectorAll('#addFirstReplayBtn');
+        allAddFirstBtns.forEach(btn => {
+            btn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('DYNAMIC ADD FIRST REPLAY CLICKED');
+                document.getElementById('newReplayModal').style.display = 'flex';
+                return false;
+            };
+        });
+    }, 100);
     
     console.log('MOBILE FIX COMPLETE');
 }
