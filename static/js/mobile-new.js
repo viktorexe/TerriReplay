@@ -188,6 +188,35 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (mobileFoldersGrid && desktopFoldersGrid) {
             mobileFoldersGrid.innerHTML = desktopFoldersGrid.innerHTML;
+            
+            // Re-attach folder click events for mobile
+            const mobileFolderCards = mobileFoldersGrid.querySelectorAll('.folder-card:not(.create-folder-card)');
+            mobileFolderCards.forEach(folderCard => {
+                const folderIcon = folderCard.querySelector('.folder-icon');
+                const folderTitle = folderCard.querySelector('.folder-title');
+                
+                if (folderIcon) {
+                    folderIcon.addEventListener('click', () => {
+                        const folderId = folderCard.querySelector('.edit-folder').getAttribute('data-id');
+                        const folders = JSON.parse(localStorage.getItem('folders') || '[]');
+                        const folder = folders.find(f => f.id === folderId);
+                        if (folder && window.openFolderView) {
+                            window.openFolderView(folder);
+                        }
+                    });
+                }
+                
+                if (folderTitle) {
+                    folderTitle.addEventListener('click', () => {
+                        const folderId = folderCard.querySelector('.edit-folder').getAttribute('data-id');
+                        const folders = JSON.parse(localStorage.getItem('folders') || '[]');
+                        const folder = folders.find(f => f.id === folderId);
+                        if (folder && window.openFolderView) {
+                            window.openFolderView(folder);
+                        }
+                    });
+                }
+            });
         }
     }
     
