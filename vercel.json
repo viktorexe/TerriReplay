@@ -4,36 +4,15 @@
     {
       "src": "app.py",
       "use": "@vercel/python"
-    },
-    {
-      "src": "static/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/static/(.*)",
-      "dest": "/static/$1"
-    },
-    {
-      "src": "/sitemap.xml",
-      "dest": "/app.py"
-    },
-    {
-      "src": "/robots.txt",
-      "dest": "/app.py"
-    },
-    {
-      "src": "/google9f5a8a1f7c3e8e09.html",
-      "dest": "/app.py"
-    },
-    {
-      "src": "/emulated_versions/(.*)",
-      "dest": "/app.py"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/app.py"
+      "dest": "app.py"
     }
-  ]
+  ],
+  "env": {
+    "PYTHONUNBUFFERED": "1"
+  }
 }

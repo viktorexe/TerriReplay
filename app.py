@@ -7,28 +7,55 @@ import string
 from pymongo import MongoClient
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
-# hello
+import traceback
+
 app = Flask(__name__)
 
 # MongoDB connection - optimized for serverless
 MONGO_URI = "mongodb+srv://drviktorexe:Vansh240703@ttmod2025.9vmzbje.mongodb.net/?retryWrites=true&w=majority&appName=TTMod2025"
 
+# Global client to reuse connection
+mongo_client = None
+
 def get_db():
-    """Get database connection - creates new connection for each request (serverless friendly)"""
-    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
-    return client
+    """Get database connection - optimized for serverless"""
+    global mongo_client
+    try:
+        if mongo_client is None:
+            mongo_client = MongoClient(MONGO_URI, 
+                                      serverSelectionTimeoutMS=5000,
+                                      connectTimeoutMS=5000,
+                                      socketTimeoutMS=5000,
+                                      maxPoolSize=1)
+        return mongo_client
+    except Exception as e:
+        print(f"MongoDB connection error: {str(e)}")
+        return None
 
 def get_user_collection(username):
-    """Get user-specific collection named exactly by username"""
-    client = get_db()
-    # Use the exact username as the collection name
-    db = client.terristats
-    return db[username]
+    """Get user-specific collection with safe name"""
+    try:
+        client = get_db()
+        if client:
+            db = client.terristats
+            # Use a safe collection name - alphanumeric only
+            safe_name = re.sub(r'[^a-zA-Z0-9]', '_', username)
+            return db[safe_name]
+        return None
+    except Exception as e:
+        print(f"Error getting user collection: {str(e)}")
+        return None
 
 def get_users_collection():
     """Get main users collection for authentication"""
-    client = get_db()
-    return client.terrireplay.user_accounts
+    try:
+        client = get_db()
+        if client:
+            return client.terrireplay.user_accounts
+        return None
+    except Exception as e:
+        print(f"Error getting users collection: {str(e)}")
+        return None
 
 # Always use latest_version.html if it exists
 LATEST_VERSION = "latest_version.html"
@@ -59,8 +86,6 @@ ADS_DATA = [
 @app.route('/')
 def index():
     return render_template('index.html', ads=ADS_DATA)
-
-# Sharing functionality removed
 
 @app.route('/tos')
 def tos():
@@ -136,6 +161,9 @@ def manage_folders():
 def create_account():
     try:
         users_collection = get_users_collection()
+        if not users_collection:
+            return jsonify({'success': False, 'message': 'Database connection error'})
+            
         data = request.get_json()
         username = data.get('username', '').strip()
         password = data.get('password', '')
@@ -165,6 +193,9 @@ def create_account():
         
         # Create user's personal collection with account data
         user_collection = get_user_collection(username)
+        if not user_collection:
+            return jsonify({'success': False, 'message': 'Error creating user collection'})
+            
         user_account_data = {
             'username': username,
             'password': password,  # Store without hashing
@@ -183,12 +214,17 @@ def create_account():
         
         return jsonify({'success': True, 'message': 'Account created successfully'})
     except Exception as e:
-        return jsonify({'success': False, 'message': 'Database error'})
+        print(f"Create account error: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
 
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
         users_collection = get_users_collection()
+        if not users_collection:
+            return jsonify({'success': False, 'message': 'Database connection error'})
+            
         data = request.get_json()
         username = data.get('username', '').strip()
         password = data.get('password', '')
@@ -202,6 +238,9 @@ def login():
         
         # Get user data from personal collection
         user_collection = get_user_collection(username)
+        if not user_collection:
+            return jsonify({'success': False, 'message': 'Error accessing user data'})
+            
         user_data = user_collection.find_one({'username': username})
         
         if not user_data:
@@ -236,11 +275,14 @@ def login():
                 'username': username,
                 'folders': user_data.get('folders', []),
                 'replays': user_data.get('replays', []),
+                'settings': user_data.get('settings', {}),
                 'version': user_data.get('version', 1)
             }
         })
     except Exception as e:
-        return jsonify({'success': False, 'message': 'Database error'})
+        print(f"Login error: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
 
 @app.route('/api/sync_data', methods=['POST'])
 def sync_data():
@@ -256,6 +298,9 @@ def sync_data():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
+        if not user_collection:
+            return jsonify({'success': False, 'message': 'Database connection error'})
+            
         current_data = user_collection.find_one({'username': username})
         
         if not current_data:
@@ -336,44 +381,9 @@ def sync_data():
             'message': f'Synced {len(detailed_replays)} replays and {len(detailed_folders)} folders'
         })
     except Exception as e:
-        return jsonify({'success': False, 'message': f'Sync failed: {str(e)}'})ccess': False, 'message': 'User data not found'})
-        
-        server_version = current_data.get('version', 1)
-        
-        # Check if client data is outdated
-        if client_version < server_version:
-            return jsonify({
-                'success': True,
-                'outdated': True,
-                'server_data': {
-                    'folders': current_data.get('folders', []),
-                    'replays': current_data.get('replays', []),
-                    'version': server_version
-                },
-                'message': 'Client data is outdated, server data returned'
-            })
-        
-        # Update with new version
-        new_version = server_version + 1
-        result = user_collection.update_one(
-            {'type': 'user_data'},
-            {'$set': {
-                'folders': folders,
-                'replays': replays,
-                'last_modified': datetime.utcnow(),
-                'version': new_version,
-                'total_replays': len(replays),
-                'total_folders': len(folders)
-            }}
-        )
-        
-        return jsonify({
-            'success': True,
-            'version': new_version,
-            'message': f'Synced {len(replays)} replays and {len(folders)} folders'
-        })
-    except Exception as e:
-        return jsonify({'success': False, 'message': 'Sync failed'})
+        print(f"Sync error: {str(e)}")
+        print(traceback.format_exc())
+        return jsonify({'success': False, 'message': f'Sync failed: {str(e)}'})
 
 @app.route('/api/get_user_data', methods=['POST'])
 def get_user_data():
@@ -386,6 +396,9 @@ def get_user_data():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
+        if not user_collection:
+            return jsonify({'success': False, 'message': 'Database connection error'})
+            
         user_data = user_collection.find_one({'username': username})
         
         if not user_data:
@@ -399,6 +412,15 @@ def get_user_data():
             {'$set': {'last_access': datetime.utcnow()}}
         )
         
+        # Convert datetime objects to strings
+        last_modified = user_data.get('last_modified')
+        if isinstance(last_modified, datetime):
+            last_modified = last_modified.isoformat()
+            
+        created_at = user_data.get('created_at')
+        if isinstance(created_at, datetime):
+            created_at = created_at.isoformat()
+        
         return jsonify({
             'success': True,
             'user': {
@@ -407,12 +429,14 @@ def get_user_data():
                 'replays': user_data.get('replays', []),
                 'settings': user_data.get('settings', {}),
                 'version': server_version,
-                'last_modified': user_data.get('last_modified', datetime.utcnow()).isoformat(),
-                'created_at': user_data.get('created_at', datetime.utcnow()).isoformat()
+                'last_modified': last_modified,
+                'created_at': created_at
             },
             'has_updates': server_version > client_version
         })
     except Exception as e:
+        print(f"Get user data error: {str(e)}")
+        print(traceback.format_exc())
         return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
 
 @app.route('/api/check_updates', methods=['POST'])
@@ -426,6 +450,9 @@ def check_updates():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
+        if not user_collection:
+            return jsonify({'success': False, 'message': 'Database connection error'})
+            
         user_data = user_collection.find_one({'username': username})
         
         if not user_data:
@@ -434,11 +461,16 @@ def check_updates():
         server_version = user_data.get('version', 1)
         has_updates = server_version > client_version
         
+        # Convert datetime to string
+        last_modified = user_data.get('last_modified')
+        if isinstance(last_modified, datetime):
+            last_modified = last_modified.isoformat()
+        
         response = {
             'success': True, 
             'has_updates': has_updates, 
             'server_version': server_version,
-            'last_modified': user_data.get('last_modified', datetime.utcnow()).isoformat()
+            'last_modified': last_modified
         }
         
         if has_updates:
@@ -457,6 +489,8 @@ def check_updates():
         
         return jsonify(response)
     except Exception as e:
+        print(f"Check updates error: {str(e)}")
+        print(traceback.format_exc())
         return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
 
 # Add endpoint to track replay plays
@@ -471,6 +505,9 @@ def track_play():
             return jsonify({'success': False, 'message': 'Username and replay_id required'})
         
         user_collection = get_user_collection(username)
+        if not user_collection:
+            return jsonify({'success': False, 'message': 'Database connection error'})
+            
         user_data = user_collection.find_one({'username': username})
         
         if not user_data:
@@ -491,6 +528,8 @@ def track_play():
         
         return jsonify({'success': True, 'message': 'Play tracked successfully'})
     except Exception as e:
+        print(f"Track play error: {str(e)}")
+        print(traceback.format_exc())
         return jsonify({'success': False, 'message': f'Error tracking play: {str(e)}'})
 
 def extract_replay_data(replay_link):
