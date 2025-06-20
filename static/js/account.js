@@ -101,11 +101,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         hideLoading();
                         document.getElementById('loginModal').style.display = 'none';
-                        showCustomAlert(`Welcome back, ${username}!\nLoaded ${finalReplays.length} replays and ${finalFolders.length} folders.`, 'success');
                         updateAccountButton();
                         startRealTimeSync();
+                        
+                        showCustomAlert(`Welcome back, ${username}!\nLoaded ${finalReplays.length} replays and ${finalFolders.length} folders.`, 'success');
                         setTimeout(syncUserData, 1000);
-                    }, 500);
+                    }, 300);
                 } else {
                     hideLoading();
                     showCustomAlert(result.message, 'error');
@@ -163,12 +164,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     setTimeout(() => {
                         hideLoading();
                         document.getElementById('createAccountModal').style.display = 'none';
-                        showCustomAlert(`Welcome to TerriReplay, ${username}!\nYour account has been created successfully.\nPlease login to continue.`, 'success');
                         
                         // Pre-fill login form
                         document.getElementById('loginUsername').value = username;
                         document.getElementById('loginModal').style.display = 'flex';
-                    }, 800);
+                        
+                        showCustomAlert(`Welcome to TerriReplay, ${username}!\nYour account has been created successfully.\nPlease login to continue.`, 'success');
+                    }, 500);
                 } else {
                     hideLoading();
                     showCustomAlert(result.message, 'error');
@@ -186,6 +188,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const folders = JSON.parse(localStorage.getItem('folders') || '[]');
         const replays = JSON.parse(localStorage.getItem('replayHistory') || '[]');
+        const settings = JSON.parse(localStorage.getItem('userSettings') || '{
+            "theme": "light",
+            "sortOrder": "date-desc"
+        }');
         
         // Silent sync in background
         fetch('/api/sync_data', {
@@ -195,6 +201,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 username: currentUser,
                 folders: folders,
                 replays: replays,
+                settings: settings,
                 version: currentVersion
             })
         })
@@ -240,12 +247,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function updateLocalData(serverData) {
         localStorage.setItem('folders', JSON.stringify(serverData.folders));
         localStorage.setItem('replayHistory', JSON.stringify(serverData.replays));
+        
+        // Also update settings if available
+        if (serverData.settings) {
+            localStorage.setItem('userSettings', JSON.stringify(serverData.settings));
+        }
+        
         currentVersion = serverData.version;
         localStorage.setItem('dataVersion', currentVersion.toString());
         
         // Silently refresh UI
         if (window.loadFolders) window.loadFolders();
         if (window.loadReplayHistory) window.loadReplayHistory();
+        if (window.applyUserSettings && serverData.settings) window.applyUserSettings(serverData.settings);
     }
     
     // Auto-login if user is remembered - SILENT BACKGROUND SYNC
@@ -390,7 +404,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function hideLoading() {
         const modal = document.getElementById('loadingModal');
-        if (modal) modal.style.display = 'none';
+        if (modal) {
+            modal.style.display = 'none';
+            modal.style.setProperty('display', 'none', 'important');
+        }
     }
     
     function updateProgress(percent) {

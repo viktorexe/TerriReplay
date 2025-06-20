@@ -19,10 +19,11 @@ def get_db():
     return client
 
 def get_user_collection(username):
-    """Get user-specific collection named by username"""
+    """Get user-specific collection named exactly by username"""
     client = get_db()
+    # Use the exact username as the collection name
     db = client.terristats
-    return db[username.lower()]
+    return db[username]
 
 def get_users_collection():
     """Get main users collection for authentication"""
@@ -169,8 +170,13 @@ def create_account():
             'password': password,  # Store without hashing
             'folders': [],
             'replays': [],
+            'settings': {
+                'theme': 'light',
+                'sortOrder': 'date-desc'
+            },
             'created_at': datetime.utcnow(),
             'last_modified': datetime.utcnow(),
+            'last_login': datetime.utcnow(),
             'version': 1
         }
         user_collection.insert_one(user_account_data)
@@ -205,12 +211,23 @@ def login():
                 'password': password,
                 'folders': [],
                 'replays': [],
+                'settings': {
+                    'theme': 'light',
+                    'sortOrder': 'date-desc'
+                },
                 'last_modified': datetime.utcnow(),
+                'last_login': datetime.utcnow(),
                 'version': 1
             }
             user_collection.insert_one(user_data)
         elif not check_password_hash(user['password'], password) and user_data.get('password') != password:
             return jsonify({'success': False, 'message': 'Invalid username or password'})
+        else:
+            # Update last login time
+            user_collection.update_one(
+                {'username': username},
+                {'$set': {'last_login': datetime.utcnow()}}
+            )
         
         return jsonify({
             'success': True, 
@@ -233,6 +250,7 @@ def sync_data():
         folders = data.get('folders', [])
         replays = data.get('replays', [])
         client_version = data.get('version', 1)
+        settings = data.get('settings', {})
         
         if not username:
             return jsonify({'success': False, 'message': 'Username required'})
@@ -241,7 +259,84 @@ def sync_data():
         current_data = user_collection.find_one({'username': username})
         
         if not current_data:
-            return jsonify({'success': False, 'message': 'User data not found'})
+            # Create new user data if it doesn't exist
+            user_data = {
+                'username': username,
+                'folders': folders,
+                'replays': replays,
+                'settings': settings,
+                'created_at': datetime.utcnow(),
+                'last_modified': datetime.utcnow(),
+                'version': 1
+            }
+            user_collection.insert_one(user_data)
+            return jsonify({'success': True, 'message': 'Initial data created', 'version': 1})
+        
+        server_version = current_data.get('version', 1)
+        
+        # Check if client data is outdated
+        if client_version < server_version:
+            return jsonify({
+                'success': True,
+                'outdated': True,
+                'server_data': {
+                    'folders': current_data.get('folders', []),
+                    'replays': current_data.get('replays', []),
+                    'settings': current_data.get('settings', {}),
+                    'version': server_version
+                },
+                'message': 'Client data is outdated, server data returned'
+            })
+        
+        # Update with new version
+        new_version = server_version + 1
+        
+        # Save detailed replay data
+        detailed_replays = []
+        for replay in replays:
+            detailed_replay = {
+                'id': replay.get('id'),
+                'name': replay.get('name', 'Unnamed Replay'),
+                'link': replay.get('link', ''),
+                'date': replay.get('date', ''),
+                'timestamp': replay.get('timestamp', 0),
+                'folderId': replay.get('folderId'),
+                'last_played': replay.get('last_played', None),
+                'play_count': replay.get('play_count', 0)
+            }
+            detailed_replays.append(detailed_replay)
+        
+        # Save detailed folder data
+        detailed_folders = []
+        for folder in folders:
+            detailed_folder = {
+                'id': folder.get('id'),
+                'name': folder.get('name', 'Unnamed Folder'),
+                'color': folder.get('color', '#4a6bff'),
+                'createdAt': folder.get('createdAt', '')
+            }
+            detailed_folders.append(detailed_folder)
+        
+        result = user_collection.update_one(
+            {'username': username},
+            {'$set': {
+                'folders': detailed_folders,
+                'replays': detailed_replays,
+                'settings': settings,
+                'last_modified': datetime.utcnow(),
+                'version': new_version,
+                'total_replays': len(detailed_replays),
+                'total_folders': len(detailed_folders)
+            }}
+        )
+        
+        return jsonify({
+            'success': True,
+            'version': new_version,
+            'message': f'Synced {len(detailed_replays)} replays and {len(detailed_folders)} folders'
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Sync failed: {str(e)}'})ccess': False, 'message': 'User data not found'})
         
         server_version = current_data.get('version', 1)
         
@@ -298,18 +393,27 @@ def get_user_data():
         
         server_version = user_data.get('version', 1)
         
+        # Update last access time
+        user_collection.update_one(
+            {'username': username},
+            {'$set': {'last_access': datetime.utcnow()}}
+        )
+        
         return jsonify({
             'success': True,
             'user': {
                 'username': username,
                 'folders': user_data.get('folders', []),
                 'replays': user_data.get('replays', []),
-                'version': server_version
+                'settings': user_data.get('settings', {}),
+                'version': server_version,
+                'last_modified': user_data.get('last_modified', datetime.utcnow()).isoformat(),
+                'created_at': user_data.get('created_at', datetime.utcnow()).isoformat()
             },
             'has_updates': server_version > client_version
         })
     except Exception as e:
-        return jsonify({'success': False, 'message': 'Database error'})
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
 
 @app.route('/api/check_updates', methods=['POST'])
 def check_updates():
@@ -330,18 +434,64 @@ def check_updates():
         server_version = user_data.get('version', 1)
         has_updates = server_version > client_version
         
-        response = {'success': True, 'has_updates': has_updates, 'server_version': server_version}
+        response = {
+            'success': True, 
+            'has_updates': has_updates, 
+            'server_version': server_version,
+            'last_modified': user_data.get('last_modified', datetime.utcnow()).isoformat()
+        }
         
         if has_updates:
             response['data'] = {
                 'folders': user_data.get('folders', []),
                 'replays': user_data.get('replays', []),
+                'settings': user_data.get('settings', {}),
                 'version': server_version
             }
+            
+            # Update last sync time
+            user_collection.update_one(
+                {'username': username},
+                {'$set': {'last_sync': datetime.utcnow()}}
+            )
         
         return jsonify(response)
     except Exception as e:
-        return jsonify({'success': False, 'message': 'Database error'})
+        return jsonify({'success': False, 'message': f'Database error: {str(e)}'})
+
+# Add endpoint to track replay plays
+@app.route('/api/track_play', methods=['POST'])
+def track_play():
+    try:
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        replay_id = data.get('replay_id', '')
+        
+        if not username or not replay_id:
+            return jsonify({'success': False, 'message': 'Username and replay_id required'})
+        
+        user_collection = get_user_collection(username)
+        user_data = user_collection.find_one({'username': username})
+        
+        if not user_data:
+            return jsonify({'success': False, 'message': 'User data not found'})
+        
+        # Update replay play count and last played time
+        replays = user_data.get('replays', [])
+        for replay in replays:
+            if replay.get('id') == replay_id:
+                replay['last_played'] = datetime.utcnow().isoformat()
+                replay['play_count'] = replay.get('play_count', 0) + 1
+                break
+        
+        user_collection.update_one(
+            {'username': username},
+            {'$set': {'replays': replays}}
+        )
+        
+        return jsonify({'success': True, 'message': 'Play tracked successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error tracking play: {str(e)}'})
 
 def extract_replay_data(replay_link):
     """Extract the replay data from the URL."""
