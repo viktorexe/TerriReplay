@@ -367,8 +367,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Sync on page unload
     window.addEventListener('beforeunload', syncUserData);
     
-    // Loading functions
+    // Loading functions - ONLY FOR MANUAL ACTIONS
     function showLoading(title, message) {
+        // Only show loading for manual user actions, not auto-login
+        if (title === 'Auto Login' || message.includes('auto') || message.includes('background')) {
+            return; // Don't show loading for background operations
+        }
+        
         const modal = document.getElementById('loadingModal');
         const titleEl = document.getElementById('loadingTitle');
         const messageEl = document.getElementById('loadingMessage');
@@ -377,7 +382,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (titleEl) titleEl.textContent = title;
         if (messageEl) messageEl.textContent = message;
         if (progressEl) progressEl.style.width = '0%';
-        if (modal) modal.style.display = 'flex';
+        if (modal) {
+            modal.style.display = 'flex';
+            modal.style.setProperty('display', 'flex', 'important');
+        }
     }
     
     function hideLoading() {
