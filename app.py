@@ -37,15 +37,34 @@ def get_user_collection(username):
     try:
         client = get_db()
         if client is None:
+            print("MongoDB client is None")
             return None
             
         # Each user gets their own collection in terristats database
         db = client.terristats
         safe_name = re.sub(r'[^a-zA-Z0-9]', '_', username.lower())
         
-        return db[safe_name]
+        print(f"Creating/accessing collection: {safe_name}")
+        
+        # Force create collection by inserting and removing a dummy document
+        collection = db[safe_name]
+        
+        # Check if collection exists, if not create it
+        if safe_name not in db.list_collection_names():
+            print(f"Collection {safe_name} doesn't exist, creating it")
+            # Insert a dummy document to create the collection
+            dummy_doc = {'_temp': True, 'created_at': datetime.utcnow()}
+            collection.insert_one(dummy_doc)
+            # Remove the dummy document
+            collection.delete_one({'_temp': True})
+            print(f"Collection {safe_name} created successfully")
+        else:
+            print(f"Collection {safe_name} already exists")
+        
+        return collection
     except Exception as e:
         print(f"Error getting user collection: {str(e)}")
+        print(traceback.format_exc())
         return None
 
 # Always use latest_version.html if it exists
@@ -88,14 +107,102 @@ def privacy():
 
 @app.route('/emulated_versions/<path:filename>')
 def serve_game_version(filename):
-    return send_from_directory('emulated_versions', filename)
+    """Serve game version files with proper headers"""
+    try:
+        print(f"Serving game file: {filename}")
+        return send_from_directory('emulated_versions', filename)
+    except Exception as e:
+        print(f"Error serving game file {filename}: {str(e)}")
+        return f"Error loading game file: {filename}", 404
+
+@app.route('/test_replay')
+def test_replay():
+    """Test endpoint to check if replay system is working"""
+    try:
+        # Check if emulated_versions directory exists
+        emulated_dir = os.path.join(os.getcwd(), 'emulated_versions')
+        if not os.path.exists(emulated_dir):
+            return f"emulated_versions directory not found at: {emulated_dir}"
+        
+        # List files in emulated_versions
+        files = os.listdir(emulated_dir)
+        
+        # Check for game files
+        latest_exists = os.path.exists(os.path.join(emulated_dir, LATEST_VERSION))
+        fallback_exists = os.path.exists(os.path.join(emulated_dir, FALLBACK_VERSION))
+        
+        return f"""
+        Replay System Status:
+        - emulated_versions directory: EXISTS
+        - Files found: {len(files)}
+        - {LATEST_VERSION}: {'EXISTS' if latest_exists else 'NOT FOUND'}
+        - {FALLBACK_VERSION}: {'EXISTS' if fallback_exists else 'NOT FOUND'}
+        - All files: {files}
+        
+        Replay backend is {'READY' if (latest_exists or fallback_exists) else 'NOT READY - Missing game files'}
+        """
+    except Exception as e:
+        return f"Error checking replay system: {str(e)}"
 
 @app.route('/get_version', methods=['POST'])
 def get_version():
-    if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)):
-        return jsonify({'version': LATEST_VERSION})
-    else:
+    """Always return the latest version for replay playback"""
+    try:
+        # Always return latest version for replay compatibility
+        if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)):
+            return jsonify({'version': LATEST_VERSION})
+        else:
+            return jsonify({'version': FALLBACK_VERSION})
+    except Exception as e:
+        print(f"Get version error: {str(e)}")
         return jsonify({'version': FALLBACK_VERSION})
+
+@app.route('/api/play_replay', methods=['POST'])
+def play_replay():
+    """Handle replay playback requests"""
+    try:
+        data = request.get_json()
+        replay_link = data.get('replay_link', '')
+        replay_name = data.get('replay_name', 'Replay')
+        
+        if not replay_link:
+            return jsonify({'success': False, 'message': 'Replay link required'})
+        
+        # Extract replay data from link
+        replay_data = extract_replay_data(replay_link)
+        
+        # Determine which game version to use
+        game_version = LATEST_VERSION if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)) else FALLBACK_VERSION
+        
+        return jsonify({
+            'success': True,
+            'game_version': game_version,
+            'replay_data': replay_data,
+            'replay_name': replay_name
+        })
+    except Exception as e:
+        print(f"Play replay error: {str(e)}")
+        return jsonify({'success': False, 'message': f'Error playing replay: {str(e)}'})
+
+def extract_replay_data(replay_link):
+    """Extract the replay data from the URL"""
+    if not replay_link or '?' not in replay_link:
+        return ''
+    
+    try:
+        # Get everything after the question mark
+        query_part = replay_link.split('?', 1)[1]
+        
+        # Remove parameter names if present
+        if 'replay=' in query_part:
+            query_part = query_part.replace('replay=', '')
+        elif 'data=' in query_part:
+            query_part = query_part.replace('data=', '')
+        
+        return query_part
+    except Exception as e:
+        print(f"Error extracting replay data: {str(e)}")
+        return ''
 
 @app.route('/api/ads', methods=['GET'])
 def get_ads():
@@ -175,7 +282,16 @@ def create_account():
             'total_folders': len(local_folders)
         }
         
-        user_collection.insert_one(user_account_data)
+        print(f"Inserting user data for {username}")
+        result = user_collection.insert_one(user_account_data)
+        print(f"Insert result: {result.inserted_id}")
+        
+        # Verify the data was inserted
+        verify_data = user_collection.find_one({'username': username})
+        if verify_data:
+            print(f"User data verified: {verify_data['username']} with {len(verify_data.get('folders', []))} folders and {len(verify_data.get('replays', []))} replays")
+        else:
+            print("ERROR: User data not found after insertion")
         
         return jsonify({
             'success': True, 
@@ -207,9 +323,19 @@ def login():
             return jsonify({'success': False, 'message': 'Database connection error'})
         
         # Find user data
+        print(f"Looking for user data for {username}")
         user_data = user_collection.find_one({'username': username})
-        if user_data is None or user_data.get('password') != password:
+        print(f"Found user data: {user_data is not None}")
+        
+        if user_data is None:
+            print(f"User {username} not found")
             return jsonify({'success': False, 'message': 'Invalid username or password'})
+        
+        if user_data.get('password') != password:
+            print(f"Password mismatch for {username}")
+            return jsonify({'success': False, 'message': 'Invalid username or password'})
+        
+        print(f"Login successful for {username}")
         
         # Update last login time
         user_collection.update_one(
@@ -254,6 +380,7 @@ def sync_data():
         current_data = user_collection.find_one({'username': username})
         
         if current_data is None:
+            print(f"User {username} not found for sync")
             return jsonify({'success': False, 'message': 'User not found'})
         
         server_version = current_data.get('version', 1)
@@ -301,6 +428,7 @@ def sync_data():
             detailed_folders.append(detailed_folder)
         
         # Update everything
+        print(f"Syncing data for {username}: {len(detailed_replays)} replays, {len(detailed_folders)} folders")
         user_collection.update_one(
             {'username': username},
             {'$set': {
