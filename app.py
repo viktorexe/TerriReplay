@@ -44,9 +44,10 @@ def get_user_collection(username):
         safe_name = re.sub(r'[^a-zA-Z0-9]', '_', username)
         
         # Create collection if it doesn't exist
-        if safe_name not in db.list_collection_names():
+        collection_names = db.list_collection_names()
+        if safe_name not in collection_names:
+            print(f"Creating new collection: {safe_name}")
             db.create_collection(safe_name)
-            print(f"Created new collection: {safe_name}")
             
         return db[safe_name]
     except Exception as e:
@@ -61,9 +62,10 @@ def get_users_collection():
             return None
             
         # Make sure the collection exists
-        if 'user_accounts' not in client.terrireplay.list_collection_names():
+        collection_names = client.terrireplay.list_collection_names()
+        if 'user_accounts' not in collection_names:
+            print("Creating user_accounts collection")
             client.terrireplay.create_collection('user_accounts')
-            print("Created user_accounts collection")
             
         return client.terrireplay.user_accounts
     except Exception as e:
@@ -191,7 +193,8 @@ def create_account():
             return jsonify({'success': False, 'message': 'Password must be at least 6 characters'})
         
         # Check if username exists
-        if users_collection.find_one({'username': username}):
+        existing_user = users_collection.find_one({'username': username})
+        if existing_user is not None:
             return jsonify({'success': False, 'message': 'Username already exists'})
         
         # Create account in main collection
@@ -246,17 +249,17 @@ def login():
             return jsonify({'success': False, 'message': 'Username and password required'})
         
         user = users_collection.find_one({'username': username})
-        if not user or not check_password_hash(user['password'], password):
+        if user is None or not check_password_hash(user['password'], password):
             return jsonify({'success': False, 'message': 'Invalid username or password'})
         
         # Get user data from personal collection
         user_collection = get_user_collection(username)
-        if not user_collection:
+        if user_collection is None:
             return jsonify({'success': False, 'message': 'Error accessing user data'})
             
         user_data = user_collection.find_one({'username': username})
         
-        if not user_data:
+        if user_data is None:
             # Create initial data if doesn't exist
             user_data = {
                 'username': username,
@@ -272,8 +275,6 @@ def login():
                 'version': 1
             }
             user_collection.insert_one(user_data)
-        elif not check_password_hash(user['password'], password) and user_data.get('password') != password:
-            return jsonify({'success': False, 'message': 'Invalid username or password'})
         else:
             # Update last login time
             user_collection.update_one(
@@ -311,12 +312,12 @@ def sync_data():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
-        if not user_collection:
+        if user_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
             
         current_data = user_collection.find_one({'username': username})
         
-        if not current_data:
+        if current_data is None:
             # Create new user data if it doesn't exist
             user_data = {
                 'username': username,
@@ -409,12 +410,12 @@ def get_user_data():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
-        if not user_collection:
+        if user_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
             
         user_data = user_collection.find_one({'username': username})
         
-        if not user_data:
+        if user_data is None:
             return jsonify({'success': False, 'message': 'User data not found'})
         
         server_version = user_data.get('version', 1)
@@ -463,12 +464,12 @@ def check_updates():
             return jsonify({'success': False, 'message': 'Username required'})
         
         user_collection = get_user_collection(username)
-        if not user_collection:
+        if user_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
             
         user_data = user_collection.find_one({'username': username})
         
-        if not user_data:
+        if user_data is None:
             return jsonify({'success': False, 'message': 'User data not found'})
         
         server_version = user_data.get('version', 1)
@@ -518,12 +519,12 @@ def track_play():
             return jsonify({'success': False, 'message': 'Username and replay_id required'})
         
         user_collection = get_user_collection(username)
-        if not user_collection:
+        if user_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
             
         user_data = user_collection.find_one({'username': username})
         
-        if not user_data:
+        if user_data is None:
             return jsonify({'success': False, 'message': 'User data not found'})
         
         # Update replay play count and last played time
