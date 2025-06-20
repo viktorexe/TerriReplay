@@ -948,6 +948,11 @@ body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
 
 .loading-container {
   padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .loading-spinner-large {
@@ -958,6 +963,8 @@ body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
   border-top-color: var(--primary);
   animation: spin 1s linear infinite;
   margin: 0 auto 20px;
+  position: relative;
+  display: block;
 }
 
 .progress-bar {
