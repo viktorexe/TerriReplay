@@ -80,28 +80,19 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (mobileAddReplay) {
             mobileAddReplay.addEventListener('click', function() {
-                const newReplayModal = document.getElementById('newReplayModal');
-                if (newReplayModal) {
-                    newReplayModal.style.display = 'flex';
-                }
+                document.getElementById('newReplayModal').style.display = 'flex';
             });
         }
         
         if (mobileAddFolder) {
             mobileAddFolder.addEventListener('click', function() {
-                const newFolderModal = document.getElementById('newFolderModal');
-                if (newFolderModal) {
-                    newFolderModal.style.display = 'flex';
-                }
+                document.getElementById('newFolderModal').style.display = 'flex';
             });
         }
         
         if (mobileThemeSettings) {
             mobileThemeSettings.addEventListener('click', function() {
-                const themeOptionsModal = document.getElementById('themeOptionsModal');
-                if (themeOptionsModal) {
-                    themeOptionsModal.style.display = 'flex';
-                }
+                document.getElementById('themeOptionsModal').style.display = 'flex';
             });
         }
         
@@ -181,117 +172,141 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Populate mobile folders
+    // Populate mobile folders - FIXED VERSION
     function populateMobileFolders() {
         const mobileFoldersGrid = document.getElementById('mobileFoldersGrid');
-        const desktopFoldersGrid = document.getElementById('foldersGrid');
+        if (!mobileFoldersGrid) return;
         
-        if (mobileFoldersGrid && desktopFoldersGrid) {
-            mobileFoldersGrid.innerHTML = desktopFoldersGrid.innerHTML;
+        const folders = JSON.parse(localStorage.getItem('folders') || '[]');
+        const replayHistory = JSON.parse(localStorage.getItem('replayHistory') || '[]');
+        mobileFoldersGrid.innerHTML = '';
+        
+        // Add create folder card
+        const createCard = document.createElement('div');
+        createCard.className = 'create-folder-card';
+        createCard.innerHTML = `
+            <div class="folder-icon">
+                <i class="fas fa-plus"></i>
+            </div>
+            <div class="folder-info">
+                <div class="folder-title">Create Folder</div>
+            </div>
+        `;
+        createCard.addEventListener('click', () => {
+            document.getElementById('newFolderModal').style.display = 'flex';
+        });
+        mobileFoldersGrid.appendChild(createCard);
+        
+        // Add folder cards
+        folders.forEach(folder => {
+            const replayCount = replayHistory.filter(r => r.folderId === folder.id).length;
+            const replayText = replayCount === 1 ? '1 replay' : `${replayCount} replays`;
             
-            // Re-attach folder click events for mobile
-            const mobileFolderCards = mobileFoldersGrid.querySelectorAll('.folder-card:not(.create-folder-card)');
-            const folders = JSON.parse(localStorage.getItem('folders') || '[]');
+            const folderCard = document.createElement('div');
+            folderCard.className = 'folder-card';
+            folderCard.innerHTML = `
+                <div class="folder-icon" style="color: ${folder.color}">
+                    <i class="fas fa-folder"></i>
+                </div>
+                <div class="folder-info">
+                    <div class="folder-title">${folder.name}</div>
+                    <div class="folder-count">${replayText}</div>
+                    <div class="folder-actions">
+                        <button class="edit-folder" data-id="${folder.id}">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="delete-folder" data-id="${folder.id}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            `;
             
-            mobileFolderCards.forEach((folderCard, index) => {
-                const folderIcon = folderCard.querySelector('.folder-icon');
-                const folderTitle = folderCard.querySelector('.folder-title');
-                const folder = folders[index]; // Get folder by index since they're rendered in order
-                
-                if (folderIcon && folder) {
-                    folderIcon.addEventListener('click', () => {
-                        if (window.openFolderView) {
-                            window.openFolderView(folder);
-                        }
-                    });
-                }
-                
-                if (folderTitle && folder) {
-                    folderTitle.addEventListener('click', () => {
-                        if (window.openFolderView) {
-                            window.openFolderView(folder);
-                        }
-                    });
+            // Add click handlers for opening folder
+            const folderIcon = folderCard.querySelector('.folder-icon');
+            const folderTitle = folderCard.querySelector('.folder-title');
+            
+            folderIcon.addEventListener('click', () => {
+                if (window.openFolderView) {
+                    window.openFolderView(folder);
                 }
             });
-        }
+            
+            folderTitle.addEventListener('click', () => {
+                if (window.openFolderView) {
+                    window.openFolderView(folder);
+                }
+            });
+            
+            mobileFoldersGrid.appendChild(folderCard);
+        });
     }
     
     // Handle modal close in mobile mode
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('close-modal') || e.target.classList.contains('cancel-modal')) {
-            // Reset mobile nav to replays when closing modals
             if (isMobileMode) {
-                mobileNavItems.forEach(nav => nav.classList.remove('active'));
-                const replaysNav = document.querySelector('.mobile-nav-item[data-view="replays"]');
-                if (replaysNav) {
-                    replaysNav.classList.add('active');
+                const mobileNav = document.getElementById('mobileNav');
+                if (mobileNav) {
+                    mobileNav.style.display = 'flex';
                 }
-                showMobileScreen('replays');
                 
-                // Show mobile nav again if game modal was closed
-                if (e.target.closest('#gameModal')) {
-                    const mobileNav = document.getElementById('mobileNav');
-                    if (mobileNav) {
-                        mobileNav.style.display = 'flex';
+                // If closing folder view modal, go back to folders screen
+                if (e.target.closest('#folderViewModal')) {
+                    mobileNavItems.forEach(nav => nav.classList.remove('active'));
+                    const foldersNav = document.querySelector('.mobile-nav-item[data-view="folders"]');
+                    if (foldersNav) {
+                        foldersNav.classList.add('active');
                     }
+                    showMobileScreen('folders');
+                } else {
+                    // For other modals, go to replays screen
+                    mobileNavItems.forEach(nav => nav.classList.remove('active'));
+                    const replaysNav = document.querySelector('.mobile-nav-item[data-view="replays"]');
+                    if (replaysNav) {
+                        replaysNav.classList.add('active');
+                    }
+                    showMobileScreen('replays');
                 }
             }
         }
     });
     
-    // Handle game modal opening
+    // Handle modal opening (game and folder view)
     const gameModal = document.getElementById('gameModal');
-    if (gameModal) {
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    const isOpen = gameModal.style.display === 'flex';
-                    const mobileNav = document.getElementById('mobileNav');
-                    
-                    if (isMobileMode && mobileNav) {
-                        if (isOpen) {
-                            // Hide mobile nav when game opens
-                            mobileNav.style.display = 'none';
-                            // Prevent body scroll
-                            document.body.style.overflow = 'hidden';
-                        } else {
-                            // Show mobile nav when game closes
-                            mobileNav.style.display = 'flex';
-                            // Restore body scroll
-                            document.body.style.overflow = '';
+    const folderViewModal = document.getElementById('folderViewModal');
+    
+    function handleModalVisibility(modal) {
+        if (modal) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                        const isOpen = modal.style.display === 'flex';
+                        const mobileNav = document.getElementById('mobileNav');
+                        
+                        if (isMobileMode && mobileNav) {
+                            if (isOpen) {
+                                mobileNav.style.display = 'none';
+                                document.body.style.overflow = 'hidden';
+                            } else {
+                                mobileNav.style.display = 'flex';
+                                document.body.style.overflow = '';
+                            }
                         }
                     }
-                }
+                });
             });
-        });
-        
-        observer.observe(gameModal, { attributes: true });
-    }
-    
-    // Prevent zoom on input focus (mobile)
-    if (isMobileMode) {
-        const inputs = document.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            input.addEventListener('focus', function() {
-                this.style.fontSize = '16px';
-            });
-        });
-    }
-    
-    // Handle orientation change
-    window.addEventListener('orientationchange', function() {
-        if (isMobileMode) {
-            setTimeout(() => {
-                window.scrollTo(0, 0);
-            }, 100);
+            
+            observer.observe(modal, { attributes: true });
         }
-    });
+    }
+    
+    handleModalVisibility(gameModal);
+    handleModalVisibility(folderViewModal);
     
     // Sync mobile and desktop content
     function syncContent() {
         if (isMobileMode) {
-            // Get current active screen
             const activeScreen = document.querySelector('.mobile-screen.active');
             if (activeScreen) {
                 if (activeScreen.id === 'mobileReplaysScreen') {
