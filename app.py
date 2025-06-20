@@ -4,8 +4,19 @@ import re
 import json
 import random
 import string
+from pymongo import MongoClient
+from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 # hello
 app = Flask(__name__)
+
+# MongoDB connection - optimized for serverless
+MONGO_URI = "mongodb+srv://drviktorexe:Vansh240703@ttmod2025.9vmzbje.mongodb.net/?retryWrites=true&w=majority&appName=TTMod2025"
+
+def get_db():
+    """Get database connection - creates new connection for each request (serverless friendly)"""
+    client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
+    return client.terrireplay.user_accounts
 
 # Always use latest_version.html if it exists
 LATEST_VERSION = "latest_version.html"
@@ -107,6 +118,100 @@ def manage_folders():
     elif request.method == 'DELETE':
         # For future server-side implementation
         return jsonify({"success": True, "message": "Folder deletion is handled client-side"})
+
+# Account API endpoints
+@app.route('/api/create_account', methods=['POST'])
+def create_account():
+    try:
+        users_collection = get_db()
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        
+        if not username or not password:
+            return jsonify({'success': False, 'message': 'Username and password required'})
+        
+        if len(username) < 3:
+            return jsonify({'success': False, 'message': 'Username must be at least 3 characters'})
+        
+        if len(password) < 6:
+            return jsonify({'success': False, 'message': 'Password must be at least 6 characters'})
+        
+        # Check if username exists
+        if users_collection.find_one({'username': username}):
+            return jsonify({'success': False, 'message': 'Username already exists'})
+        
+        # Create account
+        user_data = {
+            'username': username,
+            'password': generate_password_hash(password),
+            'folders': [],
+            'replays': [],
+            'created_at': datetime.utcnow()
+        }
+        
+        users_collection.insert_one(user_data)
+        return jsonify({'success': True, 'message': 'Account created successfully'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Database error'})
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    try:
+        users_collection = get_db()
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        password = data.get('password', '')
+        
+        if not username or not password:
+            return jsonify({'success': False, 'message': 'Username and password required'})
+        
+        user = users_collection.find_one({'username': username})
+        if not user or not check_password_hash(user['password'], password):
+            return jsonify({'success': False, 'message': 'Invalid username or password'})
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Login successful',
+            'user': {
+                'username': user['username'],
+                'folders': user.get('folders', []),
+                'replays': user.get('replays', [])
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Database error'})
+
+@app.route('/api/sync_data', methods=['POST'])
+def sync_data():
+    try:
+        users_collection = get_db()
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        folders = data.get('folders', [])
+        replays = data.get('replays', [])
+        
+        if not username:
+            return jsonify({'success': False, 'message': 'Username required'})
+        
+        # Ensure all replay data is preserved
+        result = users_collection.update_one(
+            {'username': username},
+            {'$set': {
+                'folders': folders, 
+                'replays': replays, 
+                'last_sync': datetime.utcnow(),
+                'total_replays': len(replays),
+                'total_folders': len(folders)
+            }}
+        )
+        
+        if result.modified_count > 0:
+            return jsonify({'success': True, 'message': f'Synced {len(replays)} replays and {len(folders)} folders'})
+        else:
+            return jsonify({'success': True, 'message': 'No changes to sync'})
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Sync failed'})
 
 def extract_replay_data(replay_link):
     """Extract the replay data from the URL."""

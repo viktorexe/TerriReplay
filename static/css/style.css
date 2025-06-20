@@ -921,6 +921,24 @@ body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
   opacity: 0.5;
 }
 
+/* Account Styles */
+.account-options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px 0;
+}
+
+.account-option-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar {

@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function saveReplayHistory() {
         localStorage.setItem('replayHistory', JSON.stringify(replayHistory));
+        if (window.syncUserData) window.syncUserData();
     }
     
     function renderReplays() {
@@ -603,6 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function saveFolders() {
         localStorage.setItem('folders', JSON.stringify(folders));
+        if (window.syncUserData) window.syncUserData();
     }
     
     function renderFolders() {

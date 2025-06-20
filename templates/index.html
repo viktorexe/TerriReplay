@@ -89,6 +89,9 @@
                     <input type="text" id="searchInput" placeholder="Search replays...">
                 </div>
                 <div class="user-actions">
+                    <button id="accountBtn" class="btn secondary-btn">
+                        <i class="fas fa-user"></i> Account
+                    </button>
                     <button id="mobileUiToggle" class="btn secondary-btn">
                         <i class="fas fa-mobile-alt"></i> Mobile UI
                     </button>
@@ -192,6 +195,13 @@
                             <div class="settings-option-content">
                                 <h3>Themes</h3>
                                 <p>Change the app theme and colors</p>
+                            </div>
+                        </div>
+                        <div class="settings-option" id="mobileAccountSettings">
+                            <i class="fas fa-user"></i>
+                            <div class="settings-option-content">
+                                <h3>Account</h3>
+                                <p>Login or create account</p>
                             </div>
                         </div>
                         <div class="settings-option" id="mobileDesktopMode">
@@ -381,6 +391,78 @@
     
     <!-- Import Folder Popup Removed -->
     
+    <!-- Account Modal -->
+    <div class="modal" id="accountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> Account</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="account-options">
+                    <button id="loginBtn" class="btn primary-btn account-option-btn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button id="createAccountBtn" class="btn secondary-btn account-option-btn">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-sign-in-alt"></i> Login</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary-btn cancel-modal">Cancel</button>
+                <button id="loginSubmitBtn" class="btn primary-btn">Login</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Account Modal -->
+    <div class="modal" id="createAccountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Create Account</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="createUsername">Username</label>
+                    <input type="text" id="createUsername" placeholder="Enter username">
+                </div>
+                <div class="form-group">
+                    <label for="createPassword">Password</label>
+                    <input type="password" id="createPassword" placeholder="Enter password">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary-btn cancel-modal">Cancel</button>
+                <button id="createAccountSubmitBtn" class="btn primary-btn">Create Account</button>
+            </div>
+        </div>
+    </div>
+    
     <!-- Theme Options Modal -->
     <div class="modal" id="themeOptionsModal">
         <div class="modal-content">
@@ -440,6 +522,7 @@
     
     <script src="{{ url_for('static', filename='js/modals.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/account.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fix-update.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mobile-new.js') }}"></script>
