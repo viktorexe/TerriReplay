@@ -125,8 +125,37 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 
-                // Show loading
-                alert('Logging in... Please wait.');
+                // Show custom loading prompt
+                const loadingModal = document.createElement('div');
+                loadingModal.className = 'modal custom-loading-modal';
+                loadingModal.style.display = 'flex';
+                loadingModal.style.position = 'fixed';
+                loadingModal.style.top = '0';
+                loadingModal.style.left = '0';
+                loadingModal.style.width = '100%';
+                loadingModal.style.height = '100%';
+                loadingModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                loadingModal.style.zIndex = '9999';
+                loadingModal.style.justifyContent = 'center';
+                loadingModal.style.alignItems = 'center';
+                
+                loadingModal.innerHTML = `
+                    <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px;">
+                        <div style="width: 60px; height: 60px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; margin: 0 auto 20px; animation: spin 1s linear infinite;"></div>
+                        <h3 style="margin: 0 0 10px 0;">Logging In</h3>
+                        <p style="margin: 0;">Please wait while we verify your credentials...</p>
+                    </div>
+                `;
+                
+                // Add animation style if not already added
+                if (!document.querySelector('style[data-spin-animation]')) {
+                    const style = document.createElement('style');
+                    style.setAttribute('data-spin-animation', 'true');
+                    style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+                    document.head.appendChild(style);
+                }
+                
+                document.body.appendChild(loadingModal);
                 
                 fetch('/api/login', {
                     method: 'POST',
@@ -135,6 +164,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(response => response.json())
                 .then(result => {
+                    // Remove loading modal
+                    document.body.removeChild(loadingModal);
+                    
                     if (result.success) {
                         localStorage.setItem('currentUser', username);
                         localStorage.setItem('rememberLogin', 'true');
@@ -145,13 +177,45 @@ document.addEventListener('DOMContentLoaded', function() {
                         localStorage.setItem('dataVersion', (result.user.version || 1).toString());
                         
                         document.getElementById('loginModal').style.display = 'none';
-                        alert(`Welcome back, ${username}!`);
-                        location.reload();
+                        
+                        // Show success message
+                        const successModal = document.createElement('div');
+                        successModal.className = 'modal';
+                        successModal.style.display = 'flex';
+                        successModal.style.position = 'fixed';
+                        successModal.style.top = '0';
+                        successModal.style.left = '0';
+                        successModal.style.width = '100%';
+                        successModal.style.height = '100%';
+                        successModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                        successModal.style.zIndex = '9999';
+                        successModal.style.justifyContent = 'center';
+                        successModal.style.alignItems = 'center';
+                        
+                        successModal.innerHTML = `
+                            <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px;">
+                                <div style="font-size: 50px; color: #4CAF50; margin-bottom: 20px;">✓</div>
+                                <h3 style="margin: 0 0 10px 0;">Login Successful!</h3>
+                                <p style="margin: 0 0 20px 0;">Welcome back, ${username}!</p>
+                                <button style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Continue</button>
+                            </div>
+                        `;
+                        
+                        document.body.appendChild(successModal);
+                        
+                        // Handle continue button
+                        const continueBtn = successModal.querySelector('button');
+                        continueBtn.onclick = function() {
+                            document.body.removeChild(successModal);
+                            location.reload();
+                        };
                     } else {
                         alert(result.message || 'Login failed');
                     }
                 })
                 .catch(error => {
+                    // Remove loading modal
+                    document.body.removeChild(loadingModal);
                     alert('Login failed. Please check your connection and try again.');
                 });
                 
@@ -189,8 +253,34 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 
-                // Show loading
-                alert('Creating account... Please wait.');
+                // Show custom loading prompt
+                const loadingModal = document.createElement('div');
+                loadingModal.className = 'modal custom-loading-modal';
+                loadingModal.style.display = 'flex';
+                loadingModal.style.position = 'fixed';
+                loadingModal.style.top = '0';
+                loadingModal.style.left = '0';
+                loadingModal.style.width = '100%';
+                loadingModal.style.height = '100%';
+                loadingModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                loadingModal.style.zIndex = '9999';
+                loadingModal.style.justifyContent = 'center';
+                loadingModal.style.alignItems = 'center';
+                
+                loadingModal.innerHTML = `
+                    <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px;">
+                        <div style="width: 60px; height: 60px; border: 5px solid #f3f3f3; border-top: 5px solid #3498db; border-radius: 50%; margin: 0 auto 20px; animation: spin 1s linear infinite;"></div>
+                        <h3 style="margin: 0 0 10px 0;">Creating Account</h3>
+                        <p style="margin: 0;">Please wait while we set up your account...</p>
+                    </div>
+                `;
+                
+                // Add animation style
+                const style = document.createElement('style');
+                style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+                document.head.appendChild(style);
+                
+                document.body.appendChild(loadingModal);
                 
                 fetch('/api/create_account', {
                     method: 'POST',
@@ -199,18 +289,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 })
                 .then(response => response.json())
                 .then(result => {
+                    // Remove loading modal
+                    document.body.removeChild(loadingModal);
+                    
                     if (result.success) {
                         document.getElementById('createAccountModal').style.display = 'none';
-                        alert(`Welcome to TerriReplay, ${username}!\nYour account has been created successfully.\nPlease login to continue.`);
                         
-                        // Pre-fill login form
-                        document.getElementById('loginUsername').value = username;
-                        document.getElementById('loginModal').style.display = 'flex';
+                        // Show success message
+                        const successModal = document.createElement('div');
+                        successModal.className = 'modal';
+                        successModal.style.display = 'flex';
+                        successModal.style.position = 'fixed';
+                        successModal.style.top = '0';
+                        successModal.style.left = '0';
+                        successModal.style.width = '100%';
+                        successModal.style.height = '100%';
+                        successModal.style.backgroundColor = 'rgba(0,0,0,0.5)';
+                        successModal.style.zIndex = '9999';
+                        successModal.style.justifyContent = 'center';
+                        successModal.style.alignItems = 'center';
+                        
+                        successModal.innerHTML = `
+                            <div style="background: white; padding: 30px; border-radius: 10px; text-align: center; max-width: 400px;">
+                                <div style="font-size: 50px; color: #4CAF50; margin-bottom: 20px;">✓</div>
+                                <h3 style="margin: 0 0 10px 0;">Account Created!</h3>
+                                <p style="margin: 0 0 20px 0;">Welcome to TerriReplay, ${username}!<br>Your account has been created successfully.</p>
+                                <button style="padding: 10px 20px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer;">Continue to Login</button>
+                            </div>
+                        `;
+                        
+                        document.body.appendChild(successModal);
+                        
+                        // Handle continue button
+                        const continueBtn = successModal.querySelector('button');
+                        continueBtn.onclick = function() {
+                            document.body.removeChild(successModal);
+                            
+                            // Pre-fill login form
+                            document.getElementById('loginUsername').value = username;
+                            document.getElementById('loginModal').style.display = 'flex';
+                        };
                     } else {
                         alert(result.message || 'Account creation failed');
                     }
                 })
                 .catch(error => {
+                    // Remove loading modal
+                    document.body.removeChild(loadingModal);
                     alert('Account creation failed. Please check your connection and try again.');
                 });
                 

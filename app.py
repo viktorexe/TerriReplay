@@ -36,12 +36,19 @@ def get_user_collection(username):
     """Get user-specific collection with safe name"""
     try:
         client = get_db()
-        if client:
-            db = client.terristats
-            # Use a safe collection name - alphanumeric only
-            safe_name = re.sub(r'[^a-zA-Z0-9]', '_', username)
-            return db[safe_name]
-        return None
+        if client is None:
+            return None
+            
+        db = client.terristats
+        # Use a safe collection name - alphanumeric only
+        safe_name = re.sub(r'[^a-zA-Z0-9]', '_', username)
+        
+        # Create collection if it doesn't exist
+        if safe_name not in db.list_collection_names():
+            db.create_collection(safe_name)
+            print(f"Created new collection: {safe_name}")
+            
+        return db[safe_name]
     except Exception as e:
         print(f"Error getting user collection: {str(e)}")
         return None
@@ -50,9 +57,15 @@ def get_users_collection():
     """Get main users collection for authentication"""
     try:
         client = get_db()
-        if client:
-            return client.terrireplay.user_accounts
-        return None
+        if client is None:
+            return None
+            
+        # Make sure the collection exists
+        if 'user_accounts' not in client.terrireplay.list_collection_names():
+            client.terrireplay.create_collection('user_accounts')
+            print("Created user_accounts collection")
+            
+        return client.terrireplay.user_accounts
     except Exception as e:
         print(f"Error getting users collection: {str(e)}")
         return None
