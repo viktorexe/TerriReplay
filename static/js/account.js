@@ -2,6 +2,8 @@
 document.addEventListener('DOMContentLoaded', function() {
     let currentUser = localStorage.getItem('currentUser');
     let rememberLogin = localStorage.getItem('rememberLogin') === 'true';
+    let currentVersion = parseInt(localStorage.getItem('dataVersion') || '1');
+    let syncInterval = null;
     
     // Account button handlers
     const accountBtn = document.getElementById('accountBtn');
@@ -74,18 +76,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     localStorage.setItem('currentUser', username);
                     localStorage.setItem('rememberLogin', 'true');
                     
-                    // Load user data and merge with local data
+                    // Load user data with version control
                     const serverFolders = result.user.folders || [];
                     const serverReplays = result.user.replays || [];
+                    const serverVersion = result.user.version || 1;
                     const localFolders = JSON.parse(localStorage.getItem('folders') || '[]');
                     const localReplays = JSON.parse(localStorage.getItem('replayHistory') || '[]');
                     
-                    // Merge data
+                    // Use server data and update version
                     const finalFolders = serverFolders.length > 0 ? serverFolders : localFolders;
                     const finalReplays = serverReplays.length > 0 ? serverReplays : localReplays;
                     
                     localStorage.setItem('folders', JSON.stringify(finalFolders));
                     localStorage.setItem('replayHistory', JSON.stringify(finalReplays));
+                    currentVersion = serverVersion;
+                    localStorage.setItem('dataVersion', currentVersion.toString());
                     
                     updateProgress(100);
                     
@@ -98,6 +103,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         document.getElementById('loginModal').style.display = 'none';
                         showCustomAlert(`Welcome back, ${username}!\nLoaded ${finalReplays.length} replays and ${finalFolders.length} folders.`, 'success');
                         updateAccountButton();
+                        startRealTimeSync();
                         setTimeout(syncUserData, 1000);
                     }, 500);
                 } else {
@@ -174,14 +180,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Auto-sync data when user makes changes
+    // Advanced sync with version control
     function syncUserData() {
         if (!currentUser) return;
         
         const folders = JSON.parse(localStorage.getItem('folders') || '[]');
         const replays = JSON.parse(localStorage.getItem('replayHistory') || '[]');
         
-        console.log(`Syncing ${replays.length} replays and ${folders.length} folders for ${currentUser}`);
+        console.log(`Syncing ${replays.length} replays and ${folders.length} folders for ${currentUser} (v${currentVersion})`);
         
         fetch('/api/sync_data', {
             method: 'POST',
@@ -189,18 +195,129 @@ document.addEventListener('DOMContentLoaded', function() {
             body: JSON.stringify({
                 username: currentUser,
                 folders: folders,
-                replays: replays
+                replays: replays,
+                version: currentVersion
             })
         })
         .then(response => response.json())
         .then(result => {
             if (result.success) {
-                console.log('Sync successful:', result.message);
+                if (result.outdated) {
+                    // Server has newer data, update local
+                    console.log('Local data outdated, updating from server');
+                    updateLocalData(result.server_data);
+                } else {
+                    // Sync successful, update version
+                    currentVersion = result.version;
+                    localStorage.setItem('dataVersion', currentVersion.toString());
+                    console.log('Sync successful:', result.message, 'New version:', currentVersion);
+                }
             } else {
                 console.error('Sync failed:', result.message);
             }
         })
         .catch(error => console.error('Sync error:', error));
+    }
+    
+    // Check for updates from other devices
+    function checkForUpdates() {
+        if (!currentUser) return;
+        
+        fetch('/api/check_updates', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                username: currentUser,
+                version: currentVersion
+            })
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success && result.has_updates) {
+                console.log('Updates available from other device, syncing...');
+                updateLocalData(result.data);
+            }
+        })
+        .catch(error => console.log('Update check failed:', error));
+    }
+    
+    // Update local data with server data
+    function updateLocalData(serverData) {
+        localStorage.setItem('folders', JSON.stringify(serverData.folders));
+        localStorage.setItem('replayHistory', JSON.stringify(serverData.replays));
+        currentVersion = serverData.version;
+        localStorage.setItem('dataVersion', currentVersion.toString());
+        
+        // Refresh UI
+        if (window.loadFolders) window.loadFolders();
+        if (window.loadReplayHistory) window.loadReplayHistory();
+        
+        console.log('Local data updated from server, new version:', currentVersion);
+    }
+    
+    // Auto-login if user is remembered
+    function autoLogin() {
+        if (currentUser && rememberLogin) {
+            console.log('Auto-logging in user:', currentUser);
+            // Load user data from server
+            fetch('/api/get_user_data', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: currentUser, version: currentVersion})
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Load user data with version
+                    const serverFolders = result.user.folders || [];
+                    const serverReplays = result.user.replays || [];
+                    const serverVersion = result.user.version || 1;
+                    
+                    localStorage.setItem('folders', JSON.stringify(serverFolders));
+                    localStorage.setItem('replayHistory', JSON.stringify(serverReplays));
+                    currentVersion = serverVersion;
+                    localStorage.setItem('dataVersion', currentVersion.toString());
+                    
+                    // Refresh UI
+                    if (window.loadFolders) window.loadFolders();
+                    if (window.loadReplayHistory) window.loadReplayHistory();
+                    
+                    updateAccountButton();
+                    startRealTimeSync();
+                    console.log('Auto-login successful');
+                } else {
+                    // Clear invalid user
+                    localStorage.removeItem('currentUser');
+                    localStorage.removeItem('rememberLogin');
+                    localStorage.removeItem('dataVersion');
+                    currentUser = null;
+                }
+            })
+            .catch(error => {
+                console.log('Auto-login failed:', error);
+            });
+        }
+    }
+    
+    // Start real-time sync
+    function startRealTimeSync() {
+        if (syncInterval) clearInterval(syncInterval);
+        
+        // Check for updates every 5 seconds
+        syncInterval = setInterval(() => {
+            checkForUpdates();
+        }, 5000);
+        
+        // Sync data every 15 seconds
+        setInterval(syncUserData, 15000);
+    }
+    
+    // Stop real-time sync
+    function stopRealTimeSync() {
+        if (syncInterval) {
+            clearInterval(syncInterval);
+            syncInterval = null;
+        }
     }
     
     // Update account button text
@@ -221,9 +338,15 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Logout function
     function logout() {
+        // Final sync before logout
+        syncUserData();
+        
         currentUser = null;
         localStorage.removeItem('currentUser');
         localStorage.removeItem('rememberLogin');
+        localStorage.removeItem('dataVersion');
+        
+        stopRealTimeSync();
         
         if (accountBtn) {
             accountBtn.innerHTML = '<i class="fas fa-user"></i> Account';
@@ -235,53 +358,14 @@ document.addEventListener('DOMContentLoaded', function() {
         showCustomAlert('You have been logged out successfully!\nYour data has been synced to the cloud.', 'success');
     }
     
-    // Auto-login if user is remembered
-    function autoLogin() {
-        if (currentUser && rememberLogin) {
-            console.log('Auto-logging in user:', currentUser);
-            // Load user data from server
-            fetch('/api/get_user_data', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({username: currentUser})
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    // Load user data
-                    const serverFolders = result.user.folders || [];
-                    const serverReplays = result.user.replays || [];
-                    
-                    if (serverFolders.length > 0 || serverReplays.length > 0) {
-                        localStorage.setItem('folders', JSON.stringify(serverFolders));
-                        localStorage.setItem('replayHistory', JSON.stringify(serverReplays));
-                        
-                        // Refresh UI
-                        if (window.loadFolders) window.loadFolders();
-                        if (window.loadReplayHistory) window.loadReplayHistory();
-                    }
-                    
-                    updateAccountButton();
-                    console.log('Auto-login successful');
-                } else {
-                    // Clear invalid user
-                    localStorage.removeItem('currentUser');
-                    localStorage.removeItem('rememberLogin');
-                    currentUser = null;
-                }
-            })
-            .catch(error => {
-                console.log('Auto-login failed:', error);
-            });
-        }
-    }
-    
     // Initialize
     updateAccountButton();
     autoLogin();
     
-    // Sync data periodically
-    setInterval(syncUserData, 30000); // Every 30 seconds
+    // Start sync if user is logged in
+    if (currentUser) {
+        startRealTimeSync();
+    }
     
     // Sync on page unload
     window.addEventListener('beforeunload', syncUserData);
