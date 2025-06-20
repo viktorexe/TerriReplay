@@ -372,22 +372,30 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Loading functions
     function showLoading(title, message) {
-        document.getElementById('loadingTitle').textContent = title;
-        document.getElementById('loadingMessage').textContent = message;
-        document.getElementById('progressFill').style.width = '0%';
-        document.getElementById('loadingModal').style.display = 'flex';
+        const modal = document.getElementById('loadingModal');
+        const titleEl = document.getElementById('loadingTitle');
+        const messageEl = document.getElementById('loadingMessage');
+        const progressEl = document.getElementById('progressFill');
+        
+        if (titleEl) titleEl.textContent = title;
+        if (messageEl) messageEl.textContent = message;
+        if (progressEl) progressEl.style.width = '0%';
+        if (modal) modal.style.display = 'flex';
     }
     
     function hideLoading() {
-        document.getElementById('loadingModal').style.display = 'none';
+        const modal = document.getElementById('loadingModal');
+        if (modal) modal.style.display = 'none';
     }
     
     function updateProgress(percent) {
-        document.getElementById('progressFill').style.width = percent + '%';
+        const progressEl = document.getElementById('progressFill');
+        if (progressEl) progressEl.style.width = percent + '%';
     }
     
     function updateLoadingMessage(message) {
-        document.getElementById('loadingMessage').textContent = message;
+        const messageEl = document.getElementById('loadingMessage');
+        if (messageEl) messageEl.textContent = message;
     }
     
     // Custom alert function
