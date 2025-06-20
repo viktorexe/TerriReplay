@@ -45,8 +45,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFolders();
     setupEventListeners();
     
-    // Make openFolderView globally accessible for mobile UI
+    // Make functions globally accessible for mobile UI
     window.openFolderView = openFolderView;
+    window.playReplay = playReplay;
     
     // Functions
     function loadReplayHistory() {
@@ -738,9 +739,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderFolderReplays(folder.id);
         showModal('folderViewModal');
     }
-    
-    // Make openFolderView globally accessible for mobile UI
-    window.openFolderView = openFolderView;
     
     function renderFolderReplays(folderId) {
         const folderReplaysGrid = document.getElementById('folderReplaysGrid');

@@ -345,6 +345,21 @@
   margin: 20px;
 }
 
+/* Folder view modal for mobile */
+.mobile-ui-active .folder-view-content {
+  width: 95vw;
+  height: 80vh;
+  max-width: 95vw;
+  max-height: 80vh;
+}
+
+.mobile-ui-active .folder-replays-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  padding: 10px 0;
+}
+
 .mobile-ui-active .modal-body {
   max-height: 60vh;
   overflow-y: auto;
@@ -483,8 +498,9 @@
   display: block;
 }
 
-/* Hide mobile nav when game is open */
-.mobile-ui-active #gameModal[style*="flex"] ~ .mobile-nav {
+/* Hide mobile nav when modals are open */
+.mobile-ui-active #gameModal[style*="flex"] ~ .mobile-nav,
+.mobile-ui-active #folderViewModal[style*="flex"] ~ .mobile-nav {
   display: none !important;
 }
 
