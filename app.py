@@ -213,6 +213,31 @@ def sync_data():
     except Exception as e:
         return jsonify({'success': False, 'message': 'Sync failed'})
 
+@app.route('/api/get_user_data', methods=['POST'])
+def get_user_data():
+    try:
+        users_collection = get_db()
+        data = request.get_json()
+        username = data.get('username', '').strip()
+        
+        if not username:
+            return jsonify({'success': False, 'message': 'Username required'})
+        
+        user = users_collection.find_one({'username': username})
+        if not user:
+            return jsonify({'success': False, 'message': 'User not found'})
+        
+        return jsonify({
+            'success': True,
+            'user': {
+                'username': user['username'],
+                'folders': user.get('folders', []),
+                'replays': user.get('replays', [])
+            }
+        })
+    except Exception as e:
+        return jsonify({'success': False, 'message': 'Database error'})
+
 def extract_replay_data(replay_link):
     """Extract the replay data from the URL."""
     if not replay_link or '?' not in replay_link:

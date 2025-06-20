@@ -939,6 +939,55 @@ body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
   gap: 10px;
 }
 
+/* Loading Modal */
+.loading-modal-content {
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+}
+
+.loading-container {
+  padding: 40px 20px;
+}
+
+.loading-spinner-large {
+  width: 60px;
+  height: 60px;
+  border: 4px solid var(--border);
+  border-radius: 50%;
+  border-top-color: var(--primary);
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 20px;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: var(--primary);
+  border-radius: 4px;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+
+#loadingTitle {
+  margin: 0 0 10px 0;
+  color: var(--text);
+}
+
+#loadingMessage {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .sidebar {
