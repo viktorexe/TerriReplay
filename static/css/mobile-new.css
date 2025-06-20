@@ -258,6 +258,24 @@
   text-align: center;
 }
 
+.mobile-ui-active .mobile-screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 0 10px;
+}
+
+.mobile-ui-active .mobile-screen-header h2 {
+  margin: 0;
+  text-align: left;
+}
+
+.mobile-ui-active .mobile-screen-header button {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
 .mobile-ui-active .add-options {
   display: flex;
   flex-direction: column;

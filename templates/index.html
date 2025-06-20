@@ -150,7 +150,12 @@
                 
                 <!-- Mobile Screens -->
                 <div class="mobile-screen mobile-screen-replays active" id="mobileReplaysScreen">
-                    <h2><i class="fas fa-play-circle"></i> Replays</h2>
+                    <div class="mobile-screen-header">
+                        <h2><i class="fas fa-play-circle"></i> Replays</h2>
+                        <button id="mobileAddReplayBtn" class="btn primary-btn">
+                            <i class="fas fa-plus"></i> Add Replay
+                        </button>
+                    </div>
                     <div class="replays-grid" id="mobileReplaysGrid">
                         <!-- Mobile replays will be populated here -->
                     </div>
@@ -438,6 +443,7 @@
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fix-update.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mobile-new.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mobile-fix.js') }}"></script>
     <script src="{{ url_for('static', filename='js/file-upload.js') }}"></script>
     <script src="{{ url_for('static', filename='js/save-replay-fix.js') }}"></script>
     <script src="{{ url_for('static', filename='js/mobile-replay-fix.js') }}"></script>
