@@ -174,7 +174,7 @@ def manage_folders():
 def create_account():
     try:
         users_collection = get_users_collection()
-        if not users_collection:
+        if users_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
             
         data = request.get_json()
@@ -206,7 +206,7 @@ def create_account():
         
         # Create user's personal collection with account data
         user_collection = get_user_collection(username)
-        if not user_collection:
+        if user_collection is None:
             return jsonify({'success': False, 'message': 'Error creating user collection'})
             
         user_account_data = {
@@ -235,7 +235,7 @@ def create_account():
 def login():
     try:
         users_collection = get_users_collection()
-        if not users_collection:
+        if users_collection is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
             
         data = request.get_json()
