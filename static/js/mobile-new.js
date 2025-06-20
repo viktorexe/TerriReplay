@@ -191,27 +191,24 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Re-attach folder click events for mobile
             const mobileFolderCards = mobileFoldersGrid.querySelectorAll('.folder-card:not(.create-folder-card)');
-            mobileFolderCards.forEach(folderCard => {
+            const folders = JSON.parse(localStorage.getItem('folders') || '[]');
+            
+            mobileFolderCards.forEach((folderCard, index) => {
                 const folderIcon = folderCard.querySelector('.folder-icon');
                 const folderTitle = folderCard.querySelector('.folder-title');
+                const folder = folders[index]; // Get folder by index since they're rendered in order
                 
-                if (folderIcon) {
+                if (folderIcon && folder) {
                     folderIcon.addEventListener('click', () => {
-                        const folderId = folderCard.querySelector('.edit-folder').getAttribute('data-id');
-                        const folders = JSON.parse(localStorage.getItem('folders') || '[]');
-                        const folder = folders.find(f => f.id === folderId);
-                        if (folder && window.openFolderView) {
+                        if (window.openFolderView) {
                             window.openFolderView(folder);
                         }
                     });
                 }
                 
-                if (folderTitle) {
+                if (folderTitle && folder) {
                     folderTitle.addEventListener('click', () => {
-                        const folderId = folderCard.querySelector('.edit-folder').getAttribute('data-id');
-                        const folders = JSON.parse(localStorage.getItem('folders') || '[]');
-                        const folder = folders.find(f => f.id === folderId);
-                        if (folder && window.openFolderView) {
+                        if (window.openFolderView) {
                             window.openFolderView(folder);
                         }
                     });
