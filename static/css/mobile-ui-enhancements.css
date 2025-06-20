@@ -1,0 +1,95 @@
+/* Mobile UI Enhancements */
+
+/* Larger touch targets */
+body.mobile-ui button,
+body.mobile-ui .btn,
+body.mobile-ui select,
+body.mobile-ui input[type="text"] {
+  min-height: 44px; /* Apple's recommended minimum touch target size */
+}
+
+/* Improved form inputs */
+body.mobile-ui input[type="text"],
+body.mobile-ui select {
+  font-size: 16px; /* Prevents iOS zoom on focus */
+  padding: 12px 15px;
+}
+
+/* Better spacing */
+body.mobile-ui .form-group {
+  margin-bottom: 20px;
+}
+
+body.mobile-ui .form-group label {
+  margin-bottom: 10px;
+  font-size: 1rem;
+}
+
+/* Improved modals */
+body.mobile-ui .modal {
+  align-items: flex-end; /* Makes modals slide up from bottom */
+}
+
+body.mobile-ui .modal-content {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  max-height: 90vh;
+}
+
+/* Improved cards */
+body.mobile-ui .replay-card,
+body.mobile-ui .folder-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+body.mobile-ui .replay-actions button,
+body.mobile-ui .folder-actions button {
+  padding: 12px 5px;
+}
+
+/* Sticky headers */
+body.mobile-ui .view-header {
+  position: sticky;
+  top: 0;
+  background-color: var(--background);
+  z-index: 10;
+  padding: 10px 0;
+  margin-bottom: 15px;
+}
+
+/* Bottom padding for content to account for nav bar */
+body.mobile-ui .views-container {
+  padding-bottom: 80px;
+}
+
+/* Improved game modal */
+body.mobile-ui .game-modal-content {
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0;
+  border-radius: 0;
+}
+
+body.mobile-ui .game-header {
+  padding: 15px;
+}
+
+/* Floating action button style for mobile UI toggle */
+body.mobile-ui .mobile-ui-toggle {
+  background-color: var(--primary);
+}
+
+/* Improved folder view */
+body.mobile-ui .folder-view-content {
+  width: 100%;
+  height: 90%;
+  max-width: 100%;
+}
+
+/* Improved scrolling */
+body.mobile-ui .modal-body,
+body.mobile-ui .views-container {
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+}

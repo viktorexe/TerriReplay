@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Direct Import</title>
+    <script>
+        // Create a shared folder directly
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // Create folder
+                const folder = {
+                    id: Date.now().toString(36),
+                    name: "Direct Import Folder",
+                    color: "#4aff6b",
+                    isShared: true,
+                    sharedAt: new Date().toISOString()
+                };
+                
+                // Add folder to localStorage
+                const folders = JSON.parse(localStorage.getItem('folders') || '[]');
+                folders.push(folder);
+                localStorage.setItem('folders', JSON.stringify(folders));
+                
+                // Show success message
+                alert('Folder imported successfully!');
+                
+                // Redirect to home
+                window.location.href = '/';
+            } catch (error) {
+                console.error('Import error:', error);
+                alert('Failed to import folder');
+                window.location.href = '/';
+            }
+        });
+    </script>
+</head>
+<body>
+    <p>Importing folder...</p>
+</body>
+</html>

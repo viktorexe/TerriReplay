@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>TerriReplay - Territorial.io Replay Emulator</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="TerriReplay is the best Territorial.io replay emulator. Save, organize, and watch your Territorial.io game replays with our easy-to-use interface.">
+    <meta name="keywords" content="territorial.io, replay, emulator, territorial replay, terrireplay, game replays, territorial.io replays">
+    <meta name="author" content="Dr.ViktorExe">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://terrireplay.vercel.app/">
+    <meta property="og:title" content="TerriReplay - Territorial.io Replay Emulator">
+    <meta property="og:description" content="Save, organize, and watch your Territorial.io game replays with our easy-to-use interface.">
+    <meta property="og:image" content="https://terrireplay.vercel.app/static/img/logo.png">
+    
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://terrireplay.vercel.app/">
+    <meta property="twitter:title" content="TerriReplay - Territorial.io Replay Emulator">
+    <meta property="twitter:description" content="Save, organize, and watch your Territorial.io game replays with our easy-to-use interface.">
+    <meta property="twitter:image" content="https://terrireplay.vercel.app/static/img/logo.png">
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://terrireplay.vercel.app/">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/folder-cards.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-new.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/desktop-ui-fixes.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="TerriReplay Logo" class="logo">
+                <h1>TerriReplay</h1>
+            </div>
+            
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <h2>Navigation</h2>
+                    <ul class="sidebar-nav">
+                        <li class="active"><a href="#" data-view="library"><i class="fas fa-home"></i> Library</a></li>
+                    </ul>
+                </div>
+                
+                <div class="sidebar-section">
+                    <h2>Featured Clans</h2>
+                    <div class="featured-clans">
+                        {% for ad in ads %}
+                        <div class="clan-card">
+                            <img src="{{ ad.image }}" alt="{{ ad.name }}" class="clan-logo">
+                            <div class="clan-info">
+                                <h3>{{ ad.name }}</h3>
+                                <a href="{{ ad.discord }}" target="_blank" class="clan-discord">
+                                    <i class="fab fa-discord"></i> Join Discord
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <button id="themeOptionsBtn" class="themes-btn">
+                    <i class="fas fa-palette"></i> Themes
+                </button>
+                <a href="https://discord.gg/5jCRQd7hHb" target="_blank" class="discord-btn">
+                    <i class="fab fa-discord"></i> Support
+                </a>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <div class="search-container">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" id="searchInput" placeholder="Search replays...">
+                </div>
+                <div class="user-actions">
+                    <button id="mobileUiToggle" class="btn secondary-btn">
+                        <i class="fas fa-mobile-alt"></i> Mobile UI
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Quick Replay Input -->
+            <div class="quick-replay-input">
+                <div class="input-group">
+                    <input type="text" id="quickReplayLink" placeholder="Paste replay link here (https://territorial.io/replay?...)">
+                    <button id="quickLoadReplay" class="btn primary-btn">
+                        <i class="fas fa-rocket"></i> Launch Replay
+                    </button>
+                </div>
+            </div>
+            
+
+            
+            <!-- Views Container -->
+            <div class="views-container">
+                <!-- Desktop Library View -->
+                <div class="view active" id="libraryView">
+                    <div class="view-header">
+                        <h2><i class="fas fa-home"></i> My Library</h2>
+                        <div class="view-actions">
+                            <button id="sortItemsBtn" class="btn icon-btn">
+                                <i class="fas fa-sort"></i>
+                            </button>
+                            <button id="newFolderBtn" class="btn primary-btn">
+                                <i class="fas fa-folder-plus"></i> New Folder
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Folders Section -->
+                    <div class="section-header">
+                        <h3 data-section="folders"><i class="fas fa-folder"></i> Folders</h3>
+                    </div>
+                    <div class="folders-grid" id="foldersGrid">
+                        <!-- Folders will be populated here by JavaScript -->
+                        <div class="create-folder-card" id="createFolderCard">
+                            <div class="folder-icon">
+                                <i class="fas fa-plus"></i>
+                            </div>
+                            <div class="folder-info">
+                                <div class="folder-title">Create Folder</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Replays Section -->
+                    <div class="section-header">
+                        <h3 data-section="replays"><i class="fas fa-play-circle"></i> Replays</h3>
+                    </div>
+                    <div class="replays-grid" id="replaysGrid">
+                        <!-- Replays will be populated here by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Mobile Screens -->
+                <div class="mobile-screen mobile-screen-replays active" id="mobileReplaysScreen">
+                    <h2><i class="fas fa-play-circle"></i> Replays</h2>
+                    <div class="replays-grid" id="mobileReplaysGrid">
+                        <!-- Mobile replays will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="mobile-screen mobile-screen-folders" id="mobileFoldersScreen">
+                    <h2><i class="fas fa-folder"></i> Folders</h2>
+                    <div class="folders-grid" id="mobileFoldersGrid">
+                        <!-- Mobile folders will be populated here -->
+                    </div>
+                </div>
+                
+                <div class="mobile-screen mobile-screen-add" id="mobileAddScreen">
+                    <h2><i class="fas fa-plus-circle"></i> Add New</h2>
+                    <div class="add-options">
+                        <div class="add-option" id="mobileAddReplay">
+                            <i class="fas fa-play-circle"></i>
+                            <h3>Add Replay</h3>
+                            <p>Add a new replay to your library</p>
+                        </div>
+                        <div class="add-option" id="mobileAddFolder">
+                            <i class="fas fa-folder-plus"></i>
+                            <h3>Create Folder</h3>
+                            <p>Create a new folder to organize replays</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mobile-screen mobile-screen-settings" id="mobileSettingsScreen">
+                    <h2><i class="fas fa-cog"></i> Settings</h2>
+                    <div class="settings-options">
+                        <div class="settings-option" id="mobileThemeSettings">
+                            <i class="fas fa-palette"></i>
+                            <div class="settings-option-content">
+                                <h3>Themes</h3>
+                                <p>Change the app theme and colors</p>
+                            </div>
+                        </div>
+                        <div class="settings-option" id="mobileDesktopMode">
+                            <i class="fas fa-desktop"></i>
+                            <div class="settings-option-content">
+                                <h3>Desktop Mode</h3>
+                                <p>Switch to desktop interface</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modals -->
+    <!-- New Replay Modal -->
+    <div class="modal" id="newReplayModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Replay</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="replayName">Replay Name</label>
+                    <input type="text" id="replayName" placeholder="My Awesome Replay">
+                </div>
+                <div class="form-group">
+                    <label for="replayLink">Replay Link</label>
+                    <input type="text" id="replayLink" placeholder="https://territorial.io/replay?...">
+                </div>
+                <div class="upload-divider">
+                    <span>OR</span>
+                </div>
+                <div class="file-upload-container">
+                    <input type="file" id="replayFileInput" class="file-upload-input" accept=".txt">
+                    <label for="replayFileInput" class="file-upload-label">
+                        <i class="fas fa-upload"></i> Upload Replay File
+                    </label>
+                    <div class="file-upload-text">Upload a .txt file containing the replay link</div>
+                </div>
+                <div class="form-group">
+                    <label for="replayFolder">Folder (Optional)</label>
+                    <select id="replayFolder">
+                        <option value="">-- No Folder --</option>
+                        <!-- Folders will be populated here by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary-btn cancel-modal">Cancel</button>
+                <button id="saveReplayBtn" class="btn primary-btn">Save Replay</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- New Folder Modal -->
+    <div class="modal" id="newFolderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create New Folder</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="folderName">Folder Name</label>
+                    <input type="text" id="folderName" placeholder="My Folder">
+                </div>
+                <div class="form-group">
+                    <label for="folderColor">Folder Color</label>
+                    <div class="color-picker">
+                        <div class="color-option" data-color="#4a6bff"></div>
+                        <div class="color-option" data-color="#ff4a6b"></div>
+                        <div class="color-option" data-color="#4aff6b"></div>
+                        <div class="color-option" data-color="#ff9a4a"></div>
+                        <div class="color-option" data-color="#9a4aff"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary-btn cancel-modal">Cancel</button>
+                <button id="saveFolderBtn" class="btn primary-btn">Create Folder</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Replay Modal -->
+    <div class="modal" id="editReplayModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Replay</h3>
+                <button class="close-modal" id="closeEditReplayModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editReplayName">Replay Name</label>
+                    <input type="text" id="editReplayName">
+                </div>
+                <div class="form-group">
+                    <label for="editReplayFolder">Folder</label>
+                    <select id="editReplayFolder">
+                        <option value="">-- No Folder --</option>
+                        <!-- Folders will be populated here by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn danger-btn" id="deleteReplayBtn">Delete</button>
+                <button class="btn secondary-btn" id="cancelEditReplayBtn">Cancel</button>
+                <button id="updateReplayBtn" class="btn primary-btn">Update</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Folder Modal -->
+    <div class="modal" id="editFolderModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit Folder</h3>
+                <button class="close-modal" id="closeEditFolderModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="editFolderName">Folder Name</label>
+                    <input type="text" id="editFolderName">
+                </div>
+                <div class="form-group">
+                    <label for="editFolderColor">Folder Color</label>
+                    <div class="color-picker">
+                        <div class="color-option" data-color="#4a6bff"></div>
+                        <div class="color-option" data-color="#ff4a6b"></div>
+                        <div class="color-option" data-color="#4aff6b"></div>
+                        <div class="color-option" data-color="#ff9a4a"></div>
+                        <div class="color-option" data-color="#9a4aff"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn danger-btn" id="deleteFolderBtn">Delete</button>
+                <button class="btn secondary-btn" id="cancelEditFolderBtn">Cancel</button>
+                <button id="updateFolderBtn" class="btn primary-btn">Update</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Folder View Modal -->
+    <div class="modal" id="folderViewModal">
+        <div class="modal-content folder-view-content">
+            <div class="modal-header">
+                <h3 id="folderViewTitle">Folder Name</h3>
+                <button class="close-modal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="folder-replays-grid" id="folderReplaysGrid">
+                    <!-- Folder replays will be populated here by JavaScript -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Import Shared Folder Modal Removed -->
+    
+    <!-- Share Folder Modal Removed -->
+    
+    <!-- Game Modal -->
+    <div class="modal" id="gameModal">
+        <div class="modal-content game-modal-content">
+            <div class="modal-header game-header">
+                <h3 id="gameTitle">Replay</h3>
+                <div class="game-controls">
+                    <button id="minimizeGameBtn" class="btn icon-btn"><i class="fas fa-compress"></i></button>
+                    <button id="maximizeGameBtn" class="btn icon-btn"><i class="fas fa-expand"></i></button>
+                    <button class="close-modal" id="closeGameModal"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="modal-body game-container">
+                <div class="game-frame-container">
+                    <iframe id="gameFrame" class="game-frame" sandbox="allow-scripts allow-same-origin"></iframe>
+                    <div id="loadingSpinner" class="loading-spinner"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile UI Toggle Button is now in the top bar -->
+    
+    <!-- Import Folder Popup Removed -->
+    
+    <!-- Theme Options Modal -->
+    <div class="modal" id="themeOptionsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-palette"></i> Themes</h3>
+                <button class="close-modal" id="closeThemeModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="theme-options">
+                    <div class="theme-option" data-theme="light">
+                        <div class="theme-preview light-theme"></div>
+                        <span>Light</span>
+                    </div>
+                    <div class="theme-option" data-theme="dark">
+                        <div class="theme-preview dark-theme"></div>
+                        <span>Dark</span>
+                    </div>
+                    <div class="theme-option" data-theme="blue">
+                        <div class="theme-preview blue-theme"></div>
+                        <span>Blue</span>
+                    </div>
+                    <div class="theme-option" data-theme="colorful">
+                        <div class="theme-preview colorful-theme"></div>
+                        <span>Colorful</span>
+                    </div>
+                    <div class="theme-option" data-theme="pride">
+                        <div class="theme-preview pride-theme"></div>
+                        <span>Pride</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn secondary-btn" id="closeThemeBtn">Close</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Mobile Navigation -->
+    <div class="mobile-nav" id="mobileNav" style="display: none;">
+        <a href="#" class="mobile-nav-item active" data-view="replays">
+            <i class="fas fa-play-circle"></i>
+            <span>Replays</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-view="folders">
+            <i class="fas fa-folder"></i>
+            <span>Folders</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-view="add">
+            <i class="fas fa-plus-circle"></i>
+            <span>Add</span>
+        </a>
+        <a href="#" class="mobile-nav-item" data-view="settings">
+            <i class="fas fa-cog"></i>
+            <span>Settings</span>
+        </a>
+    </div>
+    
+    <script src="{{ url_for('static', filename='js/modals.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/fix-update.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mobile-new.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/file-upload.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/save-replay-fix.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mobile-replay-fix.js') }}"></script>
+    
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "TerriReplay",
+      "url": "https://terrireplay.vercel.app/",
+      "description": "TerriReplay is the best Territorial.io replay emulator. Save, organize, and watch your Territorial.io game replays with our easy-to-use interface.",
+      "applicationCategory": "GameApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Dr.ViktorExe"
+      },
+      "keywords": "territorial.io, replay, emulator, territorial replay, terrireplay, game replays"
+    }
+    </script>
+</body>
+</html>

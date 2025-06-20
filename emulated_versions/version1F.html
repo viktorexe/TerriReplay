@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title>Territorial.io</title>
+    <meta name="description" content="Territorial.io - The Art of Conquest">
+    <meta name="keywords" content="territorial.io, territorial, territorial game, conquest game, conquer game, territory game">
+    <meta name="author" content="David Tschacher">
+    <meta name="viewport" content="width=device-width, maximum-scale=1">
+    <style>
+        html, body {
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+            background: rgb(0, 0, 0);
+            color: rgb(255, 255, 255);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        a {
+            color: rgb(225, 225, 255);
+        }
+        
+        #replayDataField {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 80%;
+            z-index: 1000;
+            padding: 5px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: 1px solid #333;
+        }
+        
+        #loadReplayBtn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            padding: 5px 10px;
+            background: #444;
+            color: white;
+            border: 1px solid #666;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvasA" width="128" height="128"></canvas>
+    
+    <!-- Added replay interface -->
+    <textarea id="replayDataField" placeholder="Paste replay data here"></textarea>
+    <button id="loadReplayBtn" onclick="loadReplayFromField()">Load Replay</button>
+    
+    <script>
+        // This is a simplified version for the emulator
+        "use strict";
+        
+        // Initialize game when loaded
+        window.onload = function() {
+            if (typeof aiCommand746 === 'function') {
+                aiCommand746(0);
+            }
+            
+            // Listen for messages from parent window
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.type === 'loadReplay' && event.data.replayData) {
+                    loadReplay(event.data.replayData);
+                }
+            });
+        };
+        
+        // Function to load replay data
+        function loadReplay(replayData) {
+            console.log("Loading replay data:", replayData);
+            document.getElementById('replayDataField').value = replayData;
+            
+            // Here you would normally call the game's replay function
+            // For this emulator, we'll just show the data was received
+            alert("Replay data received: " + replayData.substring(0, 20) + "...");
+        }
+        
+        // Function to load replay from the textarea
+        function loadReplayFromField() {
+            const replayData = document.getElementById('replayDataField').value;
+            if (replayData) {
+                loadReplay(replayData);
+            }
+        }
+        
+        // Mock function that would be in the real game
+        function aiCommand746(db) {
+            console.log("Game initialized with parameter:", db);
+        }
+    </script>
+</body>
+</html>

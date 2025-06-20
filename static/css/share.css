@@ -1,0 +1,94 @@
+/* Share Functionality Styles */
+
+/* Share Link Container */
+.share-link-container {
+  display: flex;
+  gap: 10px;
+}
+
+.share-link-container input {
+  flex: 1;
+}
+
+.share-link-container button {
+  white-space: nowrap;
+}
+
+/* Share Options */
+.share-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.share-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 8px;
+  font-weight: 500;
+  color: white;
+}
+
+.whatsapp-btn {
+  background-color: #25D366;
+}
+
+.telegram-btn {
+  background-color: #0088cc;
+}
+
+.twitter-btn {
+  background-color: #1DA1F2;
+}
+
+/* Folder Actions */
+.folder-actions .share-folder {
+  background-color: #4aff6b;
+  color: white;
+}
+
+/* Mobile Styles */
+body.mobile-ui .share-options {
+  flex-direction: column;
+}
+
+body.mobile-ui .share-btn {
+  width: 100%;
+  padding: 15px;
+}
+
+body.mobile-ui .share-link-container {
+  flex-direction: column;
+}
+
+body.mobile-ui .share-link-container button {
+  width: 100%;
+  padding: 12px;
+}
+
+/* Import Button */
+.import-folder-btn {
+  background-color: var(--accent);
+  color: white;
+  margin-left: 10px;
+}
+
+/* Success Message */
+.copy-success {
+  color: var(--accent);
+  font-size: 0.9rem;
+  margin-top: 5px;
+  text-align: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.copy-success.visible {
+  opacity: 1;
+}

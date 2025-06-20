@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://terrireplay.vercel.app/sitemap.xml

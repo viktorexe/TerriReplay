@@ -1,0 +1,82 @@
+/* Shared Folder Styles */
+
+/* Shared folder badge */
+.shared-folder-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #4aff6b;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  z-index: 5;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Shared folder card */
+.folder-card.shared-folder {
+  position: relative;
+  border: 2px solid #4aff6b;
+  box-shadow: 0 5px 15px rgba(74, 255, 107, 0.2);
+}
+
+.folder-card.shared-folder:hover {
+  box-shadow: 0 8px 20px rgba(74, 255, 107, 0.3);
+}
+
+.folder-card.shared-folder .folder-icon {
+  position: relative;
+}
+
+.folder-card.shared-folder .folder-icon::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(74, 255, 107, 0.1), transparent);
+}
+
+.folder-card.shared-folder .folder-icon::before {
+  content: '\f1e0';
+  font-family: 'Font Awesome 5 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #4aff6b;
+  color: white;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  z-index: 5;
+}
+
+/* Shared folder info */
+.folder-info .shared-info {
+  font-size: 0.8rem;
+  color: #4aff6b;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Mobile styles */
+body.mobile-ui .shared-folder-badge {
+  top: 5px;
+  right: 5px;
+  padding: 2px 6px;
+  font-size: 0.6rem;
+}
