@@ -180,15 +180,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // Advanced sync with version control
+    // Silent background sync - no user interruption
     function syncUserData() {
         if (!currentUser) return;
         
         const folders = JSON.parse(localStorage.getItem('folders') || '[]');
         const replays = JSON.parse(localStorage.getItem('replayHistory') || '[]');
         
-        console.log(`Syncing ${replays.length} replays and ${folders.length} folders for ${currentUser} (v${currentVersion})`);
-        
+        // Silent sync in background
         fetch('/api/sync_data', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
@@ -203,23 +202,19 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(result => {
             if (result.success) {
                 if (result.outdated) {
-                    // Server has newer data, update local
-                    console.log('Local data outdated, updating from server');
+                    // Server has newer data, silently update local
                     updateLocalData(result.server_data);
                 } else {
                     // Sync successful, update version
                     currentVersion = result.version;
                     localStorage.setItem('dataVersion', currentVersion.toString());
-                    console.log('Sync successful:', result.message, 'New version:', currentVersion);
                 }
-            } else {
-                console.error('Sync failed:', result.message);
             }
         })
-        .catch(error => console.error('Sync error:', error));
+        .catch(error => console.log('Background sync error:', error));
     }
     
-    // Check for updates from other devices
+    // Silent check for updates from other devices
     function checkForUpdates() {
         if (!currentUser) return;
         
@@ -234,32 +229,33 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(result => {
             if (result.success && result.has_updates) {
-                console.log('Updates available from other device, syncing...');
+                // Silently update from other device
                 updateLocalData(result.data);
             }
         })
         .catch(error => console.log('Update check failed:', error));
     }
     
-    // Update local data with server data
+    // Silently update local data with server data
     function updateLocalData(serverData) {
         localStorage.setItem('folders', JSON.stringify(serverData.folders));
         localStorage.setItem('replayHistory', JSON.stringify(serverData.replays));
         currentVersion = serverData.version;
         localStorage.setItem('dataVersion', currentVersion.toString());
         
-        // Refresh UI
+        // Silently refresh UI
         if (window.loadFolders) window.loadFolders();
         if (window.loadReplayHistory) window.loadReplayHistory();
-        
-        console.log('Local data updated from server, new version:', currentVersion);
     }
     
-    // Auto-login if user is remembered
+    // Auto-login if user is remembered - SILENT BACKGROUND SYNC
     function autoLogin() {
         if (currentUser && rememberLogin) {
             console.log('Auto-logging in user:', currentUser);
-            // Load user data from server
+            updateAccountButton();
+            startRealTimeSync();
+            
+            // Silent background sync - no loading screen
             fetch('/api/get_user_data', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -268,33 +264,34 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(result => {
                 if (result.success) {
-                    // Load user data with version
+                    // Silently update data in background
                     const serverFolders = result.user.folders || [];
                     const serverReplays = result.user.replays || [];
                     const serverVersion = result.user.version || 1;
                     
-                    localStorage.setItem('folders', JSON.stringify(serverFolders));
-                    localStorage.setItem('replayHistory', JSON.stringify(serverReplays));
-                    currentVersion = serverVersion;
-                    localStorage.setItem('dataVersion', currentVersion.toString());
+                    if (serverVersion > currentVersion) {
+                        localStorage.setItem('folders', JSON.stringify(serverFolders));
+                        localStorage.setItem('replayHistory', JSON.stringify(serverReplays));
+                        currentVersion = serverVersion;
+                        localStorage.setItem('dataVersion', currentVersion.toString());
+                        
+                        // Silently refresh UI
+                        if (window.loadFolders) window.loadFolders();
+                        if (window.loadReplayHistory) window.loadReplayHistory();
+                    }
                     
-                    // Refresh UI
-                    if (window.loadFolders) window.loadFolders();
-                    if (window.loadReplayHistory) window.loadReplayHistory();
-                    
-                    updateAccountButton();
-                    startRealTimeSync();
-                    console.log('Auto-login successful');
+                    console.log('Background sync successful');
                 } else {
                     // Clear invalid user
                     localStorage.removeItem('currentUser');
                     localStorage.removeItem('rememberLogin');
                     localStorage.removeItem('dataVersion');
                     currentUser = null;
+                    updateAccountButton();
                 }
             })
             .catch(error => {
-                console.log('Auto-login failed:', error);
+                console.log('Background sync failed:', error);
             });
         }
     }
