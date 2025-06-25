@@ -317,8 +317,14 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             body: JSON.stringify({ replay_link: replayLink }),
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('Version response:', data);
             // Extract the replay data
             let replayData = extractReplayData(replayLink);
             
@@ -326,9 +332,10 @@ document.addEventListener('DOMContentLoaded', () => {
             loadGameVersion(data.version, replayData);
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Failed to load replay. Please try again.');
-            hideModal('gameModal');
+            console.error('Error getting version:', error);
+            // Fallback - try to load with default version
+            let replayData = extractReplayData(replayLink);
+            loadGameVersion('latest_version.html', replayData);
         });
     }
     
@@ -360,26 +367,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function loadGameVersion(version, replayData) {
+        console.log('Loading game version:', version);
+        console.log('Replay data length:', replayData ? replayData.length : 0);
+        
         // Load the game version in the iframe
         const versionPath = `/emulated_versions/${version}`;
+        console.log('Loading iframe from:', versionPath);
         gameFrame.src = versionPath;
         
         // Set up event listener for when the iframe loads
         gameFrame.onload = () => {
+            console.log('Iframe loaded successfully');
             // Start the automation process
             automateReplayPlayback(replayData);
         };
         
         gameFrame.onerror = () => {
+            console.error('Failed to load game version');
             alert('Failed to load game version');
             hideModal('gameModal');
         };
     }
     
     function automateReplayPlayback(replayData) {
+        console.log('Starting automation with replay data:', replayData ? replayData.substring(0, 50) + '...' : 'empty');
         try {
             // Get the iframe document
             const iframeDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
+            console.log('Got iframe document:', !!iframeDoc);
+            
+            if (!iframeDoc) {
+                console.error('Cannot access iframe document');
+                gameFrame.style.opacity = '1';
+                document.getElementById('loadingSpinner').style.display = 'none';
+                return;
+            }
             
             // Add styles to hide UI elements and loading screens but ensure game is visible
             const style = iframeDoc.createElement('style');
@@ -410,17 +432,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             `;
             iframeDoc.head.appendChild(style);
+            console.log('Added styles to iframe');
             
             // Execute all steps at once with minimal delays
             (async () => {
+                console.log('Starting automation steps');
                 // Step 1: Click the Game Menu button (hidden from user)
                 const gameMenuButton = findButtonByText(iframeDoc, 'Game Menu');
+                console.log('Found Game Menu button:', !!gameMenuButton);
                 if (gameMenuButton) clickElement(gameMenuButton);
                 
                 await sleep(50); // Slightly longer delay
                 
                 // Step 2: Click the Replay button (hidden from user)
                 const replayButton = findButtonByText(iframeDoc, 'Replay');
+                console.log('Found Replay button:', !!replayButton);
                 if (replayButton) clickElement(replayButton);
                 
                 await sleep(50); // Slightly longer delay
@@ -428,6 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Step 3: Paste the replay data into the textarea
                 const textarea = iframeDoc.getElementById('textArea1') || 
                                 iframeDoc.querySelector('textarea[placeholder*="replay"]');
+                console.log('Found textarea:', !!textarea);
                 
                 if (textarea) {
                     console.log('Found textarea, setting value:', replayData ? replayData.substring(0, 20) + '...' : 'empty');

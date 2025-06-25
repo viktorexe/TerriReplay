@@ -128,7 +128,6 @@
   }
 }
 
-/* Mobile Styles */
 @media (max-width: 480px) {
   .popup-container {
     width: 95%;
@@ -152,17 +151,3 @@
   background-color: rgba(0, 0, 0, 0.8);
 }
 
-/* Mobile UI */
-body.mobile-ui .popup-container {
-  width: 95%;
-  max-width: 95%;
-}
-
-body.mobile-ui .popup-footer {
-  flex-direction: column;
-}
-
-body.mobile-ui .popup-footer button {
-  width: 100%;
-  padding: 12px;
-}

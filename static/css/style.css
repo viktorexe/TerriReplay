@@ -71,14 +71,7 @@ body {
   overflow: hidden;
 }
 
-/* Ensure desktop UI has proper overflow when not in mobile mode */
-body:not(.mobile-ui):not(.mobile-ui-active) {
-  overflow: hidden;
-}
 
-body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
-  overflow: hidden;
-}
 
 /* App Container */
 .app-container {
@@ -1008,38 +1001,3 @@ body:not(.mobile-ui):not(.mobile-ui-active) .app-container {
   font-size: 0.9rem;
 }
 
-/* Responsive */
-@media (max-width: 768px) {
-  .sidebar {
-    width: 70px;
-  }
-  
-  .sidebar-header h1,
-  .sidebar-section h2,
-  .sidebar-nav a span,
-  .clan-info {
-    display: none;
-  }
-  
-  .sidebar-nav a {
-    justify-content: center;
-    padding: 15px;
-  }
-  
-  .sidebar-nav a i {
-    font-size: 1.2rem;
-  }
-  
-  .clan-card {
-    justify-content: center;
-  }
-  
-  .sidebar-footer {
-    flex-direction: column;
-    gap: 15px;
-  }
-  
-  .replays-grid, .folders-grid {
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  }
-}

@@ -53,24 +53,7 @@
   color: white;
 }
 
-/* Mobile Styles */
-body.mobile-ui .share-options {
-  flex-direction: column;
-}
 
-body.mobile-ui .share-btn {
-  width: 100%;
-  padding: 15px;
-}
-
-body.mobile-ui .share-link-container {
-  flex-direction: column;
-}
-
-body.mobile-ui .share-link-container button {
-  width: 100%;
-  padding: 12px;
-}
 
 /* Import Button */
 .import-folder-btn {

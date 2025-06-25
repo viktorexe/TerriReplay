@@ -29,8 +29,6 @@
     <link rel="canonical" href="https://terrireplay.vercel.app/">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/folder-cards.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile-new.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/desktop-ui-fixes.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -92,9 +90,6 @@
                     <button id="accountBtn" class="btn secondary-btn">
                         <i class="fas fa-user"></i> Account
                     </button>
-                    <button id="mobileUiToggle" class="btn secondary-btn">
-                        <i class="fas fa-mobile-alt"></i> Mobile UI
-                    </button>
                 </div>
             </div>
             
@@ -151,68 +146,7 @@
                     </div>
                 </div>
                 
-                <!-- Mobile Screens -->
-                <div class="mobile-screen mobile-screen-replays active" id="mobileReplaysScreen">
-                    <div class="mobile-screen-header">
-                        <h2><i class="fas fa-play-circle"></i> Replays</h2>
-                        <button id="mobileAddReplayBtn" class="btn primary-btn">
-                            <i class="fas fa-plus"></i> Add Replay
-                        </button>
-                    </div>
-                    <div class="replays-grid" id="mobileReplaysGrid">
-                        <!-- Mobile replays will be populated here -->
-                    </div>
-                </div>
-                
-                <div class="mobile-screen mobile-screen-folders" id="mobileFoldersScreen">
-                    <h2><i class="fas fa-folder"></i> Folders</h2>
-                    <div class="folders-grid" id="mobileFoldersGrid">
-                        <!-- Mobile folders will be populated here -->
-                    </div>
-                </div>
-                
-                <div class="mobile-screen mobile-screen-add" id="mobileAddScreen">
-                    <h2><i class="fas fa-plus-circle"></i> Add New</h2>
-                    <div class="add-options">
-                        <div class="add-option" id="mobileAddReplay">
-                            <i class="fas fa-play-circle"></i>
-                            <h3>Add Replay</h3>
-                            <p>Add a new replay to your library</p>
-                        </div>
-                        <div class="add-option" id="mobileAddFolder">
-                            <i class="fas fa-folder-plus"></i>
-                            <h3>Create Folder</h3>
-                            <p>Create a new folder to organize replays</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="mobile-screen mobile-screen-settings" id="mobileSettingsScreen">
-                    <h2><i class="fas fa-cog"></i> Settings</h2>
-                    <div class="settings-options">
-                        <div class="settings-option" id="mobileThemeSettings">
-                            <i class="fas fa-palette"></i>
-                            <div class="settings-option-content">
-                                <h3>Themes</h3>
-                                <p>Change the app theme and colors</p>
-                            </div>
-                        </div>
-                        <div class="settings-option" id="mobileAccountSettings">
-                            <i class="fas fa-user"></i>
-                            <div class="settings-option-content">
-                                <h3>Account</h3>
-                                <p>Login or create account</p>
-                            </div>
-                        </div>
-                        <div class="settings-option" id="mobileDesktopMode">
-                            <i class="fas fa-desktop"></i>
-                            <div class="settings-option-content">
-                                <h3>Desktop Mode</h3>
-                                <p>Switch to desktop interface</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </main>
     </div>
@@ -387,7 +321,7 @@
         </div>
     </div>
     
-    <!-- Mobile UI Toggle Button is now in the top bar -->
+
     
     <!-- Import Folder Popup Removed -->
     
@@ -514,25 +448,7 @@
         </div>
     </div>
     
-    <!-- Mobile Navigation -->
-    <div class="mobile-nav" id="mobileNav" style="display: none;">
-        <a href="#" class="mobile-nav-item active" data-view="replays">
-            <i class="fas fa-play-circle"></i>
-            <span>Replays</span>
-        </a>
-        <a href="#" class="mobile-nav-item" data-view="folders">
-            <i class="fas fa-folder"></i>
-            <span>Folders</span>
-        </a>
-        <a href="#" class="mobile-nav-item" data-view="add">
-            <i class="fas fa-plus-circle"></i>
-            <span>Add</span>
-        </a>
-        <a href="#" class="mobile-nav-item" data-view="settings">
-            <i class="fas fa-cog"></i>
-            <span>Settings</span>
-        </a>
-    </div>
+
     
     <script src="{{ url_for('static', filename='js/modals.js') }}"></script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
@@ -541,11 +457,8 @@
     <script src="{{ url_for('static', filename='js/advanced-sync.js') }}"></script>
     <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
     <script src="{{ url_for('static', filename='js/fix-update.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/mobile-new.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/mobile-fix.js') }}"></script>
     <script src="{{ url_for('static', filename='js/file-upload.js') }}"></script>
     <script src="{{ url_for('static', filename='js/save-replay-fix.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/mobile-replay-fix.js') }}"></script>
     <script src="{{ url_for('static', filename='js/track-plays.js') }}"></script>
     
     <!-- Structured Data for SEO -->

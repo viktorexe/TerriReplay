@@ -73,10 +73,3 @@
   gap: 5px;
 }
 
-/* Mobile styles */
-body.mobile-ui .shared-folder-badge {
-  top: 5px;
-  right: 5px;
-  padding: 2px 6px;
-  font-size: 0.6rem;
-}

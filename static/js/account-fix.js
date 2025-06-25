@@ -60,19 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // Also fix mobile account settings
-        const mobileAccountSettings = document.getElementById('mobileAccountSettings');
-        if (mobileAccountSettings) {
-            const newMobileAccountSettings = mobileAccountSettings.cloneNode(true);
-            mobileAccountSettings.parentNode.replaceChild(newMobileAccountSettings, mobileAccountSettings);
-            
-            newMobileAccountSettings.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                document.getElementById('accountModal').style.display = 'flex';
-                return false;
-            };
-        }
+
         
         // Fix Login button
         const loginBtn = document.getElementById('loginBtn');
