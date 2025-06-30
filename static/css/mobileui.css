@@ -1,0 +1,528 @@
+/* Mobile UI Complete Override */
+body.mobile-ui {
+  background: var(--background);
+  overflow-x: hidden;
+}
+
+/* Mobile Navigation */
+body.mobile-ui .top-nav {
+  position: fixed;
+  bottom: 0;
+  top: auto;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  border-bottom: none;
+  padding: 12px 20px;
+  justify-content: center;
+  z-index: 200;
+}
+
+body.mobile-ui .nav-left {
+  display: none;
+}
+
+body.mobile-ui .nav-right {
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  gap: 8px;
+}
+
+body.mobile-ui .nav-btn {
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 6px;
+  font-size: 0.7rem;
+  border-radius: 10px;
+  min-height: 50px;
+  justify-content: center;
+}
+
+body.mobile-ui .nav-btn i {
+  font-size: 1.1rem;
+}
+
+body.mobile-ui .nav-btn span {
+  display: block !important;
+  font-size: 0.65rem;
+  text-align: center;
+  line-height: 1;
+}
+
+/* Mobile Layout */
+body.mobile-ui .main-layout {
+  padding: 30px 0 80px;
+  overflow-x: hidden;
+}
+
+body.mobile-ui .layout-container {
+  grid-template-columns: 1fr;
+  padding: 0 15px;
+  gap: 25px;
+}
+
+body.mobile-ui .header {
+  padding: 0 15px;
+  margin-bottom: 30px;
+}
+
+body.mobile-ui .sidebar {
+  order: -1;
+  position: static;
+  padding: 20px;
+  min-width: auto;
+  margin-bottom: 0;
+}
+
+body.mobile-ui .content-area {
+  gap: 25px;
+}
+
+/* Mobile Header */
+body.mobile-ui .header h1 {
+  font-size: 2.2rem;
+  line-height: 1.1;
+  margin-bottom: 10px;
+}
+
+body.mobile-ui .subtitle {
+  font-size: 1rem;
+  padding: 0;
+}
+
+/* Mobile Replay Input */
+body.mobile-ui .replay-input-section {
+  padding: 20px;
+  border-radius: 12px;
+}
+
+body.mobile-ui .input-container {
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+body.mobile-ui .replay-input {
+  padding: 14px 16px;
+  font-size: 1rem;
+  border-radius: 8px;
+  width: 100%;
+}
+
+body.mobile-ui .play-btn {
+  padding: 14px 20px;
+  justify-content: center;
+  width: 100%;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+body.mobile-ui .help-text {
+  font-size: 0.85rem;
+  line-height: 1.3;
+  text-align: center;
+}
+
+/* Mobile File Upload */
+body.mobile-ui .mobile-file-upload {
+  display: block !important;
+  animation: fadeIn 0.5s ease;
+  margin-top: 20px;
+}
+
+body.mobile-ui .upload-divider {
+  margin: 20px 0;
+  position: relative;
+  text-align: center;
+}
+
+body.mobile-ui .upload-divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+}
+
+body.mobile-ui .upload-divider span {
+  background: var(--surface);
+  padding: 0 15px;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  position: relative;
+  z-index: 1;
+}
+
+body.mobile-ui .file-upload-container {
+  text-align: center;
+}
+
+body.mobile-ui .file-input {
+  display: none;
+}
+
+body.mobile-ui .file-upload-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 280px;
+}
+
+body.mobile-ui .file-upload-btn:hover {
+  background: var(--secondary);
+  transform: translateY(-1px);
+}
+
+body.mobile-ui .file-help-text {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  margin-top: 8px;
+  line-height: 1.3;
+}
+
+/* Mobile Sections */
+body.mobile-ui .folders-section,
+body.mobile-ui .replays-section {
+  padding: 20px;
+  border-radius: 12px;
+}
+
+body.mobile-ui .section-header {
+  flex-direction: column;
+  gap: 12px;
+  align-items: stretch;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+}
+
+body.mobile-ui .section-title {
+  font-size: 1.3rem;
+  text-align: center;
+}
+
+body.mobile-ui .create-btn {
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+/* Mobile Grids */
+body.mobile-ui .folders-grid,
+body.mobile-ui .replays-grid {
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+/* Mobile Cards */
+body.mobile-ui .folder-card,
+body.mobile-ui .replay-card {
+  padding: 16px;
+  border-radius: 10px;
+}
+
+body.mobile-ui .folder-header,
+body.mobile-ui .replay-header {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+body.mobile-ui .folder-name,
+body.mobile-ui .replay-name {
+  font-size: 1rem;
+  line-height: 1.2;
+}
+
+body.mobile-ui .folder-actions,
+body.mobile-ui .replay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+body.mobile-ui .action-btn {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  min-width: 60px;
+  flex: 1;
+  max-width: 90px;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+/* Mobile Featured */
+body.mobile-ui .featured-item {
+  padding: 16px;
+  border-radius: 10px;
+}
+
+body.mobile-ui .featured-header {
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+body.mobile-ui .featured-avatar {
+  width: 32px;
+  height: 32px;
+}
+
+body.mobile-ui .featured-title {
+  font-size: 0.9rem;
+}
+
+body.mobile-ui .featured-meta {
+  font-size: 0.75rem;
+}
+
+body.mobile-ui .featured-actions {
+  gap: 6px;
+  margin-top: 12px;
+}
+
+body.mobile-ui .featured-btn {
+  padding: 8px 12px;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+
+/* Mobile Game Modal */
+body.mobile-ui .game-modal-content {
+  width: 100vw;
+  height: 100vh;
+  border-radius: 0;
+  max-width: 100vw;
+  max-height: 100vh;
+}
+
+body.mobile-ui .modal-header {
+  padding: 12px 16px;
+}
+
+body.mobile-ui .game-header h3 {
+  font-size: 1.1rem;
+}
+
+/* Mobile Account Modals */
+body.mobile-ui .modal-content {
+  width: 95%;
+  max-width: 380px;
+  margin: 15px;
+  border-radius: 12px;
+}
+
+body.mobile-ui .modal-body {
+  padding: 20px;
+}
+
+body.mobile-ui .account-options {
+  gap: 12px;
+  flex-direction: column;
+}
+
+body.mobile-ui .account-option-btn {
+  padding: 14px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  justify-content: center;
+  width: 100%;
+}
+
+body.mobile-ui .account-form {
+  padding: 0;
+}
+
+body.mobile-ui .account-form h4 {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+body.mobile-ui .form-group {
+  margin-bottom: 15px;
+}
+
+body.mobile-ui .form-input {
+  padding: 14px 16px;
+  font-size: 1rem;
+  border-radius: 8px;
+  width: 100%;
+}
+
+body.mobile-ui .password-input {
+  position: relative;
+}
+
+body.mobile-ui .password-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: var(--text-light);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+body.mobile-ui .form-btn,
+body.mobile-ui .back-btn {
+  padding: 14px 20px;
+  font-size: 1rem;
+  border-radius: 8px;
+  width: 100%;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+/* Mobile Discord Modal */
+body.mobile-ui .discord-modal {
+  width: 95%;
+  max-width: 350px;
+}
+
+body.mobile-ui .discord-link {
+  padding: 14px 20px;
+  font-size: 1rem;
+  justify-content: center;
+  width: 100%;
+  border-radius: 8px;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--discord);
+  color: white;
+  margin-top: 15px;
+}
+
+/* Mobile Loading & Success Modals */
+body.mobile-ui .loading-modal,
+body.mobile-ui .success-modal {
+  width: 90%;
+  max-width: 320px;
+}
+
+body.mobile-ui .loading-container,
+body.mobile-ui .success-container {
+  padding: 25px 20px;
+  text-align: center;
+}
+
+body.mobile-ui .success-icon {
+  font-size: 3rem;
+  color: var(--accent);
+  margin-bottom: 15px;
+}
+
+body.mobile-ui .success-btn {
+  padding: 14px 20px;
+  font-size: 1rem;
+  width: 100%;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+/* Mobile Breadcrumb */
+body.mobile-ui .breadcrumb {
+  font-size: 0.85rem;
+  margin-bottom: 15px;
+  flex-wrap: wrap;
+}
+
+/* Mobile Empty States */
+body.mobile-ui .empty-state {
+  padding: 40px 15px;
+}
+
+body.mobile-ui .empty-state i {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+}
+
+body.mobile-ui .empty-state p {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+body.mobile-ui .empty-state span {
+  font-size: 0.85rem;
+}
+
+/* Mobile Animations */
+@keyframes fadeIn {
+  from { 
+    opacity: 0; 
+    transform: translateY(15px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+/* Mobile Touch Improvements */
+body.mobile-ui button,
+body.mobile-ui .action-btn,
+body.mobile-ui .nav-btn {
+  min-height: 44px;
+  touch-action: manipulation;
+}
+
+body.mobile-ui .close-modal {
+  width: 36px;
+  height: 36px;
+  min-height: 36px;
+}
+
+/* Mobile Landscape Adjustments */
+@media (max-width: 768px) and (orientation: landscape) {
+  body.mobile-ui .main-layout {
+    padding: 20px 0 70px;
+  }
+  
+  body.mobile-ui .header h1 {
+    font-size: 1.8rem;
+  }
+  
+  body.mobile-ui .header {
+    margin-bottom: 20px;
+  }
+}
+/* Mobile Top Section */
+body.mobile-ui .top-section {
+  grid-template-columns: 1fr;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+body.mobile-ui .featured-replay-box {
+  padding: 20px;
+  order: -1;
+}
+
+body.mobile-ui .featured-replay-box h3 {
+  font-size: 1rem;
+  margin-bottom: 15px;
+  text-align: center;
+}

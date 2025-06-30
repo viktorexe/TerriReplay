@@ -2,313 +2,253 @@
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TerriReplay - Territorial.io Replay Emulator</title>
-    
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="TerriReplay is the best Territorial.io replay emulator. Save, organize, and watch your Territorial.io game replays with our easy-to-use interface.">
-    <meta name="keywords" content="territorial.io, replay, emulator, territorial replay, terrireplay, game replays, territorial.io replays">
-    <meta name="author" content="Dr.ViktorExe">
-    
-    <!-- Open Graph / Facebook -->
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://terrireplay.vercel.app/">
-    <meta property="og:title" content="TerriReplay - Territorial.io Replay Emulator">
-    <meta property="og:description" content="Save, organize, and watch your Territorial.io game replays with our easy-to-use interface.">
-    <meta property="og:image" content="https://terrireplay.vercel.app/static/img/logo.png">
-    
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://terrireplay.vercel.app/">
-    <meta property="twitter:title" content="TerriReplay - Territorial.io Replay Emulator">
-    <meta property="twitter:description" content="Save, organize, and watch your Territorial.io game replays with our easy-to-use interface.">
-    <meta property="twitter:image" content="https://terrireplay.vercel.app/static/img/logo.png">
-    
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://terrireplay.vercel.app/">
+    <meta name="description" content="Simple Territorial.io replay emulator. Paste your replay link and watch it instantly.">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/folder-cards.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/themes.css') }}">
+    <link id="mobileCSS" rel="stylesheet" href="{{ url_for('static', filename='css/mobileui.css') }}" disabled>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
 </head>
 <body>
-    <div class="app-container">
-        <!-- Sidebar -->
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <img src="{{ url_for('static', filename='img/logo.png') }}" alt="TerriReplay Logo" class="logo">
-                <h1>TerriReplay</h1>
-            </div>
+    <!-- Top Navigation -->
+    <nav class="top-nav">
+        <div class="nav-left">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="TerriReplay Logo" class="nav-logo">
+            <span class="nav-title">TerriReplay</span>
+        </div>
+        <div class="nav-right">
+            <button id="accountBtn" class="nav-btn">
+                <i class="fas fa-user"></i> <span id="accountText">Account</span>
+            </button>
+            <button id="mobileUIBtn" class="nav-btn">
+                <i class="fas fa-mobile-alt"></i> Mobile UI
+            </button>
+
+            <button id="discordBtn" class="nav-btn discord">
+                <i class="fab fa-discord"></i> Join Discord
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Layout -->
+    <div class="main-layout">
+        <header class="header">
+            <h1>Territorial.io Replay Emulator</h1>
+            <p class="subtitle">Paste your replay link and watch it instantly</p>
+        </header>
+        
+        <div class="layout-container">
+            <div class="content-area">
             
-            <div class="sidebar-content">
-                <div class="sidebar-section">
-                    <h2>Navigation</h2>
-                    <ul class="sidebar-nav">
-                        <li class="active"><a href="#" data-view="library"><i class="fas fa-home"></i> Library</a></li>
-                    </ul>
+            <!-- Top Section with Input and Featured -->
+            <div class="top-section">
+                <!-- Replay Input -->
+                <div class="replay-input-section">
+                    <div class="input-container">
+                        <input type="text" id="replayLink" placeholder="Paste your Territorial.io replay link here..." class="replay-input">
+                        <button id="playReplayBtn" class="play-btn">
+                            <i class="fas fa-play"></i> Play Replay
+                        </button>
+                    </div>
+                    <p class="help-text">Paste a link like: https://territorial.io/replay?...</p>
+                    
+                    <!-- Mobile File Upload (hidden by default) -->
+                    <div class="mobile-file-upload" id="mobileFileUpload" style="display: none;">
+                        <div class="upload-divider">
+                            <span>OR</span>
+                        </div>
+                        <div class="file-upload-container">
+                            <input type="file" id="replayFileInput" accept=".txt" class="file-input">
+                            <label for="replayFileInput" class="file-upload-btn">
+                                <i class="fas fa-upload"></i> Upload Replay File (.txt)
+                            </label>
+                            <p class="file-help-text">Upload a .txt file containing the replay link</p>
+                        </div>
+                    </div>
                 </div>
                 
-                <div class="sidebar-section">
-                    <h2>Featured Clans</h2>
-                    <div class="featured-clans">
-                        {% for ad in ads %}
-                        <div class="clan-card">
-                            <img src="{{ ad.image }}" alt="{{ ad.name }}" class="clan-logo">
-                            <div class="clan-info">
-                                <h3>{{ ad.name }}</h3>
-                                <a href="{{ ad.discord }}" target="_blank" class="clan-discord">
-                                    <i class="fab fa-discord"></i> Join Discord
-                                </a>
-                            </div>
+                <!-- Featured Replay Card -->
+                <div class="featured-card">
+                    <div class="featured-header">
+                        <img src="{{ url_for('static', filename='img/cent.png') }}" alt="Cent" class="featured-avatar" onerror="this.style.display='none'">
+                        <div class="featured-info">
+                            <div class="featured-title">Cent's World Record</div>
+                            <div class="featured-meta">Epic gameplay • Black Arena</div>
                         </div>
-                        {% endfor %}
+                    </div>
+                    <div class="featured-actions">
+                        <button class="featured-btn" onclick="playFeaturedReplay()">
+                            <i class="fas fa-play"></i> Play
+                        </button>
+                        <button class="featured-btn save" onclick="saveFeaturedReplay()">
+                            <i class="fas fa-save"></i> Save
+                        </button>
                     </div>
                 </div>
             </div>
             
-            <div class="sidebar-footer">
-                <button id="themeOptionsBtn" class="themes-btn">
-                    <i class="fas fa-palette"></i> Themes
-                </button>
-                <a href="https://discord.gg/5jCRQd7hHb" target="_blank" class="discord-btn">
-                    <i class="fab fa-discord"></i> Support
+            <!-- Folders Section -->
+            <div class="folders-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-folder"></i> Folders</h2>
+                    <button id="createFolderBtn" class="create-btn">
+                        <i class="fas fa-folder-plus"></i> New Folder
+                    </button>
+                </div>
+                <div class="folders-grid" id="foldersContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-folder-open"></i>
+                        <p>No folders yet</p>
+                        <span>Create folders to organize your replays</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Replays Section -->
+            <div class="replays-section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-play-circle"></i> <span id="replaysTitle">My Replays</span></h2>
+                </div>
+                <div class="breadcrumb" id="breadcrumb" style="display: none;"></div>
+                <div class="replays-grid" id="replaysContainer">
+                    <div class="empty-state">
+                        <i class="fas fa-play-circle"></i>
+                        <p>No saved replays yet</p>
+                        <span>Play a replay to save it here</span>
+                    </div>
+                </div>
+            </div>
+            
+            </div>
+        </div>
+    </div>
+    
+    <!-- Discord Modal -->
+    <div class="modal" id="discordModal">
+        <div class="modal-content discord-modal">
+            <div class="modal-header">
+                <h3><i class="fab fa-discord"></i> Join Our Discord</h3>
+                <button class="close-modal" id="closeDiscordModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Join our community to get support, share replays, and connect with other players!</p>
+                <a href="https://discord.gg/HvF5QnqtHN" target="_blank" class="discord-link">
+                    <i class="fab fa-discord"></i> Join Discord Server
                 </a>
             </div>
-        </aside>
-        
-        <!-- Main Content -->
-        <main class="main-content">
-            <div class="top-bar">
-                <div class="search-container">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" id="searchInput" placeholder="Search replays...">
-                </div>
-                <div class="user-actions">
-                    <button id="accountBtn" class="btn secondary-btn">
-                        <i class="fas fa-user"></i> Account
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Quick Replay Input -->
-            <div class="quick-replay-input">
-                <div class="input-group">
-                    <input type="text" id="quickReplayLink" placeholder="Paste replay link here (https://territorial.io/replay?...)">
-                    <button id="quickLoadReplay" class="btn primary-btn">
-                        <i class="fas fa-rocket"></i> Launch Replay
-                    </button>
-                </div>
-            </div>
-            
+        </div>
+    </div>
 
-            
-            <!-- Views Container -->
-            <div class="views-container">
-                <!-- Desktop Library View -->
-                <div class="view active" id="libraryView">
-                    <div class="view-header">
-                        <h2><i class="fas fa-home"></i> My Library</h2>
-                        <div class="view-actions">
-                            <button id="sortItemsBtn" class="btn icon-btn">
-                                <i class="fas fa-sort"></i>
-                            </button>
-                            <button id="newFolderBtn" class="btn primary-btn">
-                                <i class="fas fa-folder-plus"></i> New Folder
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <!-- Folders Section -->
-                    <div class="section-header">
-                        <h3 data-section="folders"><i class="fas fa-folder"></i> Folders</h3>
-                    </div>
-                    <div class="folders-grid" id="foldersGrid">
-                        <!-- Folders will be populated here by JavaScript -->
-                        <div class="create-folder-card" id="createFolderCard">
-                            <div class="folder-icon">
-                                <i class="fas fa-plus"></i>
-                            </div>
-                            <div class="folder-info">
-                                <div class="folder-title">Create Folder</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Replays Section -->
-                    <div class="section-header">
-                        <h3 data-section="replays"><i class="fas fa-play-circle"></i> Replays</h3>
-                    </div>
-                    <div class="replays-grid" id="replaysGrid">
-                        <!-- Replays will be populated here by JavaScript -->
-                    </div>
+    <!-- Account Modal -->
+    <div class="modal" id="accountModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user"></i> Account</h3>
+                <button class="close-modal" id="closeAccountModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="account-options" id="accountOptions">
+                    <button class="account-option-btn login-btn" id="showLoginBtn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button class="account-option-btn signup-btn" id="showSignupBtn">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
                 </div>
                 
+                <!-- Login Form -->
+                <div class="account-form" id="loginForm" style="display: none;">
+                    <h4>Login to Your Account</h4>
+                    <div class="form-group">
+                        <input type="text" id="loginUsername" placeholder="Username" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <div class="password-input">
+                            <input type="password" id="loginPassword" placeholder="Password" class="form-input">
+                            <button type="button" class="password-toggle" id="loginPasswordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="form-btn" id="loginSubmitBtn">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </button>
+                    <button class="back-btn" id="backFromLogin">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+                
+                <!-- Signup Form -->
+                <div class="account-form" id="signupForm" style="display: none;">
+                    <h4>Create New Account</h4>
+                    <div class="form-group">
+                        <input type="text" id="signupUsername" placeholder="Username (min 3 characters)" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <div class="password-input">
+                            <input type="password" id="signupPassword" placeholder="Password (min 6 characters)" class="form-input">
+                            <button type="button" class="password-toggle" id="signupPasswordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <div class="password-input">
+                            <input type="password" id="confirmPassword" placeholder="Confirm Password" class="form-input">
+                            <button type="button" class="password-toggle" id="confirmPasswordToggle">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button class="form-btn" id="signupSubmitBtn">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </button>
+                    <button class="back-btn" id="backFromSignup">
+                        <i class="fas fa-arrow-left"></i> Back
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            </div>
-        </main>
-    </div>
-    
-    <!-- Modals -->
-    <!-- New Replay Modal -->
-    <div class="modal" id="newReplayModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Add New Replay</h3>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="replayName">Replay Name</label>
-                    <input type="text" id="replayName" placeholder="My Awesome Replay">
-                </div>
-                <div class="form-group">
-                    <label for="replayLink">Replay Link</label>
-                    <input type="text" id="replayLink" placeholder="https://territorial.io/replay?...">
-                </div>
-                <div class="upload-divider">
-                    <span>OR</span>
-                </div>
-                <div class="file-upload-container">
-                    <input type="file" id="replayFileInput" class="file-upload-input" accept=".txt">
-                    <label for="replayFileInput" class="file-upload-label">
-                        <i class="fas fa-upload"></i> Upload Replay File
-                    </label>
-                    <div class="file-upload-text">Upload a .txt file containing the replay link</div>
-                </div>
-                <div class="form-group">
-                    <label for="replayFolder">Folder (Optional)</label>
-                    <select id="replayFolder">
-                        <option value="">-- No Folder --</option>
-                        <!-- Folders will be populated here by JavaScript -->
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn secondary-btn cancel-modal">Cancel</button>
-                <button id="saveReplayBtn" class="btn primary-btn">Save Replay</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- New Folder Modal -->
-    <div class="modal" id="newFolderModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Create New Folder</h3>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="folderName">Folder Name</label>
-                    <input type="text" id="folderName" placeholder="My Folder">
-                </div>
-                <div class="form-group">
-                    <label for="folderColor">Folder Color</label>
-                    <div class="color-picker">
-                        <div class="color-option" data-color="#4a6bff"></div>
-                        <div class="color-option" data-color="#ff4a6b"></div>
-                        <div class="color-option" data-color="#4aff6b"></div>
-                        <div class="color-option" data-color="#ff9a4a"></div>
-                        <div class="color-option" data-color="#9a4aff"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn secondary-btn cancel-modal">Cancel</button>
-                <button id="saveFolderBtn" class="btn primary-btn">Create Folder</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Edit Replay Modal -->
-    <div class="modal" id="editReplayModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Edit Replay</h3>
-                <button class="close-modal" id="closeEditReplayModal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="editReplayName">Replay Name</label>
-                    <input type="text" id="editReplayName">
-                </div>
-                <div class="form-group">
-                    <label for="editReplayFolder">Folder</label>
-                    <select id="editReplayFolder">
-                        <option value="">-- No Folder --</option>
-                        <!-- Folders will be populated here by JavaScript -->
-                    </select>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn danger-btn" id="deleteReplayBtn">Delete</button>
-                <button class="btn secondary-btn" id="cancelEditReplayBtn">Cancel</button>
-                <button id="updateReplayBtn" class="btn primary-btn">Update</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Edit Folder Modal -->
-    <div class="modal" id="editFolderModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Edit Folder</h3>
-                <button class="close-modal" id="closeEditFolderModal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="editFolderName">Folder Name</label>
-                    <input type="text" id="editFolderName">
-                </div>
-                <div class="form-group">
-                    <label for="editFolderColor">Folder Color</label>
-                    <div class="color-picker">
-                        <div class="color-option" data-color="#4a6bff"></div>
-                        <div class="color-option" data-color="#ff4a6b"></div>
-                        <div class="color-option" data-color="#4aff6b"></div>
-                        <div class="color-option" data-color="#ff9a4a"></div>
-                        <div class="color-option" data-color="#9a4aff"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn danger-btn" id="deleteFolderBtn">Delete</button>
-                <button class="btn secondary-btn" id="cancelEditFolderBtn">Cancel</button>
-                <button id="updateFolderBtn" class="btn primary-btn">Update</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Folder View Modal -->
-    <div class="modal" id="folderViewModal">
-        <div class="modal-content folder-view-content">
-            <div class="modal-header">
-                <h3 id="folderViewTitle">Folder Name</h3>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="folder-replays-grid" id="folderReplaysGrid">
-                    <!-- Folder replays will be populated here by JavaScript -->
+    <!-- Loading Modal -->
+    <div class="modal" id="loadingModal">
+        <div class="modal-content loading-modal">
+            <div class="loading-container">
+                <div class="loading-spinner-large"></div>
+                <h3 id="loadingTitle">Creating Account...</h3>
+                <p id="loadingMessage">Please wait while we set up your account</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
                 </div>
             </div>
         </div>
     </div>
-    
-    <!-- Import Shared Folder Modal Removed -->
-    
-    <!-- Share Folder Modal Removed -->
-    
+
+    <!-- Success Modal -->
+    <div class="modal" id="successModal">
+        <div class="modal-content success-modal">
+            <div class="success-container">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3 id="successTitle">Account Created Successfully!</h3>
+                <p id="successMessage">Welcome to TerriReplay! You are now logged in and ready to start watching replays.</p>
+                <button class="success-btn" id="successOkBtn">
+                    <i class="fas fa-rocket"></i> Get Started
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Game Modal -->
     <div class="modal" id="gameModal">
         <div class="modal-content game-modal-content">
             <div class="modal-header game-header">
                 <h3 id="gameTitle">Replay</h3>
                 <div class="game-controls">
-                    <button id="minimizeGameBtn" class="btn icon-btn"><i class="fas fa-compress"></i></button>
-                    <button id="maximizeGameBtn" class="btn icon-btn"><i class="fas fa-expand"></i></button>
                     <button class="close-modal" id="closeGameModal"><i class="fas fa-times"></i></button>
                 </div>
             </div>
@@ -321,167 +261,20 @@
         </div>
     </div>
     
-
-    
-    <!-- Import Folder Popup Removed -->
-    
-    <!-- Account Modal -->
-    <div class="modal" id="accountModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-user"></i> Account</h3>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="/tos" target="_blank" class="footer-link">Terms of Service</a>
+                <span class="footer-separator">•</span>
+                <a href="/privacy" target="_blank" class="footer-link">Privacy Policy</a>
             </div>
-            <div class="modal-body">
-                <div class="account-options">
-                    <button id="loginBtn" class="btn primary-btn account-option-btn">
-                        <i class="fas fa-sign-in-alt"></i> Login
-                    </button>
-                    <button id="createAccountBtn" class="btn secondary-btn account-option-btn">
-                        <i class="fas fa-user-plus"></i> Create Account
-                    </button>
-                </div>
+            <div class="footer-info">
+                <span class="footer-text">Made by Viktor • © June 2025</span>
             </div>
         </div>
-    </div>
+    </footer>
     
-    <!-- Login Modal -->
-    <div class="modal" id="loginModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-sign-in-alt"></i> Login</h3>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="loginUsername">Username</label>
-                    <input type="text" id="loginUsername" placeholder="Enter username">
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" placeholder="Enter password">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn secondary-btn cancel-modal">Cancel</button>
-                <button id="loginSubmitBtn" class="btn primary-btn">Login</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Create Account Modal -->
-    <div class="modal" id="createAccountModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-user-plus"></i> Create Account</h3>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group">
-                    <label for="createUsername">Username</label>
-                    <input type="text" id="createUsername" placeholder="Enter username">
-                </div>
-                <div class="form-group">
-                    <label for="createPassword">Password</label>
-                    <input type="password" id="createPassword" placeholder="Enter password">
-                </div>
-                <div class="form-group">
-                    <label for="confirmPassword">Confirm Password</label>
-                    <input type="password" id="confirmPassword" placeholder="Confirm password">
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn secondary-btn cancel-modal">Cancel</button>
-                <button id="createAccountSubmitBtn" class="btn primary-btn">Create Account</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Loading Modal (disabled) -->
-    <div id="loadingModal" style="display: none !important; visibility: hidden !important;">
-        <div class="loading-modal-content">
-            <div class="loading-container">
-                <div class="loading-spinner-large"></div>
-                <h3 id="loadingTitle">Processing...</h3>
-                <p id="loadingMessage">Please wait while we process your request</p>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Theme Options Modal -->
-    <div class="modal" id="themeOptionsModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3><i class="fas fa-palette"></i> Themes</h3>
-                <button class="close-modal" id="closeThemeModal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="theme-options">
-                    <div class="theme-option" data-theme="light">
-                        <div class="theme-preview light-theme"></div>
-                        <span>Light</span>
-                    </div>
-                    <div class="theme-option" data-theme="dark">
-                        <div class="theme-preview dark-theme"></div>
-                        <span>Dark</span>
-                    </div>
-                    <div class="theme-option" data-theme="blue">
-                        <div class="theme-preview blue-theme"></div>
-                        <span>Blue</span>
-                    </div>
-                    <div class="theme-option" data-theme="colorful">
-                        <div class="theme-preview colorful-theme"></div>
-                        <span>Colorful</span>
-                    </div>
-                    <div class="theme-option" data-theme="pride">
-                        <div class="theme-preview pride-theme"></div>
-                        <span>Pride</span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn secondary-btn" id="closeThemeBtn">Close</button>
-            </div>
-        </div>
-    </div>
-    
-
-    
-    <script src="{{ url_for('static', filename='js/modals.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/account.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/account-fix.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/advanced-sync.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/theme.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/fix-update.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/file-upload.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/save-replay-fix.js') }}"></script>
-    <script src="{{ url_for('static', filename='js/track-plays.js') }}"></script>
-    
-    <!-- Structured Data for SEO -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebApplication",
-      "name": "TerriReplay",
-      "url": "https://terrireplay.vercel.app/",
-      "description": "TerriReplay is the best Territorial.io replay emulator. Save, organize, and watch your Territorial.io game replays with our easy-to-use interface.",
-      "applicationCategory": "GameApplication",
-      "operatingSystem": "Any",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
-      },
-      "author": {
-        "@type": "Person",
-        "name": "Dr.ViktorExe"
-      },
-      "keywords": "territorial.io, replay, emulator, territorial replay, terrireplay, game replays"
-    }
-    </script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>
