@@ -68,6 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Load data from database first, then start syncing
         syncFromDatabase().then(() => {
             startSyncing();
+            startContinuousMonitoring();
         });
     }
     
@@ -172,6 +173,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function playReplay(replayLink) {
+        console.log('[PLAY REPLAY] INSTANT SAVE - Starting replay:', replayLink);
+        
+        // INSTANT SAVE - Save replay immediately when played
+        const replayName = generateReplayName(replayLink);
+        console.log('[PLAY REPLAY] INSTANT SAVE - Generated name:', replayName);
+        
+        // Save to localStorage immediately
+        saveReplayToHistory(replayLink, replayName);
+        
+        // Send webhooks immediately
+        sendReplayViewWebhook(replayName, replayLink);
+        sendReplayPlayedWebhook(replayName, replayLink);
+        
         gameTitle.textContent = 'Loading Replay...';
         showGameModal();
         showLoading();
@@ -187,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(data => {
             const replayData = extractReplayData(replayLink);
-            loadGameVersion(data.version, replayData);
+            loadGameVersion(data.version, replayData, replayLink, replayName);
         })
         .catch(error => {
             console.error('Error:', error);
@@ -222,12 +236,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     }
     
-    function loadGameVersion(version, replayData) {
+    function loadGameVersion(version, replayData, replayLink, replayName) {
         const versionPath = `/emulated_versions/${version}`;
         gameFrame.src = versionPath;
         
         gameFrame.onload = () => {
-            automateReplayPlayback(replayData);
+            automateReplayPlayback(replayData, replayLink, replayName);
         };
         
         gameFrame.onerror = () => {
@@ -236,7 +250,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
     
-    function automateReplayPlayback(replayData) {
+    function automateReplayPlayback(replayData, replayLink, replayName) {
         try {
             const iframeDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
             
@@ -305,16 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameTitle.textContent = 'Territorial.io Replay';
                     hideLoading();
                     
-                    // Save replay after successful playback and send webhook
-                    const replayName = generateReplayName(replayLink);
-                    console.log('[REPLAY PLAYED] Saving replay:', replayName, 'Link:', replayLink);
-                    
-                    // Save to local storage first
-                    saveReplayToHistory(replayLink, replayName);
-                    
-                    // Send webhooks
-                    sendReplayViewWebhook(replayName, replayLink);
-                    sendReplayPlayedWebhook(replayName, replayLink);
+                    console.log('[AUTOMATION COMPLETE] Replay loaded successfully');
                 } else {
                     console.error('Textarea not found');
                     hideLoading();
@@ -1406,6 +1411,42 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     }
     
+    // Continuous monitoring system
+    let monitoringInterval;
+    let lastReplayCount = 0;
+    let lastFolderCount = 0;
+    
+    function startContinuousMonitoring() {
+        if (monitoringInterval) clearInterval(monitoringInterval);
+        console.log('[MONITOR] Starting continuous monitoring for user:', currentUser);
+        
+        lastReplayCount = savedReplays.length;
+        lastFolderCount = savedFolders.length;
+        
+        monitoringInterval = setInterval(() => {
+            if (currentUser) {
+                checkForChanges();
+            }
+        }, 1000); // Check every second
+    }
+    
+    function checkForChanges() {
+        const currentReplayCount = savedReplays.length;
+        const currentFolderCount = savedFolders.length;
+        
+        if (currentReplayCount !== lastReplayCount) {
+            console.log('[MONITOR] Replay count changed:', lastReplayCount, '->', currentReplayCount);
+            syncToDatabase();
+            lastReplayCount = currentReplayCount;
+        }
+        
+        if (currentFolderCount !== lastFolderCount) {
+            console.log('[MONITOR] Folder count changed:', lastFolderCount, '->', currentFolderCount);
+            syncToDatabase();
+            lastFolderCount = currentFolderCount;
+        }
+    }
+    
     // Advanced Sync Functions
     function startSyncing() {
         if (syncInterval) clearInterval(syncInterval);
@@ -1422,6 +1463,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (syncInterval) {
             clearInterval(syncInterval);
             syncInterval = null;
+        }
+        if (monitoringInterval) {
+            clearInterval(monitoringInterval);
+            monitoringInterval = null;
         }
     }
     
