@@ -65,7 +65,10 @@ document.addEventListener('DOMContentLoaded', () => {
         const icon = accountBtn.querySelector('i');
         icon.className = 'fas fa-user-check';
         accountText.textContent = currentUser;
-        startSyncing();
+        // Load data from database first, then start syncing
+        syncFromDatabase().then(() => {
+            startSyncing();
+        });
     }
     
     // Initialize replay management
@@ -855,6 +858,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }).catch(e => console.error('Webhook error:', e));
     }
     
+    async function saveReplayToDatabase(replayName, replayLink) {
+        if (!currentUser || !replayLink) return;
+        
+        try {
+            const response = await fetch('/api/save_replay', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    username: currentUser,
+                    replay_name: replayName,
+                    replay_link: replayLink
+                })
+            });
+            
+            const result = await response.json();
+            if (result.success && !result.already_exists) {
+                console.log('[SAVE] Replay saved to database successfully');
+            }
+        } catch (e) {
+            console.error('[SAVE] Error saving replay to database:', e);
+        }
+    }
+    
     // Replay Management Functions
     function saveReplayToHistory(replayLink, replayName = 'Replay') {
         const replayId = Date.now().toString();
@@ -866,13 +892,17 @@ document.addEventListener('DOMContentLoaded', () => {
             created_at: new Date().toISOString()
         };
         
+        // Save to local storage immediately
         savedReplays.unshift(replay);
         localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
         
+        // Update UI
         loadReplays();
         
         if (currentUser) {
-            // Force immediate sync
+            // Save directly to database
+            saveReplayToDatabase(replayName, replayLink);
+            // Also sync all data
             setTimeout(() => syncToDatabase(), 100);
         }
     }
@@ -1281,14 +1311,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function startSyncing() {
         if (syncInterval) clearInterval(syncInterval);
         console.log('[SYNC] Starting sync system for user:', currentUser);
-        // Initial sync from database first
-        syncFromDatabase();
-        // Then sync every 2 seconds - always sync to ensure data is backed up
+        // Sync every 3 seconds to ensure data is backed up
         syncInterval = setInterval(() => {
             if (currentUser) {
                 syncToDatabase();
             }
-        }, 2000);
+        }, 3000);
     }
     
     function stopSyncing() {
@@ -1380,17 +1408,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 console.log(`[SYNC FROM DB] Found ${dbReplays.length} replays, ${dbFolders.length} folders in database`);
                 
-                // Only update if there's actual data from database or local is empty
-                if (dbReplays.length > 0 || dbFolders.length > 0 || (savedReplays.length === 0 && savedFolders.length === 0)) {
-                    console.log('[SYNC FROM DB] Updating local data from database');
-                    savedReplays = dbReplays;
-                    savedFolders = dbFolders;
-                    localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
-                    localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
-                    loadReplays();
-                } else {
-                    console.log('[SYNC FROM DB] No update needed - local data is current');
-                }
+                // Always update from database to ensure consistency
+                console.log('[SYNC FROM DB] Updating local data from database');
+                savedReplays = dbReplays;
+                savedFolders = dbFolders;
+                localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
+                localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
+                loadReplays();
+                
+                console.log(`[SYNC FROM DB] Local storage updated with ${savedReplays.length} replays, ${savedFolders.length} folders`);
             }
         } catch (e) {
             console.error('[SYNC FROM DB ERROR]:', e);

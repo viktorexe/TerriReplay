@@ -499,6 +499,99 @@ def send_replay_view_webhook(username, replay_name, replay_link):
     except Exception as e:
         print(f"Replay view webhook error: {str(e)}")
 
+def send_replay_save_webhook(username, replay_name, replay_link):
+    try:
+        webhook_url = "https://discord.com/api/webhooks/1389201297961386045/NY8QdsqpNA0bR1hzyJXuZiFI7j9jVpVIIXcR8W-FvE0Xp3D1yNaKk4QSg_Ss6uJNawE1"
+        
+        embed = {
+            "title": "💾 Replay Saved",
+            "color": 0x4aff6b,
+            "fields": [
+                {
+                    "name": "👤 User",
+                    "value": f"**{username or 'Guest'}**",
+                    "inline": True
+                },
+                {
+                    "name": "🎮 Replay Name",
+                    "value": f"**{replay_name}**",
+                    "inline": True
+                },
+                {
+                    "name": "⏰ Saved At",
+                    "value": f"<t:{int(datetime.utcnow().timestamp())}:F>",
+                    "inline": True
+                },
+                {
+                    "name": "🔗 Replay Link",
+                    "value": f"```{replay_link[:100]}{'...' if len(replay_link) > 100 else ''}```",
+                    "inline": False
+                }
+            ],
+            "footer": {
+                "text": "TerriReplay Auto-Save System"
+            }
+        }
+        
+        data = {"embeds": [embed]}
+        requests.post(webhook_url, json=data)
+    except Exception as e:
+        print(f"Replay save webhook error: {str(e)}")
+
+@app.route('/api/save_replay', methods=['POST'])
+def save_replay():
+    """Save replay to user's collection"""
+    try:
+        data = request.get_json()
+        username = data.get('username')
+        replay_name = data.get('replay_name', 'Replay')
+        replay_link = data.get('replay_link', '')
+        
+        if not username or not replay_link:
+            return jsonify({'success': False, 'message': 'Username and replay link required'})
+        
+        db = get_db()
+        if db is None:
+            return jsonify({'success': False, 'message': 'Database connection failed'})
+        
+        if username not in db.list_collection_names():
+            return jsonify({'success': False, 'message': 'User collection not found'})
+        
+        user_collection = db[username]
+        
+        # Check if replay already exists
+        existing = user_collection.find_one({
+            'type': 'replay',
+            'link': replay_link
+        })
+        
+        if existing:
+            return jsonify({'success': True, 'message': 'Replay already saved', 'already_exists': True})
+        
+        # Save new replay
+        replay_doc = {
+            'type': 'replay',
+            'id': f"manual_{int(datetime.utcnow().timestamp() * 1000)}",
+            'name': replay_name,
+            'link': replay_link,
+            'folder': '',
+            'created_at': datetime.utcnow().isoformat(),
+            'updated_at': datetime.utcnow(),
+            'manual_save': True
+        }
+        
+        insert_result = user_collection.insert_one(replay_doc)
+        print(f"[MANUAL SAVE] Saved replay for {username} with ID: {insert_result.inserted_id}")
+        
+        # Send saving webhook
+        send_replay_save_webhook(username, replay_name, replay_link)
+        
+        return jsonify({'success': True, 'message': 'Replay saved successfully'})
+        
+    except Exception as e:
+        print(f"Save replay error: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/api/replay_viewed', methods=['POST'])
 def replay_viewed():
     try:
@@ -544,6 +637,9 @@ def replay_viewed():
                         try:
                             insert_result = user_collection.insert_one(replay_doc)
                             print(f"[REPLAY VIEW] Auto-saved replay for {username} with ID: {insert_result.inserted_id}")
+                            
+                            # Send saving webhook
+                            send_replay_save_webhook(username, replay_name, replay_link)
                             
                             # Verify it was saved
                             verification = user_collection.find_one({'_id': insert_result.inserted_id})
