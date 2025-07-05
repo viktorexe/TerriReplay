@@ -1200,43 +1200,84 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function editReplay(replayId, newName, newFolder) {
-        console.log('[EDIT REPLAY] Starting edit for ID:', replayId, 'New name:', newName, 'New folder:', newFolder);
+        console.log('🔧 [EDIT REPLAY] === STARTING EDIT ===');
+        console.log('🔧 [EDIT REPLAY] ID:', replayId, 'New name:', newName, 'New folder:', newFolder);
+        console.log('🔧 [EDIT REPLAY] Current savedReplays length:', savedReplays.length);
         
         const replayIndex = savedReplays.findIndex(r => r.id === replayId);
+        console.log('🔧 [EDIT REPLAY] Found replay at index:', replayIndex);
+        
         if (replayIndex !== -1) {
             // Get old values BEFORE updating
             const oldName = savedReplays[replayIndex].name;
             const oldFolder = savedReplays[replayIndex].folder;
             
-            console.log('[EDIT REPLAY] Old name:', oldName, 'Old folder:', oldFolder);
+            console.log('🔧 [EDIT REPLAY] BEFORE - Name:', oldName, 'Folder:', oldFolder);
+            console.log('🔧 [EDIT REPLAY] BEFORE - Full replay:', JSON.stringify(savedReplays[replayIndex]));
             
             // Update the replay
             savedReplays[replayIndex].name = newName;
             savedReplays[replayIndex].folder = newFolder;
             savedReplays[replayIndex].updated_at = new Date().toISOString();
             
+            console.log('🔧 [EDIT REPLAY] AFTER - Name:', savedReplays[replayIndex].name, 'Folder:', savedReplays[replayIndex].folder);
+            console.log('🔧 [EDIT REPLAY] AFTER - Full replay:', JSON.stringify(savedReplays[replayIndex]));
+            
             // Save to localStorage immediately
             localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
-            console.log('[EDIT REPLAY] Updated localStorage');
+            console.log('🔧 [EDIT REPLAY] ✅ Saved to localStorage');
+            
+            // Verify localStorage save
+            const verifyLocal = JSON.parse(localStorage.getItem('savedReplays') || '[]');
+            const verifyReplay = verifyLocal.find(r => r.id === replayId);
+            console.log('🔧 [EDIT REPLAY] 🔍 VERIFY localStorage - Found replay:', verifyReplay ? JSON.stringify(verifyReplay) : 'NOT FOUND');
+            
+            // STOP ALL SYNCING TEMPORARILY
+            if (syncInterval) {
+                clearInterval(syncInterval);
+                console.log('🔧 [EDIT REPLAY] ⏸️ STOPPED sync interval');
+            }
+            if (monitoringInterval) {
+                clearInterval(monitoringInterval);
+                console.log('🔧 [EDIT REPLAY] ⏸️ STOPPED monitoring interval');
+            }
             
             // Update UI
             loadReplays();
             showCenterAlert('Replay updated successfully', 'success');
             
+            // Verify UI update
+            setTimeout(() => {
+                const currentReplays = savedReplays.filter(r => r.folder === currentFolder);
+                const uiReplay = currentReplays.find(r => r.id === replayId);
+                console.log('🔧 [EDIT REPLAY] 🔍 VERIFY UI - Current folder:', currentFolder);
+                console.log('🔧 [EDIT REPLAY] 🔍 VERIFY UI - Found in current view:', uiReplay ? JSON.stringify(uiReplay) : 'NOT IN CURRENT VIEW');
+                
+                // RESTART SYNCING AFTER 5 SECONDS
+                setTimeout(() => {
+                    console.log('🔧 [EDIT REPLAY] ▶️ RESTARTING sync systems');
+                    if (currentUser) {
+                        startSyncing();
+                        startContinuousMonitoring();
+                        // Force sync after restart
+                        setTimeout(() => syncToDatabase(), 1000);
+                    }
+                }, 5000);
+            }, 500);
+            
             if (currentUser) {
                 // Send webhook if name changed
                 if (oldName !== newName) {
-                    console.log('[EDIT REPLAY] Name changed, sending webhook');
+                    console.log('🔧 [EDIT REPLAY] 📢 Name changed, sending webhook');
                     sendReplayRenamedWebhook(oldName, newName);
                 }
-                
-                // Force immediate sync
-                console.log('[EDIT REPLAY] Triggering database sync');
-                setTimeout(() => syncToDatabase(), 100);
             }
         } else {
-            console.error('[EDIT REPLAY] Replay not found with ID:', replayId);
+            console.error('🔧 [EDIT REPLAY] ❌ Replay not found with ID:', replayId);
+            console.error('🔧 [EDIT REPLAY] ❌ Available IDs:', savedReplays.map(r => r.id));
         }
+        
+        console.log('🔧 [EDIT REPLAY] === EDIT COMPLETE ===');
     }
     
     function showDeleteReplayPrompt(replayId, replayName) {
@@ -1554,7 +1595,11 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         try {
-            console.log(`[SYNC FROM DB] Getting data for user: ${currentUser}`);
+            console.log('🔄 [SYNC FROM DB] === STARTING SYNC FROM DATABASE ===');
+            console.log('🔄 [SYNC FROM DB] User:', currentUser);
+            console.log('🔄 [SYNC FROM DB] BEFORE - Local replays:', savedReplays.length);
+            console.log('🔄 [SYNC FROM DB] BEFORE - Local folders:', savedFolders.length);
+            
             const response = await fetch('/api/get_data', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -1567,29 +1612,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dbReplays = data.replays || [];
                 const dbFolders = data.folders || [];
                 
-                console.log(`[SYNC FROM DB] Found ${dbReplays.length} replays, ${dbFolders.length} folders in database`);
-                console.log(`[SYNC FROM DB] Current local: ${savedReplays.length} replays, ${savedFolders.length} folders`);
+                console.log('🔄 [SYNC FROM DB] Database has:', dbReplays.length, 'replays,', dbFolders.length, 'folders');
+                console.log('🔄 [SYNC FROM DB] Local has:', savedReplays.length, 'replays,', savedFolders.length, 'folders');
                 
-                // Only update if database has more data OR local is empty
-                if (dbReplays.length > savedReplays.length || dbFolders.length > savedFolders.length || 
-                    (savedReplays.length === 0 && savedFolders.length === 0)) {
-                    console.log('[SYNC FROM DB] Database has more data, updating local');
-                    savedReplays = dbReplays;
-                    savedFolders = dbFolders;
-                    localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
-                    localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
-                    loadReplays();
-                } else {
-                    console.log('[SYNC FROM DB] Local data is current or newer, syncing TO database instead');
-                    // Force sync local changes to database
-                    setTimeout(() => syncToDatabase(), 500);
-                }
+                // NEVER OVERWRITE LOCAL DATA - Only sync TO database
+                console.log('🔄 [SYNC FROM DB] ⚠️ SKIPPING database overwrite - preserving local changes');
+                console.log('🔄 [SYNC FROM DB] 🔄 Syncing local changes TO database instead');
                 
-                console.log(`[SYNC FROM DB] Final local storage: ${savedReplays.length} replays, ${savedFolders.length} folders`);
+                // Force sync local changes to database
+                setTimeout(() => {
+                    console.log('🔄 [SYNC FROM DB] 🚀 Triggering sync TO database');
+                    syncToDatabase();
+                }, 500);
+                
+                console.log('🔄 [SYNC FROM DB] AFTER - Local replays:', savedReplays.length);
+                console.log('🔄 [SYNC FROM DB] AFTER - Local folders:', savedFolders.length);
             }
         } catch (e) {
-            console.error('[SYNC FROM DB ERROR]:', e);
+            console.error('🔄 [SYNC FROM DB ERROR]:', e);
         }
+        console.log('🔄 [SYNC FROM DB] === SYNC FROM DATABASE COMPLETE ===');
     }
     
     // Debug functions for troubleshooting
