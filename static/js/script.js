@@ -1168,8 +1168,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function showEditReplayPrompt(replayId, currentName) {
-        const folderOptions = savedFolders.map(f => `<option value="${f.id}">${f.name}</option>`).join('');
         const currentReplay = savedReplays.find(r => r.id === replayId);
+        const currentFolder = currentReplay ? currentReplay.folder || '' : '';
+        
+        const folderOptions = savedFolders.map(f => 
+            `<option value="${f.id}" ${f.id === currentFolder ? 'selected' : ''}>${f.name}</option>`
+        ).join('');
         
         showCustomPrompt('Edit Replay', `
             <div style="margin-bottom: 15px;">
@@ -1179,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div>
                 <label style="display: block; margin-bottom: 5px; color: var(--text);">Move to folder:</label>
                 <select id="editReplayFolder" style="width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text);">
-                    <option value="">No Folder</option>
+                    <option value="" ${currentFolder === '' ? 'selected' : ''}>No Folder</option>
                     ${folderOptions}
                 </select>
             </div>
@@ -1190,13 +1194,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 editReplay(replayId, name, folder);
             }
         });
-        
-        setTimeout(() => {
-            const folderSelect = document.getElementById('editReplayFolder');
-            if (folderSelect && currentReplay) {
-                folderSelect.value = currentReplay.folder || '';
-            }
-        }, 100);
     }
     
     function editReplay(replayId, newName, newFolder) {
