@@ -307,10 +307,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     // Save replay after successful playback and send webhook
                     const replayName = generateReplayName(replayLink);
+                    console.log('[REPLAY PLAYED] Saving replay:', replayName, 'Link:', replayLink);
+                    
+                    // Save to local storage first
                     saveReplayToHistory(replayLink, replayName);
                     
-                    // Send replay view webhook
+                    // Send webhooks
                     sendReplayViewWebhook(replayName, replayLink);
+                    sendReplayPlayedWebhook(replayName, replayLink);
                 } else {
                     console.error('Textarea not found');
                     hideLoading();
@@ -862,6 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!currentUser || !replayLink) return;
         
         try {
+            console.log('[SAVE TO DB] Attempting to save:', replayName);
             const response = await fetch('/api/save_replay', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -873,16 +878,77 @@ document.addEventListener('DOMContentLoaded', () => {
             });
             
             const result = await response.json();
-            if (result.success && !result.already_exists) {
-                console.log('[SAVE] Replay saved to database successfully');
+            if (result.success) {
+                if (!result.already_exists) {
+                    console.log('[SAVE TO DB] Replay saved to database successfully');
+                } else {
+                    console.log('[SAVE TO DB] Replay already exists in database');
+                }
+            } else {
+                console.error('[SAVE TO DB] Failed:', result.message);
             }
         } catch (e) {
-            console.error('[SAVE] Error saving replay to database:', e);
+            console.error('[SAVE TO DB] Error:', e);
         }
+    }
+    
+    function sendReplayPlayedWebhook(replayName, replayLink) {
+        if (!replayLink) return;
+        
+        fetch('/api/action_webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'replay_played',
+                username: currentUser,
+                replay_name: replayName,
+                replay_link: replayLink
+            })
+        }).catch(e => console.error('Replay played webhook error:', e));
+    }
+    
+    function sendFolderCreatedWebhook(folderName) {
+        fetch('/api/action_webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'folder_created',
+                username: currentUser,
+                folder_name: folderName
+            })
+        }).catch(e => console.error('Folder created webhook error:', e));
+    }
+    
+    function sendFolderRenamedWebhook(oldName, newName) {
+        fetch('/api/action_webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'folder_renamed',
+                username: currentUser,
+                old_name: oldName,
+                new_name: newName
+            })
+        }).catch(e => console.error('Folder renamed webhook error:', e));
+    }
+    
+    function sendReplayRenamedWebhook(oldName, newName) {
+        fetch('/api/action_webhook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                action: 'replay_renamed',
+                username: currentUser,
+                old_name: oldName,
+                new_name: newName
+            })
+        }).catch(e => console.error('Replay renamed webhook error:', e));
     }
     
     // Replay Management Functions
     function saveReplayToHistory(replayLink, replayName = 'Replay') {
+        console.log('[SAVE REPLAY] Starting save process for:', replayName);
+        
         const replayId = Date.now().toString();
         const replay = {
             id: replayId,
@@ -892,18 +958,39 @@ document.addEventListener('DOMContentLoaded', () => {
             created_at: new Date().toISOString()
         };
         
+        // Check if replay already exists
+        const existingIndex = savedReplays.findIndex(r => r.link === replayLink);
+        if (existingIndex !== -1) {
+            console.log('[SAVE REPLAY] Replay already exists, updating name');
+            savedReplays[existingIndex].name = replayName;
+        } else {
+            console.log('[SAVE REPLAY] Adding new replay to collection');
+            savedReplays.unshift(replay);
+        }
+        
         // Save to local storage immediately
-        savedReplays.unshift(replay);
         localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
+        console.log('[SAVE REPLAY] Saved to localStorage, total replays:', savedReplays.length);
         
         // Update UI
         loadReplays();
         
         if (currentUser) {
-            // Save directly to database
+            console.log('[SAVE REPLAY] User logged in, saving to database');
+            // Save directly to database with multiple attempts
             saveReplayToDatabase(replayName, replayLink);
-            // Also sync all data
-            setTimeout(() => syncToDatabase(), 100);
+            // Force immediate aggressive sync
+            setTimeout(() => {
+                console.log('[SAVE REPLAY] Starting sync to database');
+                syncToDatabase();
+            }, 200);
+            // Backup sync after 2 seconds
+            setTimeout(() => {
+                console.log('[SAVE REPLAY] Backup sync to database');
+                syncToDatabase();
+            }, 2000);
+        } else {
+            console.log('[SAVE REPLAY] No user logged in, only local save');
         }
     }
     
@@ -1063,6 +1150,8 @@ document.addEventListener('DOMContentLoaded', () => {
         showCenterAlert('Folder created successfully', 'success');
         
         if (currentUser) {
+            // Send webhook
+            sendFolderCreatedWebhook(name);
             // Force immediate sync
             setTimeout(() => syncToDatabase(), 100);
         }
@@ -1116,6 +1205,12 @@ document.addEventListener('DOMContentLoaded', () => {
             showCenterAlert('Replay updated successfully', 'success');
             
             if (currentUser) {
+                // Send webhook if name changed
+                const oldReplay = savedReplays.find(r => r.id === replayId);
+                const oldName = oldReplay ? oldReplay.name : 'Unknown';
+                if (oldName !== newName) {
+                    sendReplayRenamedWebhook(oldName, newName);
+                }
                 // Force immediate sync
                 setTimeout(() => syncToDatabase(), 100);
             }
@@ -1202,6 +1297,10 @@ document.addEventListener('DOMContentLoaded', () => {
             showCenterAlert('Folder renamed successfully', 'success');
             
             if (currentUser) {
+                // Send webhook
+                const oldFolder = savedFolders.find(f => f.id === folderId);
+                const oldName = oldFolder ? oldFolder.name : 'Unknown';
+                sendFolderRenamedWebhook(oldName, newName);
                 // Force immediate sync
                 setTimeout(() => syncToDatabase(), 100);
             }

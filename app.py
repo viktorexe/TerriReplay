@@ -538,6 +538,90 @@ def send_replay_save_webhook(username, replay_name, replay_link):
     except Exception as e:
         print(f"Replay save webhook error: {str(e)}")
 
+@app.route('/api/action_webhook', methods=['POST'])
+def action_webhook():
+    """Handle all action webhooks"""
+    try:
+        data = request.get_json()
+        action = data.get('action')
+        username = data.get('username', 'Guest')
+        
+        webhook_url = "https://discord.com/api/webhooks/1389201297961386045/NY8QdsqpNA0bR1hzyJXuZiFI7j9jVpVIIXcR8W-FvE0Xp3D1yNaKk4QSg_Ss6uJNawE1"
+        
+        if action == 'replay_played':
+            replay_name = data.get('replay_name', 'Unknown Replay')
+            replay_link = data.get('replay_link', '')
+            
+            embed = {
+                "title": "🎮 Replay Played",
+                "color": 0xff6b4a,
+                "fields": [
+                    {"name": "👤 User", "value": f"**{username}**", "inline": True},
+                    {"name": "🎮 Replay", "value": f"**{replay_name}**", "inline": True},
+                    {"name": "⏰ Played At", "value": f"<t:{int(datetime.utcnow().timestamp())}:F>", "inline": True},
+                    {"name": "🔗 Link", "value": f"```{replay_link[:100]}{'...' if len(replay_link) > 100 else ''}```", "inline": False}
+                ],
+                "footer": {"text": "TerriReplay Activity Monitor"}
+            }
+            
+        elif action == 'folder_created':
+            folder_name = data.get('folder_name', 'Unknown Folder')
+            
+            embed = {
+                "title": "📁 Folder Created",
+                "color": 0x4aff6b,
+                "fields": [
+                    {"name": "👤 User", "value": f"**{username}**", "inline": True},
+                    {"name": "📁 Folder", "value": f"**{folder_name}**", "inline": True},
+                    {"name": "⏰ Created At", "value": f"<t:{int(datetime.utcnow().timestamp())}:F>", "inline": True}
+                ],
+                "footer": {"text": "TerriReplay Folder Management"}
+            }
+            
+        elif action == 'folder_renamed':
+            old_name = data.get('old_name', 'Unknown')
+            new_name = data.get('new_name', 'Unknown')
+            
+            embed = {
+                "title": "✏️ Folder Renamed",
+                "color": 0xffa500,
+                "fields": [
+                    {"name": "👤 User", "value": f"**{username}**", "inline": True},
+                    {"name": "📁 Old Name", "value": f"**{old_name}**", "inline": True},
+                    {"name": "📁 New Name", "value": f"**{new_name}**", "inline": True},
+                    {"name": "⏰ Renamed At", "value": f"<t:{int(datetime.utcnow().timestamp())}:F>", "inline": False}
+                ],
+                "footer": {"text": "TerriReplay Folder Management"}
+            }
+            
+        elif action == 'replay_renamed':
+            old_name = data.get('old_name', 'Unknown')
+            new_name = data.get('new_name', 'Unknown')
+            
+            embed = {
+                "title": "✏️ Replay Renamed",
+                "color": 0xffa500,
+                "fields": [
+                    {"name": "👤 User", "value": f"**{username}**", "inline": True},
+                    {"name": "🎮 Old Name", "value": f"**{old_name}**", "inline": True},
+                    {"name": "🎮 New Name", "value": f"**{new_name}**", "inline": True},
+                    {"name": "⏰ Renamed At", "value": f"<t:{int(datetime.utcnow().timestamp())}:F>", "inline": False}
+                ],
+                "footer": {"text": "TerriReplay Replay Management"}
+            }
+        else:
+            return jsonify({'success': False, 'message': 'Unknown action'})
+        
+        # Send webhook
+        webhook_data = {"embeds": [embed]}
+        requests.post(webhook_url, json=webhook_data)
+        
+        return jsonify({'success': True})
+        
+    except Exception as e:
+        print(f"Action webhook error: {str(e)}")
+        return jsonify({'success': False, 'message': str(e)})
+
 @app.route('/api/save_replay', methods=['POST'])
 def save_replay():
     """Save replay to user's collection"""
@@ -566,7 +650,16 @@ def save_replay():
         })
         
         if existing:
-            return jsonify({'success': True, 'message': 'Replay already saved', 'already_exists': True})
+            print(f"[MANUAL SAVE] Replay already exists, updating name from '{existing.get('name')}' to '{replay_name}'")
+            user_collection.update_one(
+                {'_id': existing['_id']},
+                {'$set': {
+                    'name': replay_name,
+                    'updated_at': datetime.utcnow(),
+                    'manual_save': True
+                }}
+            )
+            return jsonify({'success': True, 'message': 'Replay updated successfully', 'already_exists': True})
         
         # Save new replay
         replay_doc = {
@@ -581,12 +674,19 @@ def save_replay():
         }
         
         insert_result = user_collection.insert_one(replay_doc)
-        print(f"[MANUAL SAVE] Saved replay for {username} with ID: {insert_result.inserted_id}")
+        print(f"[MANUAL SAVE] ✅ Saved replay for {username} with ID: {insert_result.inserted_id}")
+        
+        # AGGRESSIVE verification
+        verification = user_collection.find_one({'_id': insert_result.inserted_id})
+        if verification:
+            print(f"[MANUAL SAVE] ✅ VERIFICATION SUCCESSFUL: Replay confirmed in database")
+        else:
+            print(f"[MANUAL SAVE] ❌ VERIFICATION FAILED: Replay not found after insertion")
         
         # Send saving webhook
         send_replay_save_webhook(username, replay_name, replay_link)
         
-        return jsonify({'success': True, 'message': 'Replay saved successfully'})
+        return jsonify({'success': True, 'message': 'Replay saved successfully', 'verified': verification is not None})
         
     except Exception as e:
         print(f"Save replay error: {str(e)}")
@@ -635,34 +735,61 @@ def replay_viewed():
                         }
                         
                         try:
+                            # FORCE INSERT with aggressive verification
                             insert_result = user_collection.insert_one(replay_doc)
-                            print(f"[REPLAY VIEW] Auto-saved replay for {username} with ID: {insert_result.inserted_id}")
+                            print(f"[REPLAY VIEW] ✅ SUCCESSFULLY auto-saved replay for {username} with ID: {insert_result.inserted_id}")
                             
                             # Send saving webhook
                             send_replay_save_webhook(username, replay_name, replay_link)
                             
-                            # Verify it was saved
-                            verification = user_collection.find_one({'_id': insert_result.inserted_id})
-                            if verification:
-                                print(f"[REPLAY VIEW] Verification successful: Replay saved in database")
-                            else:
-                                print(f"[REPLAY VIEW] WARNING: Replay not found after insertion")
+                            # AGGRESSIVE verification with multiple attempts
+                            verification_success = False
+                            for attempt in range(3):
+                                verification = user_collection.find_one({'_id': insert_result.inserted_id})
+                                if verification:
+                                    print(f"[REPLAY VIEW] ✅ VERIFICATION SUCCESS (attempt {attempt + 1}): Replay confirmed in database")
+                                    verification_success = True
+                                    break
+                                else:
+                                    print(f"[REPLAY VIEW] ⚠️ VERIFICATION FAILED (attempt {attempt + 1}): Retrying...")
+                                    if attempt < 2:
+                                        import time
+                                        time.sleep(0.1)
+                            
+                            if not verification_success:
+                                print(f"[REPLAY VIEW] ❌ CRITICAL: Replay verification failed after 3 attempts")
                                 
                         except Exception as save_error:
-                            print(f"[REPLAY VIEW] ERROR saving replay: {str(save_error)}")
+                            print(f"[REPLAY VIEW] ❌ CRITICAL ERROR saving replay: {str(save_error)}")
+                            import traceback
+                            traceback.print_exc()
                     else:
                         print(f"[REPLAY VIEW] Replay already exists for user {username}")
+                        # Update existing replay with new name and timestamp
+                        try:
+                            update_result = user_collection.update_one(
+                                {'_id': existing['_id']},
+                                {'$set': {
+                                    'name': replay_name,
+                                    'updated_at': datetime.utcnow(),
+                                    'last_viewed': datetime.utcnow()
+                                }}
+                            )
+                            print(f"[REPLAY VIEW] ✅ Updated existing replay: {update_result.modified_count} documents modified")
+                        except Exception as update_error:
+                            print(f"[REPLAY VIEW] ❌ Error updating existing replay: {str(update_error)}")
                 else:
-                    print(f"[REPLAY VIEW] Collection '{username}' not found")
+                    print(f"[REPLAY VIEW] ❌ CRITICAL: Collection '{username}' not found in database")
+                    print(f"[REPLAY VIEW] Available collections: {collections}")
             else:
-                print(f"[REPLAY VIEW] Database connection failed")
+                print(f"[REPLAY VIEW] ❌ CRITICAL: Database connection failed")
         
-        return jsonify({'success': True})
+        return jsonify({'success': True, 'message': 'Replay view logged and auto-saved'})
     except Exception as e:
-        print(f"[REPLAY VIEW] ERROR: {str(e)}")
+        print(f"[REPLAY VIEW] ❌ FATAL ERROR: {str(e)}")
         import traceback
         traceback.print_exc()
-        return jsonify({'success': False, 'message': str(e)})
+        return jsonify({'success': False, 'message': f'Fatal error: {str(e)}'})
 
 @app.route('/api/sync_data', methods=['POST'])
 def sync_data():
