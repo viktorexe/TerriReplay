@@ -1568,16 +1568,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dbFolders = data.folders || [];
                 
                 console.log(`[SYNC FROM DB] Found ${dbReplays.length} replays, ${dbFolders.length} folders in database`);
+                console.log(`[SYNC FROM DB] Current local: ${savedReplays.length} replays, ${savedFolders.length} folders`);
                 
-                // Always update from database to ensure consistency
-                console.log('[SYNC FROM DB] Updating local data from database');
-                savedReplays = dbReplays;
-                savedFolders = dbFolders;
-                localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
-                localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
-                loadReplays();
+                // Only update if database has more data OR local is empty
+                if (dbReplays.length > savedReplays.length || dbFolders.length > savedFolders.length || 
+                    (savedReplays.length === 0 && savedFolders.length === 0)) {
+                    console.log('[SYNC FROM DB] Database has more data, updating local');
+                    savedReplays = dbReplays;
+                    savedFolders = dbFolders;
+                    localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
+                    localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
+                    loadReplays();
+                } else {
+                    console.log('[SYNC FROM DB] Local data is current or newer, syncing TO database instead');
+                    // Force sync local changes to database
+                    setTimeout(() => syncToDatabase(), 500);
+                }
                 
-                console.log(`[SYNC FROM DB] Local storage updated with ${savedReplays.length} replays, ${savedFolders.length} folders`);
+                console.log(`[SYNC FROM DB] Final local storage: ${savedReplays.length} replays, ${savedFolders.length} folders`);
             }
         } catch (e) {
             console.error('[SYNC FROM DB ERROR]:', e);
