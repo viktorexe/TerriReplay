@@ -1200,25 +1200,42 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function editReplay(replayId, newName, newFolder) {
+        console.log('[EDIT REPLAY] Starting edit for ID:', replayId, 'New name:', newName, 'New folder:', newFolder);
+        
         const replayIndex = savedReplays.findIndex(r => r.id === replayId);
         if (replayIndex !== -1) {
+            // Get old values BEFORE updating
+            const oldName = savedReplays[replayIndex].name;
+            const oldFolder = savedReplays[replayIndex].folder;
+            
+            console.log('[EDIT REPLAY] Old name:', oldName, 'Old folder:', oldFolder);
+            
+            // Update the replay
             savedReplays[replayIndex].name = newName;
             savedReplays[replayIndex].folder = newFolder;
-            localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
+            savedReplays[replayIndex].updated_at = new Date().toISOString();
             
+            // Save to localStorage immediately
+            localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
+            console.log('[EDIT REPLAY] Updated localStorage');
+            
+            // Update UI
             loadReplays();
             showCenterAlert('Replay updated successfully', 'success');
             
             if (currentUser) {
                 // Send webhook if name changed
-                const oldReplay = savedReplays.find(r => r.id === replayId);
-                const oldName = oldReplay ? oldReplay.name : 'Unknown';
                 if (oldName !== newName) {
+                    console.log('[EDIT REPLAY] Name changed, sending webhook');
                     sendReplayRenamedWebhook(oldName, newName);
                 }
+                
                 // Force immediate sync
+                console.log('[EDIT REPLAY] Triggering database sync');
                 setTimeout(() => syncToDatabase(), 100);
             }
+        } else {
+            console.error('[EDIT REPLAY] Replay not found with ID:', replayId);
         }
     }
     
