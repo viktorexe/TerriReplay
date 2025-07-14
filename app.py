@@ -80,18 +80,126 @@ def test_replay():
 
 @app.route('/get_version', methods=['POST'])
 def get_version():
-    """Always return the latest version for replay playback"""
-    print("GET_VERSION called")
+    """Smart version detection - scans all versions to find the best match"""
+    print("GET_VERSION called with smart detection")
     try:
-        if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)):
-            print(f"Returning {LATEST_VERSION}")
-            return jsonify({'version': LATEST_VERSION})
-        else:
-            print(f"Returning fallback {FALLBACK_VERSION}")
+        data = request.get_json()
+        replay_link = data.get('replay_link', '')
+        
+        if not replay_link:
+            print("No replay link provided, using latest version")
+            return jsonify({'version': LATEST_VERSION if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)) else FALLBACK_VERSION})
+        
+        # Extract replay data to analyze
+        replay_data = extract_replay_data(replay_link)
+        print(f"Analyzing replay data: {replay_data[:50]}...")
+        
+        # Get all available versions
+        emulated_dir = os.path.join('emulated_versions')
+        if not os.path.exists(emulated_dir):
+            print("Emulated versions directory not found")
             return jsonify({'version': FALLBACK_VERSION})
+        
+        version_files = [f for f in os.listdir(emulated_dir) if f.endswith('.html')]
+        print(f"Found {len(version_files)} version files: {version_files}")
+        
+        # Smart version detection based on replay data patterns
+        detected_version = detect_version_from_replay_data(replay_data, version_files)
+        
+        if detected_version and os.path.exists(os.path.join(emulated_dir, detected_version)):
+            print(f"Smart detection: Using {detected_version} for this replay")
+            return jsonify({'version': detected_version})
+        else:
+            print(f"Smart detection failed, using latest version")
+            return jsonify({'version': LATEST_VERSION if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)) else FALLBACK_VERSION})
+            
     except Exception as e:
         print(f"Get version error: {str(e)}")
         return jsonify({'version': FALLBACK_VERSION})
+
+def detect_version_from_replay_data(replay_data, available_versions):
+    """Detect the best game version based on replay data patterns"""
+    if not replay_data:
+        return None
+    
+    print(f"[VERSION DETECT] Analyzing replay data length: {len(replay_data)}")
+    print(f"[VERSION DETECT] Sample data: {replay_data[:100]}...")
+    
+    # Modern replay detection - check for complex patterns first
+    if len(replay_data) > 800:
+        # Very modern replays with complex encoding
+        if any(pattern in replay_data for pattern in ['TBcD', 'ZX7', 'BFr', 'GsZ', 'wgi', 'EUw', 'PLc', 'wDC', 'UIU']):
+            print(f"[VERSION DETECT] Modern complex replay detected")
+            candidates = ['latest_version.html', 'version3N.html', 'version37.html', 'version3F.html']
+            for version in candidates:
+                if version in available_versions:
+                    return version
+    
+    # Version detection rules based on replay data patterns
+    version_rules = [
+        # Latest versions (very complex data with mixed case and numbers)
+        {'pattern': lambda d: len(d) > 1200 and any(c.isupper() for c in d) and any(c.islower() for c in d) and any(c.isdigit() for c in d), 'versions': ['latest_version.html', 'version3N.html', 'version37.html']},
+        
+        # Modern versions (long with mixed encoding)
+        {'pattern': lambda d: len(d) > 800 and d.count('V') > 10, 'versions': ['version3N.html', 'version37.html', 'version3F.html']},
+        
+        # Character-heavy versions
+        {'pattern': lambda d: 'V' in d and d.count('V') > 8, 'versions': ['latest_version.html', 'version3N.html', 'version-V.html', 'version0V.html', 'version1V.html']},
+        {'pattern': lambda d: 'F' in d and d.count('F') > 5, 'versions': ['version3F.html', 'version2F.html', 'version1F.html', 'version0F.html', 'version-F.html']},
+        {'pattern': lambda d: 'N' in d and d.count('N') > 5, 'versions': ['version3N.html', 'version2N.html', 'version1N.html', 'version0N.html']},
+        
+        # Medium complexity versions
+        {'pattern': lambda d: 400 <= len(d) < 800 and any(c in d for c in 'VFNcsk'), 'versions': ['version2N.html', 'version1N.html', 'version-V.html']},
+        
+        # Older versions
+        {'pattern': lambda d: 'c' in d and d.count('c') > 2, 'versions': ['version2c.html', 'version1c.html', 'version-c.html']},
+        {'pattern': lambda d: 's' in d and d.count('s') > 3, 'versions': ['version2s.html', 'version1s.html', 'version0s.html', 'version-s.html']},
+        {'pattern': lambda d: 'k' in d and d.count('k') > 2, 'versions': ['version0k.html', 'version-k.html']},
+        
+        # Basic versions
+        {'pattern': lambda d: len(d) < 400 and d.count('-') > len(d) * 0.2, 'versions': ['version-7.html', 'version-6.html', 'version-5.html']},
+        {'pattern': lambda d: len(d) < 200, 'versions': ['version-4.html', 'version-3.html', 'version-2.html']},
+    ]
+    
+    # Try each rule
+    for rule in version_rules:
+        try:
+            if rule['pattern'](replay_data):
+                # Find first available version from the rule
+                for version in rule['versions']:
+                    if version in available_versions:
+                        print(f"[VERSION DETECT] Pattern matched: {version} (data length: {len(replay_data)})")
+                        return version
+        except Exception as e:
+            print(f"[VERSION DETECT] Error in pattern matching: {str(e)}")
+            continue
+    
+    print(f"[VERSION DETECT] No specific pattern matched, using enhanced heuristic")
+    
+    # Enhanced fallback heuristic
+    data_len = len(replay_data)
+    has_upper = any(c.isupper() for c in replay_data)
+    has_lower = any(c.islower() for c in replay_data)
+    has_digits = any(c.isdigit() for c in replay_data)
+    
+    if data_len > 1200 and has_upper and has_lower:
+        candidates = ['latest_version.html', 'version3N.html', 'version37.html', 'version3F.html']
+    elif data_len > 800:
+        candidates = ['version3N.html', 'version37.html', 'version2N.html', 'version3-.html']
+    elif data_len > 400:
+        candidates = ['version2N.html', 'version1N.html', 'version-V.html', 'version2c.html']
+    elif data_len > 200:
+        candidates = ['version1N.html', 'version-7.html', 'version-6.html', 'version-5.html']
+    else:
+        candidates = ['version-4.html', 'version-3.html', 'version-2.html', 'version-1.html']
+    
+    # Return first available candidate
+    for candidate in candidates:
+        if candidate in available_versions:
+            print(f"[VERSION DETECT] Enhanced heuristic selected: {candidate}")
+            return candidate
+    
+    return None
 
 @app.route('/api/play_replay', methods=['POST'])
 def play_replay():
@@ -138,25 +246,19 @@ def play_replay():
 
 def extract_replay_data(replay_link):
     """Extract the replay data from the URL"""
-    print(f"Extracting data from: {replay_link}")
     if not replay_link or '?' not in replay_link:
-        print("No query parameters found")
         return ''
     
     try:
         # Get everything after the question mark
         query_part = replay_link.split('?', 1)[1]
-        print(f"Query part: {query_part[:100]}...")
         
         # Remove parameter names if present
         if 'replay=' in query_part:
             query_part = query_part.replace('replay=', '')
-            print("Removed 'replay=' prefix")
         elif 'data=' in query_part:
             query_part = query_part.replace('data=', '')
-            print("Removed 'data=' prefix")
         
-        print(f"Final extracted data length: {len(query_part)}")
         return query_part
     except Exception as e:
         print(f"Error extracting replay data: {str(e)}")

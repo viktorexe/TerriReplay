@@ -284,44 +284,32 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             iframeDoc.head.appendChild(style);
             
-            // Execute automation steps
+            // Execute automation steps with multiple UI layout support
             (async () => {
-                // Step 1: Click Game Menu
-                const gameMenuButton = findButtonByText(iframeDoc, 'Game Menu');
-                if (gameMenuButton) clickElement(gameMenuButton);
+                console.log('[AUTOMATION] Starting multi-version replay automation');
                 
-                await sleep(50);
+                // Strategy 1: Try modern UI (Game Menu button)
+                let success = await tryModernUI(iframeDoc, replayData);
                 
-                // Step 2: Click Replay
-                const replayButton = findButtonByText(iframeDoc, 'Replay');
-                if (replayButton) clickElement(replayButton);
+                if (!success) {
+                    console.log('[AUTOMATION] Modern UI failed, trying canvas-based UI');
+                    // Strategy 2: Try canvas-based UI (more button on canvas)
+                    success = await tryCanvasUI(iframeDoc, replayData);
+                }
                 
-                await sleep(50);
+                if (!success) {
+                    console.log('[AUTOMATION] Canvas UI failed, trying direct search');
+                    // Strategy 3: Direct search for replay elements
+                    success = await tryDirectSearch(iframeDoc, replayData);
+                }
                 
-                // Step 3: Paste replay data
-                const textarea = iframeDoc.getElementById('textArea1') || 
-                                iframeDoc.querySelector('textarea[placeholder*="replay"]');
-                
-                if (textarea) {
-                    textarea.value = replayData || '';
-                    textarea.dispatchEvent(new Event('input', { bubbles: true }));
-                    
-                    await sleep(50);
-                    
-                    // Step 4: Click Launch
-                    const launchButton = findButtonByText(iframeDoc, 'Launch');
-                    if (launchButton) {
-                        clickElement(launchButton);
-                    }
-                    
+                if (success) {
                     await waitForGameToStart(iframeDoc);
-                    
                     gameTitle.textContent = 'Territorial.io Replay';
                     hideLoading();
-                    
                     console.log('[AUTOMATION COMPLETE] Replay loaded successfully');
                 } else {
-                    console.error('Textarea not found');
+                    console.error('[AUTOMATION] All strategies failed');
                     hideLoading();
                 }
             })();
@@ -362,6 +350,306 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // Modern UI automation (Game Menu button approach)
+    async function tryModernUI(iframeDoc, replayData) {
+        try {
+            console.log('[MODERN UI] Attempting modern UI automation');
+            
+            const gameMenuButton = findButtonByText(iframeDoc, 'Game Menu');
+            if (!gameMenuButton) return false;
+            
+            clickElement(gameMenuButton);
+            await sleep(100);
+            
+            const replayButton = findButtonByText(iframeDoc, 'Replay');
+            if (!replayButton) return false;
+            
+            clickElement(replayButton);
+            await sleep(100);
+            
+            return await pasteReplayData(iframeDoc, replayData);
+        } catch (e) {
+            console.error('[MODERN UI] Error:', e);
+            return false;
+        }
+    }
+    
+    // Canvas-based UI automation (more button on canvas)
+    async function tryCanvasUI(iframeDoc, replayData) {
+        try {
+            console.log('[CANVAS UI] Attempting canvas-based UI automation');
+            
+            // Look for canvas element
+            const canvas = iframeDoc.getElementById('canvasA') || iframeDoc.querySelector('canvas');
+            if (!canvas) return false;
+            
+            console.log('[CANVAS UI] Found canvas:', canvas.id, 'Size:', canvas.width, 'x', canvas.height);
+            
+            // For version-V.html and similar, try multiple click strategies
+            const strategies = [
+                // Strategy 1: Top-right corner (typical more button location)
+                { x: canvas.width - 20, y: 20, desc: 'top-right corner' },
+                // Strategy 2: Slightly more inward
+                { x: canvas.width - 30, y: 30, desc: 'top-right inward' },
+                // Strategy 3: Different corner positions
+                { x: canvas.width - 40, y: 15, desc: 'top-right alternative' },
+                // Strategy 4: Try clicking on canvas center-right
+                { x: canvas.width - 25, y: canvas.height / 4, desc: 'right side' }
+            ];
+            
+            for (const strategy of strategies) {
+                console.log(`[CANVAS UI] Trying ${strategy.desc} at (${strategy.x}, ${strategy.y})`);
+                
+                // Create multiple types of events
+                const events = [
+                    new MouseEvent('mousedown', { clientX: strategy.x, clientY: strategy.y, bubbles: true }),
+                    new MouseEvent('mouseup', { clientX: strategy.x, clientY: strategy.y, bubbles: true }),
+                    new MouseEvent('click', { clientX: strategy.x, clientY: strategy.y, bubbles: true }),
+                    new PointerEvent('pointerdown', { clientX: strategy.x, clientY: strategy.y, bubbles: true }),
+                    new PointerEvent('pointerup', { clientX: strategy.x, clientY: strategy.y, bubbles: true })
+                ];
+                
+                // Dispatch all events
+                events.forEach(event => {
+                    try {
+                        canvas.dispatchEvent(event);
+                    } catch (e) {
+                        console.log('[CANVAS UI] Event dispatch failed:', e.message);
+                    }
+                });
+                
+                await sleep(300);
+                
+                // Check if any UI elements appeared
+                if (await checkForReplayUI(iframeDoc, replayData)) {
+                    console.log(`[CANVAS UI] Success with ${strategy.desc}`);
+                    return true;
+                }
+            }
+            
+            // Try keyboard shortcuts as fallback
+            console.log('[CANVAS UI] Trying keyboard shortcuts');
+            const keyEvents = [
+                new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
+                new KeyboardEvent('keydown', { key: 'r', bubbles: true }),
+                new KeyboardEvent('keydown', { key: 'R', bubbles: true }),
+                new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
+            ];
+            
+            for (const keyEvent of keyEvents) {
+                iframeDoc.dispatchEvent(keyEvent);
+                await sleep(200);
+                if (await checkForReplayUI(iframeDoc, replayData)) {
+                    console.log('[CANVAS UI] Success with keyboard shortcut:', keyEvent.key);
+                    return true;
+                }
+            }
+            
+            return false;
+        } catch (e) {
+            console.error('[CANVAS UI] Error:', e);
+            return false;
+        }
+    }
+    
+    // Check for replay UI elements and handle them
+    async function checkForReplayUI(iframeDoc, replayData) {
+        // Look for any new elements that might be the replay interface
+        const possibleElements = [
+            ...iframeDoc.querySelectorAll('div, button, input, textarea'),
+            ...iframeDoc.querySelectorAll('[onclick*="replay"], [onclick*="Replay"]')
+        ];
+        
+        // Check for text content that suggests replay functionality
+        for (const element of possibleElements) {
+            const text = element.textContent?.toLowerCase() || '';
+            const onclick = element.getAttribute('onclick') || '';
+            
+            if (text.includes('replay') || onclick.includes('replay')) {
+                console.log('[CANVAS UI] Found potential replay element:', element.tagName, text);
+                clickElement(element);
+                await sleep(200);
+                
+                if (await pasteReplayData(iframeDoc, replayData)) {
+                    return true;
+                }
+            }
+        }
+        
+        // Check for textarea or input that might accept replay data
+        const textInputs = iframeDoc.querySelectorAll('textarea, input[type="text"]');
+        if (textInputs.length > 0) {
+            console.log('[CANVAS UI] Found text inputs, trying to paste replay data');
+            return await pasteReplayData(iframeDoc, replayData);
+        }
+        
+        return false;
+    }
+    
+    // Direct search automation with aggressive replay detection
+    async function tryDirectSearch(iframeDoc, replayData) {
+        try {
+            console.log('[DIRECT SEARCH] Attempting aggressive replay detection');
+            
+            // Strategy 1: Look for existing textarea/input (replay might already be open)
+            const existingInputs = iframeDoc.querySelectorAll('textarea, input[type="text"]');
+            if (existingInputs.length > 0) {
+                console.log('[DIRECT SEARCH] Found existing inputs, trying direct paste');
+                if (await pasteReplayData(iframeDoc, replayData)) {
+                    return true;
+                }
+            }
+            
+            // Strategy 2: Try all possible keyboard shortcuts
+            const shortcuts = [
+                { key: 'r', desc: 'R key for replay' },
+                { key: 'R', desc: 'Shift+R for replay' },
+                { key: 'Escape', desc: 'Escape to open menu' },
+                { key: 'Enter', desc: 'Enter to confirm' },
+                { key: 'm', desc: 'M for menu' },
+                { key: 'M', desc: 'Shift+M for menu' },
+                { key: ' ', desc: 'Space bar' },
+                { key: 'Tab', desc: 'Tab navigation' }
+            ];
+            
+            for (const shortcut of shortcuts) {
+                console.log(`[DIRECT SEARCH] Trying ${shortcut.desc}`);
+                
+                const keyEvent = new KeyboardEvent('keydown', {
+                    key: shortcut.key,
+                    bubbles: true,
+                    cancelable: true
+                });
+                
+                iframeDoc.dispatchEvent(keyEvent);
+                iframeDoc.body?.dispatchEvent(keyEvent);
+                
+                await sleep(300);
+                
+                // Check if replay interface appeared
+                if (await pasteReplayData(iframeDoc, replayData)) {
+                    console.log(`[DIRECT SEARCH] Success with ${shortcut.desc}`);
+                    return true;
+                }
+            }
+            
+            // Strategy 3: Try clicking everywhere on the screen
+            const canvas = iframeDoc.querySelector('canvas');
+            if (canvas) {
+                console.log('[DIRECT SEARCH] Trying systematic canvas clicks');
+                
+                const clickPositions = [
+                    // Corners
+                    { x: 10, y: 10 }, { x: canvas.width - 10, y: 10 },
+                    { x: 10, y: canvas.height - 10 }, { x: canvas.width - 10, y: canvas.height - 10 },
+                    // Edges
+                    { x: canvas.width / 2, y: 10 }, { x: canvas.width / 2, y: canvas.height - 10 },
+                    { x: 10, y: canvas.height / 2 }, { x: canvas.width - 10, y: canvas.height / 2 },
+                    // Center areas
+                    { x: canvas.width / 2, y: canvas.height / 2 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.25 },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.25 },
+                    { x: canvas.width * 0.25, y: canvas.height * 0.75 },
+                    { x: canvas.width * 0.75, y: canvas.height * 0.75 }
+                ];
+                
+                for (const pos of clickPositions) {
+                    // Try multiple event types
+                    const events = [
+                        new MouseEvent('click', { clientX: pos.x, clientY: pos.y, bubbles: true }),
+                        new MouseEvent('dblclick', { clientX: pos.x, clientY: pos.y, bubbles: true }),
+                        new MouseEvent('contextmenu', { clientX: pos.x, clientY: pos.y, bubbles: true })
+                    ];
+                    
+                    for (const event of events) {
+                        canvas.dispatchEvent(event);
+                    }
+                    
+                    await sleep(200);
+                    
+                    if (await pasteReplayData(iframeDoc, replayData)) {
+                        console.log(`[DIRECT SEARCH] Success with canvas click at (${pos.x}, ${pos.y})`);
+                        return true;
+                    }
+                }
+            }
+            
+            // Strategy 4: Try to trigger any JavaScript functions that might open replay
+            console.log('[DIRECT SEARCH] Trying to trigger replay functions');
+            const win = iframeDoc.defaultView || iframeDoc.parentWindow;
+            
+            if (win) {
+                const possibleFunctions = [
+                    'openReplay', 'showReplay', 'replayMode', 'loadReplay',
+                    'openMenu', 'showMenu', 'gameMenu', 'mainMenu',
+                    'toggleMenu', 'menu', 'replay', 'r', 'R'
+                ];
+                
+                for (const funcName of possibleFunctions) {
+                    try {
+                        if (typeof win[funcName] === 'function') {
+                            console.log(`[DIRECT SEARCH] Calling function: ${funcName}`);
+                            win[funcName]();
+                            await sleep(300);
+                            
+                            if (await pasteReplayData(iframeDoc, replayData)) {
+                                console.log(`[DIRECT SEARCH] Success with function: ${funcName}`);
+                                return true;
+                            }
+                        }
+                    } catch (e) {
+                        // Ignore function call errors
+                    }
+                }
+            }
+            
+            return false;
+        } catch (e) {
+            console.error('[DIRECT SEARCH] Error:', e);
+            return false;
+        }
+    }
+    
+    // Paste replay data into textarea
+    async function pasteReplayData(iframeDoc, replayData) {
+        try {
+            // Look for textarea with various selectors
+            const textarea = iframeDoc.getElementById('textArea1') || 
+                           iframeDoc.querySelector('textarea[placeholder*="replay"]') ||
+                           iframeDoc.querySelector('textarea[placeholder*="Replay"]') ||
+                           iframeDoc.querySelector('textarea') ||
+                           iframeDoc.querySelector('input[type="text"]');
+            
+            if (!textarea) {
+                console.log('[PASTE] No textarea found');
+                return false;
+            }
+            
+            console.log('[PASTE] Found textarea, pasting data');
+            textarea.value = replayData || '';
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            textarea.dispatchEvent(new Event('change', { bubbles: true }));
+            
+            await sleep(100);
+            
+            // Look for launch/play/start button
+            const launchButton = findButtonByText(iframeDoc, 'Launch') ||
+                               findButtonByText(iframeDoc, 'Play') ||
+                               findButtonByText(iframeDoc, 'Start') ||
+                               findButtonByText(iframeDoc, 'GO');
+            
+            if (launchButton) {
+                console.log('[PASTE] Clicking launch button');
+                clickElement(launchButton);
+            }
+            
+            return true;
+        } catch (e) {
+            console.error('[PASTE] Error:', e);
+            return false;
+        }
+    }
+    
     function findButtonByText(doc, text) {
         const elements = Array.from(doc.querySelectorAll('button'));
         
@@ -377,6 +665,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         return button;
+    }
+    
+    function findElementByText(doc, text) {
+        const elements = Array.from(doc.querySelectorAll('*'));
+        const lowerText = text.toLowerCase();
+        
+        return elements.find(el => {
+            const elementText = el.textContent.toLowerCase();
+            return elementText.includes(lowerText) && el.offsetWidth > 0 && el.offsetHeight > 0;
+        });
     }
     
     function clickElement(element) {
@@ -1268,6 +1566,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('🔧 [EDIT REPLAY] 📢 Name changed, sending webhook');
                     sendReplayRenamedWebhook(oldName, newName);
                 }
+                
+                // Force immediate database sync with the updated data
+                console.log('🔧 [EDIT REPLAY] 🚀 Force syncing updated replay to database');
+                setTimeout(() => {
+                    syncToDatabase();
+                }, 200);
             }
         } else {
             console.error('🔧 [EDIT REPLAY] ❌ Replay not found with ID:', replayId);
@@ -1532,22 +1836,29 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             console.log(`[SYNC TO DB] User: ${currentUser} | Replays: ${savedReplays.length} | Folders: ${savedFolders.length}`);
             
-            // Ensure all data has proper structure
+            // Ensure all data has proper structure with updated names
             const cleanReplays = savedReplays.filter(r => r && r.link).map(r => ({
                 id: r.id || `replay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 name: r.name || 'Unnamed Replay',
                 link: r.link,
                 folder: r.folder || '',
-                created_at: r.created_at || new Date().toISOString()
+                created_at: r.created_at || new Date().toISOString(),
+                updated_at: r.updated_at || new Date().toISOString()
             }));
             
             const cleanFolders = savedFolders.filter(f => f && f.name).map(f => ({
                 id: f.id || `folder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 name: f.name,
-                created_at: f.created_at || new Date().toISOString()
+                created_at: f.created_at || new Date().toISOString(),
+                updated_at: f.updated_at || new Date().toISOString()
             }));
             
             console.log(`[SYNC TO DB] Clean data - Replays: ${cleanReplays.length}, Folders: ${cleanFolders.length}`);
+            
+            // Log first few replays to verify names
+            if (cleanReplays.length > 0) {
+                console.log(`[SYNC TO DB] Sample replay names:`, cleanReplays.slice(0, 3).map(r => r.name));
+            }
             
             const syncData = {
                 username: currentUser,

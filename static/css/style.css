@@ -604,12 +604,27 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 60px;
-  height: 60px;
-  border: 4px solid rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  border-top-color: var(--primary);
-  animation: spin 1s linear infinite;
+  width: 200px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.loading-spinner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, var(--primary), var(--secondary), transparent);
+  animation: loadingSlide 1.5s infinite;
+}
+
+@keyframes loadingSlide {
+  0% { left: -100%; }
+  100% { left: 100%; }
 }
 
 /* Account Modal Styles */
@@ -949,11 +964,34 @@ body {
   
   .game-modal-content {
     width: 100vw;
-    height: 100vh;
+    height: 60vh;
+    max-height: 60vh;
   }
   
   .nav-btn span {
     display: none;
+  }
+  
+  .mobile-file-upload {
+    display: block;
+    margin-top: 15px;
+  }
+  
+  .mobile-file-upload input[type="file"] {
+    width: 100%;
+    padding: 15px;
+    border: 2px dashed var(--border);
+    border-radius: 10px;
+    background: var(--background);
+    color: var(--text);
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .mobile-file-upload input[type="file"]:hover {
+    border-color: var(--primary);
+    background: rgba(74, 107, 255, 0.1);
   }
 }
 /* Modal Button Styles - Same Size */
