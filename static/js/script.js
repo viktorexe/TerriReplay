@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const featuredReplay = {
             id: 'featured_cent_wr',
             name: "Cent's World Record",
-            link: 'https://territorial.io/?replay=-8gi---7UV1-QTsD--0----V2PB6-1--5kN-1-3c-J-0g-53-TF0_-67-7--q-2Z-CK-1V-CV-kV2m-Bc-t-0--5s-RV0j----V--F------R---9B---JN--7iakV077-3-A2--V0HN-3-80--V0T7-3-Al--V077-3-9I--V0HN-3-80--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z4Y3-6s-7V-z-R3-6t--V-z1C3-6sGcV-z5A3-6t--V-r7-3-5s7kV-r133-5sqsV-r2O3-5sYVV-r4-3-5sO7V-r5p3-5sBNV-kJx3-51g7V-kIs3-519-V-kH33-51SkV-kJR3-51O7V-kK-3-51x-V-kLp3-4F8kV-e453-4FSkV-e283-4FCsV-e6c3-4FqcV-e1r3-4FV-V-e1a3-4FVcV-e3J3-4FV-V-e5c3-4FPVV-e4D3-4FNNV-e3R3-4F4kV-e-s3-4FVcV-e3E3-4F2sV-e0Y3-4Fe7V-e6h3-4FvVV-e4D3-4F-cV-e0-3-4FWsV-e2n3-4F6-V-e2a3-4FucV-e6I3-4FkVV-e4F3-4FV7V-e-s3-4F-cV-e4u3-4FS-V-e0-3-4FVsV-e0b3-4FJkV-e343-4F6-V-e0R3-4F4kV-e6O3-4F8NV-e373-4FZcV-e1h3-4F3cV-e593-4FjFV-e6L3-4FusV-e2n3-3at7V-Zos3-3aB-V-Zmr3-3alFV-Zpu3-3aukV-Znn3-3ayNV-Zpv3-3ajNV-Zl73-3a8-V-ZnE3-3ax7V-ZqB3-3alFV-Zlb3-3aX1V-Ol-08bH7-8Cpl-08gD7-8Bnl-08aT7-8C6l-08cz-cg1mFA4-dw19k7U-cw17F7M-Yw18k7O-WB11F78-VJ10F74-VJ10F74-VR1CF7h-WZ13F7I-VR10k74-VJ10F74-Wg1Dk7Q-WJ11k7K-VZ10F72-VZ13F7W-Vo13k7Q-WR10k7E-Vo1DF7G-Vw12F7K-VR13k7A-Vo11k7j-W317k7C-Vo13F78-Vw12k76-WB19k7b-VZ12k76-Vg11k7E-VR13F7K-Y312k78-VR13k7C-WR16F7A-WB16k76-VZ11k78-WZ12F7A-Vg15k76-Vo17F7K-VZ13F76-Vg11k7C-WB11k72-WZ11k7A-WJ12F76-Vg11k76-VR12k74-Vw13F7G-Vo12k7A-XB12k7E-WR12F7A-VR11k7A-VZ11F76-VR10F78-VJ12k7A-VZ11F76-W310F7I-VR11k74-VV',
+            link: 'https://territorial.io/?replay=-8gi---7UV1-QTsD--0----V2PB6-1--5kN-1-3c-J-0g-53-TF0_-67-7--q-2Z-CK-1V-CV-kV2m-Bc-t-0--5s-RV0j----V--F------R---9B---JN--7iakV077-3-A2--V0HN-3-80--V0T7-3-Al--V077-3-9I--V0HN-3-80--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z4Y3-6s-7V-z-R3-6t--V-z1C3-6sGcV-z5A3-6t--V-r7-3-5s7kV-r133-5sqsV-r2O3-5sYVV-r4-3-5sO7V-r5p3-5sBNV-kJx3-51g7V-kIs3-519-V-kH33-51SkV-kJR3-51O7V-kK-3-51x-V-kLp3-4F8kV-e453-4FSkV-e283-4FCsV-e6c3-4FqcV-e1r3-4FV-V-e1a3-4FVcV-e3J3-4FV-V-e5c3-4FPVV-e4D3-4FNNV-e3R3-4F4kV-e-s3-4FVcV-e3E3-4F2sV-e0Y3-4Fe7V-e6h3-4FvVV-e4D3-4F-cV-e0-3-4FWsV-e2n3-4F6-V-e2a3-4FucV-e6I3-4FkVV-e4F3-4FV7V-e-s3-4F-cV-e4u3-4FS-V-e0-3-4FVsV-e0b3-4FJkV-e343-4F6-V-e0R3-4F4kV-e6O3-4F8NV-e373-4FZcV-e1h3-4F3cV-e593-4FjFV-e6L3-4FusV-e2n3-3at7V-Zos3-3aB-V-Zmr3-3alFV-Zpu3-3aukV-Znn3-3ayNV-Zpv3-3ajNV-Zl73-3a8-V-ZnE3-3ax7V-ZqB3-3alFV-Zlb3-3aX1V-Ol-08bH7-8Cpl-08gD7-8Bnl-08aT7-8C6l-08cz-cg1mFA4-dw19k7U-cw17F7M-Yw18k7O-WB11F78-VJ10F74-VJ10F74-VR1CF7h-WZ13F7I-VR10k74-VJ10F74-Wg1Dk7Q-WJ11k7K-VZ10F72-VZ13F7W-Vo13k7Q-WR10k7E-Vo1DF7G-Vw12F7K-VR13k7A-Vo11k7j-W317k7C-Vo13F78-Vw12k76-WB19k7b-VZ12k76-Vg11k7E-VR13F7K-Y312k78-VR13k7C-WR16F7A-WB16k76-VZ11k78-WZ12F7A-Vg15k76-Vo17F7K-VZ13F76-Vg11k7C-WB11k72-WZ11k7A-WJ12F76-Vg11k76-VR12k74-Vw13F7G-Vo12k7A-XB12k7E-WR12F7A-VR11k7A-VZ11F76-VR10F78-VJ12k7A-VZ11F76-W310F7I-VR11k74-VV',
             folder: '',
             created_at: new Date().toISOString()
         };
@@ -1772,37 +1772,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Continuous monitoring system
     let monitoringInterval;
-    let lastReplayCount = 0;
-    let lastFolderCount = 0;
+    let lastReplayState = '';
+    let lastFolderState = '';
     
     function startContinuousMonitoring() {
         if (monitoringInterval) clearInterval(monitoringInterval);
         console.log('[MONITOR] Starting continuous monitoring for user:', currentUser);
-        
-        lastReplayCount = savedReplays.length;
-        lastFolderCount = savedFolders.length;
-        
+        // Store initial state as JSON string
+        lastReplayState = JSON.stringify(savedReplays);
+        lastFolderState = JSON.stringify(savedFolders);
         monitoringInterval = setInterval(() => {
             if (currentUser) {
-                checkForChanges();
+                // Always sync every second
+                syncToDatabase();
             }
-        }, 1000); // Check every second
+        }, 1000); // Sync every second
     }
     
-    function checkForChanges() {
-        const currentReplayCount = savedReplays.length;
-        const currentFolderCount = savedFolders.length;
-        
-        if (currentReplayCount !== lastReplayCount) {
-            console.log('[MONITOR] Replay count changed:', lastReplayCount, '->', currentReplayCount);
-            syncToDatabase();
-            lastReplayCount = currentReplayCount;
-        }
-        
-        if (currentFolderCount !== lastFolderCount) {
-            console.log('[MONITOR] Folder count changed:', lastFolderCount, '->', currentFolderCount);
-            syncToDatabase();
-            lastFolderCount = currentFolderCount;
+    function stopSyncing() {
+        if (monitoringInterval) {
+            clearInterval(monitoringInterval);
+            monitoringInterval = null;
         }
     }
     
@@ -1816,17 +1806,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 syncToDatabase();
             }
         }, 3000);
-    }
-    
-    function stopSyncing() {
-        if (syncInterval) {
-            clearInterval(syncInterval);
-            syncInterval = null;
-        }
-        if (monitoringInterval) {
-            clearInterval(monitoringInterval);
-            monitoringInterval = null;
-        }
     }
     
     async function syncToDatabase() {
@@ -1923,11 +1902,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('🔄 [SYNC FROM DB] Database has:', dbReplays.length, 'replays,', dbFolders.length, 'folders');
                 console.log('🔄 [SYNC FROM DB] Local has:', savedReplays.length, 'replays,', savedFolders.length, 'folders');
                 
-                // NEVER OVERWRITE LOCAL DATA - Only sync TO database
-                console.log('🔄 [SYNC FROM DB] ⚠️ SKIPPING database overwrite - preserving local changes');
-                console.log('🔄 [SYNC FROM DB] 🔄 Syncing local changes TO database instead');
+                // OVERWRITE LOCAL DATA with database data on login/sync
+                console.log('🔄 [SYNC FROM DB] ✅ Overwriting local data with database data');
+                savedReplays = dbReplays;
+                savedFolders = dbFolders;
+                localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
+                localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
+                loadReplays(); // Refresh UI
                 
-                // Force sync local changes to database
+                // Now start aggressive sync from local to backend
                 setTimeout(() => {
                     console.log('🔄 [SYNC FROM DB] 🚀 Triggering sync TO database');
                     syncToDatabase();
