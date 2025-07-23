@@ -1033,6 +1033,32 @@ body {
   color: var(--primary) !important;
 }
 
+/* Settings Modal (inherits modal styles) */
+#settingsModal .modal-content {
+  background: var(--card);
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  box-shadow: 0 10px 30px var(--shadow);
+  padding: 0;
+}
+#settingsModal .modal-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface);
+}
+#settingsModal .modal-body {
+  padding: 20px;
+}
+#settingsModal .form-group label {
+  color: var(--text);
+}
+#settingsModal .form-group input[type="checkbox"] {
+  accent-color: var(--primary);
+}
+
 /* Footer Styles */
 .footer {
   background: var(--surface);

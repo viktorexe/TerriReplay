@@ -22,6 +22,9 @@
             <button id="accountBtn" class="nav-btn">
                 <i class="fas fa-user"></i> <span id="accountText">Account</span>
             </button>
+            <button id="settingsBtn" class="nav-btn" title="Settings">
+                <i class="fas fa-cog"></i>
+            </button>
             <button id="mobileUIBtn" class="nav-btn">
                 <i class="fas fa-mobile-alt"></i> Mobile UI
             </button>
@@ -209,6 +212,23 @@
                         <i class="fas fa-arrow-left"></i> Back
                     </button>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Settings</h3>
+                <button class="close-modal" id="closeSettingsModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" style="display: flex; align-items: center; gap: 12px;">
+                    <input type="checkbox" id="placeBalanceAboveCheckbox" style="width: 20px; height: 20px;">
+                    <label for="placeBalanceAboveCheckbox" style="font-size: 1rem; cursor: pointer;">Place balance above</label>
+                </div>
+                <p style="color: var(--text-light); font-size: 0.95rem; margin-top: 10px;">When enabled, the replay automation will activate the 'Place balance above' option in-game before playing a replay.</p>
             </div>
         </div>
     </div>
