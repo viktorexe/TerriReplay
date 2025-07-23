@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Featured replay functions
     window.playFeaturedReplay = () => {
-        const featuredLink = 'https://territorial.io/?replay=-8gi---7UV1-QTsD--0----V2PB6-1--5kN-1-3c-J-0g-53-TF0_-67-7--q-2Z-CK-1V-CV-kV2m-Bc-t-0--5s-RV0j----V--F------R---9B---JN--7iakV077-3-A2--V0HN-3-80--V0T7-3-Al--V077-3-9I--V0HN-3-80--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z4Y3-6s-7V-z-R3-6t--V-z1C3-6sGcV-z5A3-6t--V-r7-3-5s7kV-r133-5sqsV-r2O3-5sYVV-r4-3-5sO7V-r5p3-5sBNV-kJx3-51g7V-kIs3-519-V-kH33-51SkV-kJR3-51O7V-kK-3-51x-V-kLp3-4F8kV-e453-4FSkV-e283-4FCsV-e6c3-4FqcV-e1r3-4FV-V-e1a3-4FVcV-e3J3-4FV-V-e5c3-4FPVV-e4D3-4FNNV-e3R3-4F4kV-e-s3-4FVcV-e3E3-4F2sV-e0Y3-4Fe7V-e6h3-4FvVV-e4D3-4F-cV-e0-3-4FWsV-e2n3-4F6-V-e2a3-4FucV-e6I3-4FkVV-e4F3-4FV7V-e-s3-4F-cV-e4u3-4FS-V-e0-3-4FVsV-e0b3-4FJkV-e343-4F6-V-e0R3-4F4kV-e6O3-4F8NV-e373-4FZcV-e1h3-4F3cV-e593-4FjFV-e6L3-4FusV-e2n3-3at7V-Zos3-3aB-V-Zmr3-3alFV-Zpu3-3aukV-Znn3-3ayNV-Zpv3-3ajNV-Zl73-3a8-V-ZnE3-3ax7V-ZqB3-3alFV-Zlb3-3aX1V-Ol-08bH7-8Cpl-08gD7-8Bnl-08aT7-8C6l-08cz-cg1mFA4-dw19k7U-cw17F7M-Yw18k7O-WB11F78-VJ10F74-VJ10F74-VR1CF7h-WZ13F7I-VR10k74-VJ10F74-Wg1Dk7Q-WJ11k7K-VZ10F72-VZ13F7W-Vo13k7Q-WR10k7E-Vo1DF7G-Vw12F7K-VR13k7A-Vo11k7j-W317k7C-Vo13F78-Vw12k76-WB19k7b-VZ12k76-Vg11k7E-VR13F7K-Y312k78-VR13k7C-WR16F7A-WB16k76-VZ11k78-WZ12F7A-Vg15k76-Vo17F7K-VZ13F76-Vg11k7C-WB11k72-WZ11k7A-WJ12F76-Vg11k76-VR12k74-Vw13F7G-Vo12k7A-XB12k7E-WR12F7A-VR11k7A-VZ11F76-VR10F78-VJ12k7A-VZ11F76-W310F7I-VR11k74-VV';
+        const featuredLink = 'https://territorial.io/?replay=-8gi---7UV1-QTsD--0----V2PB6-1--5kN-1-3c-J-0g-53-TF0_-67-7--q-2Z-CK-1V-CV-kV2m-Bc-t-0--5s-RV0j----V--F------R---9B---JN--7iakV077-3-A2--V0HN-3-80--V0T7-3-Al--V077-3-9I--V0HN-3-80--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z4Y3-6s-7V-z-R3-6t--V-z1C3-6sGcV-z5A3-6t--V-r7-3-5s7kV-r133-5sqsV-r2O3-5sYVV-r4-3-5sO7V-r5p3-5sBNV-kJx3-51g7V-kIs3-519-V-kH33-51SkV-kJR3-51O7V-kK-3-51x-V-kLp3-4F8kV-e453-4FSkV-e283-4FCsV-e6c3-4FqcV-e1r3-4FV-V-e1a3-4FVcV-e3J3-4FV-V-e5c3-4FPVV-e4D3-4FNNV-e3R3-4F4kV-e-s3-4FVcV-e3E3-4F2sV-e0Y3-4Fe7V-e6h3-4FvVV-e4D3-4F-cV-e0-3-4FWsV-e2n3-4F6-V-e2a3-4FucV-e6I3-4FkVV-e4F3-4FV7V-e-s3-4F-cV-e4u3-4FS-V-e0-3-4FVsV-e0b3-4FJkV-e343-4F6-V-e0R3-4F4kV-e6O3-4F8NV-e373-4FZcV-e1h3-4F3cV-e593-4FjFV-e6L3-4FusV-e2n3-3at7V-Zos3-3aB-V-Zmr3-3alFV-Zpu3-3aukV-Znn3-3ayNV-Zpv3-3ajNV-Zl73-3a8-V-ZnE3-3ax7V-ZqB3-3alFV-Zlb3-3aX1V-Ol-08bH7-8Cpl-08gD7-8Bnl-08aT7-8C6l-08cz-cg1mFA4-dw19k7U-cw17F7M-Yw18k7O-WB11F78-VJ10F74-VJ10F74-VR1CF7h-WZ13F7I-VR10k74-VJ10F74-Wg1Dk7Q-WJ11k7K-VZ10F72-VZ13F7W-Vo13k7Q-WR10k7E-Vo1DF7G-Vw12F7K-VR13k7A-Vo11k7j-W317k7C-Vo13F78-Vw12k76-WB19k7b-VZ12k76-Vg11k7E-VR13F7K-Y312k78-VR13k7C-WR16F7A-WB16k76-VZ11k78-WZ12F7A-Vg15k76-Vo17F7K-VZ13F76-Vg11k7C-WB11k72-WZ11k7A-WJ12F76-Vg11k76-VR12k74-Vw13F7G-Vo12k7A-XB12k7E-WR12F7A-VR11k7A-VZ11F76-VR10F78-VJ12k7A-VZ11F76-W310F7I-VR11k74-VV';
         playReplay(featuredLink);
     };
     
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const featuredReplay = {
             id: 'featured_cent_wr',
             name: "Cent's World Record",
-            link: 'https://territorial.io/?replay=-8gi---7UV1-QTsD--0----V2PB6-1--5kN-1-3c-J-0g-53-TF0_-67-7--q-2Z-CK-1V-CV-kV2m-Bc-t-0--5s-RV0j----V--F------R---9B---JN--7iakV077-3-A2--V0HN-3-80--V0T7-3-Al--V077-3-9I--V0HN-3-80--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z4Y3-6s-7V-z-R3-6t--V-z1C3-6sGcV-z5A3-6t--V-r7-3-5s7kV-r133-5sqsV-r2O3-5sYVV-r4-3-5sO7V-r5p3-5sBNV-kJx3-51g7V-kIs3-519-V-kH33-51SkV-kJR3-51O7V-kK-3-51x-V-kLp3-4F8kV-e453-4FSkV-e283-4FCsV-e6c3-4FqcV-e1r3-4FV-V-e1a3-4FVcV-e3J3-4FV-V-e5c3-4FPVV-e4D3-4FNNV-e3R3-4F4kV-e-s3-4FVcV-e3E3-4F2sV-e0Y3-4Fe7V-e6h3-4FvVV-e4D3-4F-cV-e0-3-4FWsV-e2n3-4F6-V-e2a3-4FucV-e6I3-4FkVV-e4F3-4FV7V-e-s3-4F-cV-e4u3-4FS-V-e0-3-4FVsV-e0b3-4FJkV-e343-4F6-V-e0R3-4F4kV-e6O3-4F8NV-e373-4FZcV-e1h3-4F3cV-e593-4FjFV-e6L3-4FusV-e2n3-3at7V-Zos3-3aB-V-Zmr3-3alFV-Zpu3-3aukV-Znn3-3ayNV-Zpv3-3ajNV-Zl73-3a8-V-ZnE3-3ax7V-ZqB3-3alFV-Zlb3-3aX1V-Ol-08bH7-8Cpl-08gD7-8Bnl-08aT7-8C6l-08cz-cg1mFA4-dw19k7U-cw17F7M-Yw18k7O-WB11F78-VJ10F74-VJ10F74-VR1CF7h-WZ13F7I-VR10k74-VJ10F74-Wg1Dk7Q-WJ11k7K-VZ10F72-VZ13F7W-Vo13k7Q-WR10k7E-Vo1DF7G-Vw12F7K-VR13k7A-Vo11k7j-W317k7C-Vo13F78-Vw12k76-WB19k7b-VZ12k76-Vg11k7E-VR13F7K-Y312k78-VR13k7C-WR16F7A-WB16k76-VZ11k78-WZ12F7A-Vg15k76-Vo17F7K-VZ13F76-Vg11k7C-WB11k72-WZ11k7A-WJ12F76-Vg11k76-VR12k74-Vw13F7G-Vo12k7A-XB12k7E-WR12F7A-VR11k7A-VZ11F76-VR10F78-VJ12k7A-VZ11F76-W310F7I-VR11k74-VV',
+            link: 'https://territorial.io/?replay=-8gi---7UV1-QTsD--0----V2PB6-1--5kN-1-3c-J-0g-53-TF0_-67-7--q-2Z-CK-1V-CV-kV2m-Bc-t-0--5s-RV0j----V--F------R---9B---JN--7iakV077-3-A2--V0HN-3-80--V0T7-3-Al--V077-3-9I--V0HN-3-80--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z4Y3-6s-7V-z-R3-6t--V-z1C3-6sGcV-z5A3-6t--V-r7-3-5s7kV-r133-5sqsV-r2O3-5sYVV-r4-3-5sO7V-r5p3-5sBNV-kJx3-51g7V-kIs3-519-V-kH33-51SkV-kJR3-51O7V-kK-3-51x-V-kLp3-4F8kV-e453-4FSkV-e283-4FCsV-e6c3-4FqcV-e1r3-4FV-V-e1a3-4FVcV-e3J3-4FV-V-e5c3-4FPVV-e4D3-4FNNV-e3R3-4F4kV-e-s3-4FVcV-e3E3-4F2sV-e0Y3-4Fe7V-e6h3-4FvVV-e4D3-4F-cV-e0-3-4FWsV-e2n3-4F6-V-e2a3-4FucV-e6I3-4FkVV-e4F3-4FV7V-e-s3-4F-cV-e4u3-4FS-V-e0-3-4FVsV-e0b3-4FJkV-e343-4F6-V-e0R3-4F4kV-e6O3-4F8NV-e373-4FZcV-e1h3-4F3cV-e593-4FjFV-e6L3-4FusV-e2n3-3at7V-Zos3-3aB-V-Zmr3-3alFV-Zpu3-3aukV-Znn3-3ayNV-Zpv3-3ajNV-Zl73-3a8-V-ZnE3-3ax7V-ZqB3-3alFV-Zlb3-3aX1V-Ol-08bH7-8Cpl-08gD7-8Bnl-08aT7-8C6l-08cz-cg1mFA4-dw19k7U-cw17F7M-Yw18k7O-WB11F78-VJ10F74-VJ10F74-VR1CF7h-WZ13F7I-VR10k74-VJ10F74-Wg1Dk7Q-WJ11k7K-VZ10F72-VZ13F7W-Vo13k7Q-WR10k7E-Vo1DF7G-Vw12F7K-VR13k7A-Vo11k7j-W317k7C-Vo13F78-Vw12k76-WB19k7b-VZ12k76-Vg11k7E-VR13F7K-Y312k78-VR13k7C-WR16F7A-WB16k76-VZ11k78-WZ12F7A-Vg15k76-Vo17F7K-VZ13F76-Vg11k7C-WB11k72-WZ11k7A-WJ12F76-Vg11k76-VR12k74-Vw13F7G-Vo12k7A-XB12k7E-WR12F7A-VR11k7A-VZ11F76-VR10F78-VJ12k7A-VZ11F76-W310F7I-VR11k74-VV',
             folder: '',
             created_at: new Date().toISOString()
         };
@@ -269,7 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function automateReplayPlayback(replayData, replayLink, replayName) {
         try {
             const iframeDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
-            
             // Add styles to hide UI elements
             const style = iframeDoc.createElement('style');
             style.textContent = `
@@ -299,49 +298,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             `;
             iframeDoc.head.appendChild(style);
-            
             // Execute automation steps with multiple UI layout support
             (async () => {
                 console.log('[AUTOMATION] Starting multi-version replay automation');
-                
-                // Check if 'Place balance above' is enabled
+                let automationSuccess = false;
                 let placeBalanceAbove = false;
                 try {
                     placeBalanceAbove = localStorage.getItem('placeBalanceAbove') === 'true';
                 } catch (e) {}
                 if (placeBalanceAbove) {
-                    const success = await automatePlaceBalanceAbove(iframeDoc, replayData);
-                    if (success) return;
-                    // If failed, fallback to normal automation
-                    console.warn('[AUTOMATION] Place balance above automation failed, falling back to normal.');
+                    automationSuccess = await automatePlaceBalanceAbove(iframeDoc, replayData);
+                    if (!automationSuccess) {
+                        console.warn('[AUTOMATION] Place balance above automation failed, falling back to normal.');
+                    }
                 }
-                
-                // Strategy 1: Try modern UI (Game Menu button)
-                let success = await tryModernUI(iframeDoc, replayData);
-                
-                if (!success) {
-                    console.log('[AUTOMATION] Modern UI failed, trying canvas-based UI');
-                    // Strategy 2: Try canvas-based UI (more button on canvas)
-                    success = await tryCanvasUI(iframeDoc, replayData);
+                if (!automationSuccess) {
+                    // Strategy 1: Try modern UI (Game Menu button)
+                    automationSuccess = await tryModernUI(iframeDoc, replayData);
+                    if (!automationSuccess) {
+                        console.log('[AUTOMATION] Modern UI failed, trying canvas-based UI');
+                        // Strategy 2: Try canvas-based UI (more button on canvas)
+                        automationSuccess = await tryCanvasUI(iframeDoc, replayData);
+                    }
+                    if (!automationSuccess) {
+                        console.log('[AUTOMATION] Canvas UI failed, trying direct search');
+                        // Strategy 3: Direct search for replay elements
+                        automationSuccess = await tryDirectSearch(iframeDoc, replayData);
+                    }
                 }
-                
-                if (!success) {
-                    console.log('[AUTOMATION] Canvas UI failed, trying direct search');
-                    // Strategy 3: Direct search for replay elements
-                    success = await tryDirectSearch(iframeDoc, replayData);
-                }
-                
-                if (success) {
+                if (automationSuccess) {
                     await waitForGameToStart(iframeDoc);
                     gameTitle.textContent = 'Territorial.io Replay';
                     hideLoading();
                     console.log('[AUTOMATION COMPLETE] Replay loaded successfully');
                 } else {
-                    console.error('[AUTOMATION] All strategies failed');
+                    console.error('[AUTOMATION] All strategies failed, retrying fallback automation.');
+                    // As a last resort, try pasting replay data directly
+                    await pasteReplayData(iframeDoc, replayData);
+                    await waitForGameToStart(iframeDoc);
+                    gameTitle.textContent = 'Territorial.io Replay';
                     hideLoading();
                 }
             })();
-            
         } catch (error) {
             console.error('Automation error:', error);
             hideLoading();
@@ -2013,36 +2011,57 @@ document.addEventListener('DOMContentLoaded', () => {
     // New automation for 'Place balance above' option
     async function automatePlaceBalanceAbove(iframeDoc, replayData) {
         try {
+            // Helper to robustly find a button by text, with retries and alternatives
+            async function robustFindButton(texts, retries = 5, delay = 200) {
+                for (let i = 0; i < retries; i++) {
+                    for (const text of texts) {
+                        let btn = findButtonByText(iframeDoc, text);
+                        if (btn) return btn;
+                    }
+                    await sleep(delay);
+                }
+                return null;
+            }
             // 1. Click Game Menu button
-            const gameMenuBtn = findButtonByText(iframeDoc, 'Game Menu') || findButtonByText(iframeDoc, '☰ Game Menu');
-            if (!gameMenuBtn) return false;
+            const gameMenuBtn = await robustFindButton(['Game Menu', '☰ Game Menu', 'Menu', 'MENU']);
+            if (!gameMenuBtn) { console.warn('[AUTOMATION] Could not find Game Menu button'); return false; }
             clickElement(gameMenuBtn);
-            await sleep(200);
+            await sleep(400);
             // 2. Click Settings button
-            const settingsBtn = findButtonByText(iframeDoc, 'Settings') || findButtonByText(iframeDoc, '⚙️ Settings');
-            if (!settingsBtn) return false;
+            const settingsBtn = await robustFindButton(['Settings', '⚙️ Settings', 'SETTINGS']);
+            if (!settingsBtn) { console.warn('[AUTOMATION] Could not find Settings button'); return false; }
             clickElement(settingsBtn);
-            await sleep(200);
-            // 3. Find the <p> with '⬜ Activated' or '�� Activated' (green)
-            let activatedP = Array.from(iframeDoc.querySelectorAll('p')).find(p => p.textContent.includes('Activated'));
-            if (!activatedP) return false;
-            // If not green (emoji is not green), click to enable
-            if (activatedP.textContent.startsWith('⬜')) {
-                clickElement(activatedP);
+            await sleep(400);
+            // 3. Find the <p> with 'Activated' (try multiple times)
+            let activatedP = null;
+            for (let i = 0; i < 5; i++) {
+                activatedP = Array.from(iframeDoc.querySelectorAll('p')).find(p => p.textContent.includes('Activated'));
+                if (activatedP) break;
                 await sleep(200);
             }
+            if (!activatedP) { console.warn('[AUTOMATION] Could not find Activated toggle'); return false; }
+            // If not green (emoji is not green), click to enable
+            if (activatedP.textContent.trim().startsWith('⬜')) {
+                clickElement(activatedP);
+                await sleep(400);
+            }
             // 4. Click Back button
-            const backBtn = Array.from(iframeDoc.querySelectorAll('button')).find(b => b.textContent.includes('Back') || b.textContent.includes('⬅️'));
-            if (!backBtn) return false;
+            const backBtn = await robustFindButton(['Back', '⬅️', '←', 'back']);
+            if (!backBtn) { console.warn('[AUTOMATION] Could not find Back button'); return false; }
             clickElement(backBtn);
-            await sleep(200);
+            await sleep(400);
             // 5. Click Replay button
-            const replayBtn = findButtonByText(iframeDoc, 'Replay') || findButtonByText(iframeDoc, '▶️ Replay');
-            if (!replayBtn) return false;
+            const replayBtn = await robustFindButton(['Replay', '▶️ Replay', 'REPLAY']);
+            if (!replayBtn) { console.warn('[AUTOMATION] Could not find Replay button'); return false; }
             clickElement(replayBtn);
-            await sleep(200);
+            await sleep(400);
             // 6. Continue with normal replay paste
-            return await pasteReplayData(iframeDoc, replayData);
+            const pasteSuccess = await pasteReplayData(iframeDoc, replayData);
+            if (!pasteSuccess) {
+                console.warn('[AUTOMATION] Could not paste replay data after activating balance above');
+                return false;
+            }
+            return true;
         } catch (e) {
             console.error('[AUTOMATION] automatePlaceBalanceAbove error:', e);
             return false;
