@@ -9,7 +9,6 @@ load_dotenv()
 
 app = Flask(__name__)
 
-# MongoDB connection
 MONGO_URI = os.getenv('MONGODB_URI')
 DISCORD_WEBHOOK = os.getenv('DISCORD_WEBHOOK')
 
@@ -25,7 +24,7 @@ def get_db():
         print(f"MongoDB connection error: {str(e)}")
         return None
 
-# Always use latest_version.html if it exists
+
 LATEST_VERSION = "latest_version.html"
 FALLBACK_VERSION = "version3N.html"
 
@@ -135,20 +134,15 @@ def detect_version_from_replay_data(replay_data, available_versions):
                 if version in available_versions:
                     return version
     
-    # Version detection rules based on replay data patterns
     version_rules = [
-        # Latest versions (very complex data with mixed case and numbers)
         {'pattern': lambda d: len(d) > 1200 and any(c.isupper() for c in d) and any(c.islower() for c in d) and any(c.isdigit() for c in d), 'versions': ['latest_version.html', 'version3N.html', 'version37.html']},
         
-        # Modern versions (long with mixed encoding)
         {'pattern': lambda d: len(d) > 800 and d.count('V') > 10, 'versions': ['version3N.html', 'version37.html', 'version3F.html']},
         
-        # Character-heavy versions
         {'pattern': lambda d: 'V' in d and d.count('V') > 8, 'versions': ['latest_version.html', 'version3N.html', 'version-V.html', 'version0V.html', 'version1V.html']},
         {'pattern': lambda d: 'F' in d and d.count('F') > 5, 'versions': ['version3F.html', 'version2F.html', 'version1F.html', 'version0F.html', 'version-F.html']},
         {'pattern': lambda d: 'N' in d and d.count('N') > 5, 'versions': ['version3N.html', 'version2N.html', 'version1N.html', 'version0N.html']},
         
-        # Medium complexity versions
         {'pattern': lambda d: 400 <= len(d) < 800 and any(c in d for c in 'VFNcsk'), 'versions': ['version2N.html', 'version1N.html', 'version-V.html']},
         
         # Older versions
@@ -250,10 +244,8 @@ def extract_replay_data(replay_link):
         return ''
     
     try:
-        # Get everything after the question mark
         query_part = replay_link.split('?', 1)[1]
         
-        # Remove parameter names if present
         if 'replay=' in query_part:
             query_part = query_part.replace('replay=', '')
         elif 'data=' in query_part:
@@ -744,7 +736,6 @@ def action_webhook():
         else:
             return jsonify({'success': False, 'message': 'Unknown action'})
         
-        # Send webhook
         webhook_data = {"embeds": [embed]}
         requests.post(webhook_url, json=webhook_data)
         
@@ -775,7 +766,6 @@ def save_replay():
         
         user_collection = db[username]
         
-        # Check if replay already exists
         existing = user_collection.find_one({
             'type': 'replay',
             'link': replay_link
@@ -793,7 +783,6 @@ def save_replay():
             )
             return jsonify({'success': True, 'message': 'Replay updated successfully', 'already_exists': True})
         
-        # Save new replay
         replay_doc = {
             'type': 'replay',
             'id': f"manual_{int(datetime.utcnow().timestamp() * 1000)}",
@@ -808,14 +797,12 @@ def save_replay():
         insert_result = user_collection.insert_one(replay_doc)
         print(f"[MANUAL SAVE] ✅ Saved replay for {username} with ID: {insert_result.inserted_id}")
         
-        # AGGRESSIVE verification
         verification = user_collection.find_one({'_id': insert_result.inserted_id})
         if verification:
             print(f"[MANUAL SAVE] ✅ VERIFICATION SUCCESSFUL: Replay confirmed in database")
         else:
             print(f"[MANUAL SAVE] ❌ VERIFICATION FAILED: Replay not found after insertion")
         
-        # Send saving webhook
         send_replay_save_webhook(username, replay_name, replay_link)
         
         return jsonify({'success': True, 'message': 'Replay saved successfully', 'verified': verification is not None})
@@ -834,10 +821,8 @@ def replay_viewed():
         
         print(f"[REPLAY VIEW] User: {username or 'Guest'}, Replay: {replay_name}")
         
-        # Send Discord webhook for replay view
         send_replay_view_webhook(username, replay_name, replay_link)
         
-        # Aggressive auto-save replay if user is logged in
         if username and replay_link:
             db = get_db()
             if db is not None:
@@ -847,7 +832,6 @@ def replay_viewed():
                 if username in collections:
                     user_collection = db[username]
                     
-                    # Check if replay already exists
                     existing = user_collection.find_one({
                         'type': 'replay',
                         'link': replay_link
@@ -867,14 +851,11 @@ def replay_viewed():
                         }
                         
                         try:
-                            # FORCE INSERT with aggressive verification
                             insert_result = user_collection.insert_one(replay_doc)
                             print(f"[REPLAY VIEW] ✅ SUCCESSFULLY auto-saved replay for {username} with ID: {insert_result.inserted_id}")
                             
-                            # Send saving webhook
                             send_replay_save_webhook(username, replay_name, replay_link)
                             
-                            # AGGRESSIVE verification with multiple attempts
                             verification_success = False
                             for attempt in range(3):
                                 verification = user_collection.find_one({'_id': insert_result.inserted_id})
@@ -897,7 +878,6 @@ def replay_viewed():
                             traceback.print_exc()
                     else:
                         print(f"[REPLAY VIEW] Replay already exists for user {username}")
-                        # Update existing replay with new name and timestamp
                         try:
                             update_result = user_collection.update_one(
                                 {'_id': existing['_id']},
@@ -942,8 +922,7 @@ def sync_data():
         if db is None:
             print(f"[SYNC] ERROR: Database connection failed")
             return jsonify({'success': False, 'message': 'Database connection failed'})
-        
-        # Verify collection exists
+   
         collections = db.list_collection_names()
         print(f"[SYNC] Available collections: {collections}")
         
@@ -952,14 +931,12 @@ def sync_data():
             return jsonify({'success': False, 'message': f'User collection {username} not found'})
         
         user_collection = db[username]
-        
-        # Aggressive data clearing and insertion
+
         try:
-            # Clear existing replay and folder data
+
             deleted_result = user_collection.delete_many({'type': {'$in': ['replay', 'folder']}})
             print(f"[SYNC] Deleted {deleted_result.deleted_count} existing items")
-            
-            # Force insert replays with validation
+ 
             replay_count = 0
             replay_insert_errors = []
             
@@ -988,7 +965,6 @@ def sync_data():
                     print(f"[SYNC] ERROR: {error_msg}")
                     replay_insert_errors.append(error_msg)
             
-            # Force insert folders with validation
             folder_count = 0
             folder_insert_errors = []
             
@@ -1014,8 +990,7 @@ def sync_data():
                     error_msg = f"Failed to insert folder {i}: {str(folder_error)}"
                     print(f"[SYNC] ERROR: {error_msg}")
                     folder_insert_errors.append(error_msg)
-            
-            # Update user stats
+
             user_collection.update_one(
                 {'_id': 'user_info'},
                 {'$set': {
@@ -1026,13 +1001,11 @@ def sync_data():
             )
             
             print(f"[SYNC] COMPLETED: {replay_count} replays, {folder_count} folders synced")
-            
-            # Verify data was actually saved
+
             verification_replays = user_collection.count_documents({'type': 'replay'})
             verification_folders = user_collection.count_documents({'type': 'folder'})
             print(f"[SYNC] VERIFICATION: {verification_replays} replays, {verification_folders} folders in database")
-            
-            # Send webhook with actual saved data
+   
             if replay_count > 0 or folder_count > 0:
                 send_backup_webhook(username, replays[:replay_count], folders[:folder_count])
                 print(f"[SYNC] Webhook sent for {username}")
@@ -1088,8 +1061,6 @@ def debug_user():
             replays_count = user_collection.count_documents({'type': 'replay'})
             folders_count = user_collection.count_documents({'type': 'folder'})
             user_info = user_collection.find_one({'type': 'user_info'})
-            
-            # Get sample documents
             sample_replays = list(user_collection.find({'type': 'replay'}).limit(3))
             sample_folders = list(user_collection.find({'type': 'folder'}).limit(3))
             
@@ -1152,10 +1123,8 @@ def force_sync():
         insert_result = user_collection.insert_one(test_doc)
         print(f"[FORCE SYNC] Inserted test replay with ID: {insert_result.inserted_id}")
         
-        # Verify insertion
         verification = user_collection.find_one({'_id': insert_result.inserted_id})
         
-        # Send webhook
         send_backup_webhook(username, [test_replay], [])
         
         return jsonify({
@@ -1193,7 +1162,6 @@ def get_data():
         
         print(f"Found {len(replays)} replays and {len(folders)} folders in database")
         
-        # Clean up the data
         clean_replays = []
         for replay in replays:
             if replay.get('link'):  # Only return replays with links
@@ -1224,7 +1192,6 @@ def get_data():
         print(f"Get data error: {str(e)}")
         return jsonify({'success': False, 'message': str(e)})
 
-# Add CORS headers for better debugging
 @app.after_request
 def after_request(response):
     response.headers.add('Access-Control-Allow-Origin', '*')

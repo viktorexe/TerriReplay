@@ -1,10 +1,8 @@
-/* Mobile UI Complete Override */
 body.mobile-ui {
   background: var(--background);
   overflow-x: hidden;
 }
 
-/* Mobile Navigation */
 body.mobile-ui .top-nav {
   position: fixed;
   bottom: 0;
@@ -50,7 +48,6 @@ body.mobile-ui .nav-btn span {
   line-height: 1;
 }
 
-/* Mobile Layout */
 body.mobile-ui .main-layout {
   padding: 30px 0 80px;
   overflow-x: hidden;
@@ -79,7 +76,6 @@ body.mobile-ui .content-area {
   gap: 25px;
 }
 
-/* Mobile Header */
 body.mobile-ui .header h1 {
   font-size: 2.2rem;
   line-height: 1.1;
@@ -91,7 +87,6 @@ body.mobile-ui .subtitle {
   padding: 0;
 }
 
-/* Mobile Replay Input */
 body.mobile-ui .replay-input-section {
   padding: 20px;
   border-radius: 12px;
@@ -123,8 +118,6 @@ body.mobile-ui .help-text {
   line-height: 1.3;
   text-align: center;
 }
-
-/* Mobile File Upload */
 body.mobile-ui .mobile-file-upload {
   display: block !important;
   animation: fadeIn 0.5s ease;
@@ -194,7 +187,6 @@ body.mobile-ui .file-help-text {
   line-height: 1.3;
 }
 
-/* Mobile Sections */
 body.mobile-ui .folders-section,
 body.mobile-ui .replays-section {
   padding: 20px;
@@ -221,7 +213,6 @@ body.mobile-ui .create-btn {
   border-radius: 8px;
 }
 
-/* Mobile Grids */
 body.mobile-ui .folders-grid,
 body.mobile-ui .replays-grid {
   grid-template-columns: 1fr;
@@ -230,7 +221,6 @@ body.mobile-ui .replays-grid {
   overflow-x: hidden;
 }
 
-/* Mobile Cards */
 body.mobile-ui .folder-card,
 body.mobile-ui .replay-card {
   padding: 16px;
@@ -269,8 +259,6 @@ body.mobile-ui .action-btn {
   justify-content: center;
   border-radius: 6px;
 }
-
-/* Mobile Featured */
 body.mobile-ui .featured-item {
   padding: 16px;
   border-radius: 10px;
@@ -304,8 +292,6 @@ body.mobile-ui .featured-btn {
   font-size: 0.8rem;
   border-radius: 6px;
 }
-
-/* Mobile Game Modal */
 body.mobile-ui .game-modal-content {
   width: 100vw;
   height: 100vh;
@@ -321,8 +307,6 @@ body.mobile-ui .modal-header {
 body.mobile-ui .game-header h3 {
   font-size: 1.1rem;
 }
-
-/* Mobile Account Modals */
 body.mobile-ui .modal-content {
   width: 95%;
   max-width: 380px;
@@ -394,8 +378,6 @@ body.mobile-ui .back-btn {
   justify-content: center;
   margin-bottom: 10px;
 }
-
-/* Mobile Discord Modal */
 body.mobile-ui .discord-modal {
   width: 95%;
   max-width: 350px;
@@ -415,8 +397,6 @@ body.mobile-ui .discord-link {
   color: white;
   margin-top: 15px;
 }
-
-/* Mobile Loading & Success Modals */
 body.mobile-ui .loading-modal,
 body.mobile-ui .success-modal {
   width: 90%;
@@ -442,15 +422,11 @@ body.mobile-ui .success-btn {
   border-radius: 8px;
   margin-top: 20px;
 }
-
-/* Mobile Breadcrumb */
 body.mobile-ui .breadcrumb {
   font-size: 0.85rem;
   margin-bottom: 15px;
   flex-wrap: wrap;
 }
-
-/* Mobile Empty States */
 body.mobile-ui .empty-state {
   padding: 40px 15px;
 }
@@ -469,7 +445,6 @@ body.mobile-ui .empty-state span {
   font-size: 0.85rem;
 }
 
-/* Mobile Animations */
 @keyframes fadeIn {
   from { 
     opacity: 0; 
@@ -481,7 +456,6 @@ body.mobile-ui .empty-state span {
   }
 }
 
-/* Mobile Touch Improvements */
 body.mobile-ui button,
 body.mobile-ui .action-btn,
 body.mobile-ui .nav-btn {
@@ -495,7 +469,6 @@ body.mobile-ui .close-modal {
   min-height: 36px;
 }
 
-/* Mobile Landscape Adjustments */
 @media (max-width: 768px) and (orientation: landscape) {
   body.mobile-ui .main-layout {
     padding: 20px 0 70px;
@@ -509,7 +482,6 @@ body.mobile-ui .close-modal {
     margin-bottom: 20px;
   }
 }
-/* Mobile Top Section */
 body.mobile-ui .top-section {
   grid-template-columns: 1fr;
   gap: 20px;

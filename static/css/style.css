@@ -28,7 +28,6 @@ body {
   overflow-x: hidden;
 }
 
-/* Navigation */
 .top-nav {
   position: fixed;
   top: 0;
@@ -98,7 +97,6 @@ body {
   box-shadow: 0 5px 15px rgba(88, 101, 242, 0.4);
 }
 
-/* Main Layout */
 .main-layout {
   display: flex;
   flex-direction: column;
@@ -144,7 +142,6 @@ body {
   gap: 50px;
 }
 
-/* Top Section - Input and Featured Side by Side */
 .top-section {
   display: grid;
   grid-template-columns: 2fr 1fr;
@@ -152,7 +149,6 @@ body {
   align-items: start;
 }
 
-/* Replay Input Section */
 .replay-input-section {
   background: var(--surface);
   border-radius: 20px;
@@ -212,12 +208,10 @@ body {
   line-height: 1.5;
 }
 
-/* Mobile File Upload (hidden by default) */
 .mobile-file-upload {
   display: none;
 }
 
-/* Featured Replay Card - Styled like Folder Cards */
 .featured-card {
   background: var(--background);
   border: 1px solid var(--border);
@@ -300,7 +294,6 @@ body {
   border-color: var(--accent);
 }
 
-/* Sections */
 .folders-section,
 .replays-section {
   background: var(--surface);
@@ -349,7 +342,6 @@ body {
   box-shadow: 0 8px 20px rgba(255, 74, 107, 0.3);
 }
 
-/* Grids */
 .folders-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -362,7 +354,6 @@ body {
   gap: 25px;
 }
 
-/* Cards */
 .folder-card,
 .replay-card {
   background: var(--background);
@@ -455,7 +446,6 @@ body {
   margin-top: 12px;
 }
 
-/* Breadcrumb */
 .breadcrumb {
   display: flex;
   align-items: center;
@@ -478,7 +468,6 @@ body {
   color: var(--border);
 }
 
-/* Empty States */
 .empty-state {
   text-align: center;
   padding: 80px 20px;
@@ -501,7 +490,6 @@ body {
   opacity: 0.7;
 }
 
-/* Game Modal - Landscape 90% */
 .modal {
   display: none;
   position: fixed;
@@ -627,7 +615,6 @@ body {
   100% { left: 100%; }
 }
 
-/* Account Modal Styles */
 .account-options {
   display: flex;
   flex-direction: column;
@@ -776,7 +763,6 @@ body {
   transform: translateY(-1px);
 }
 
-/* Discord Modal */
 .discord-modal {
   width: 450px;
   max-width: 90vw;
@@ -804,7 +790,6 @@ body {
   box-shadow: 0 10px 20px rgba(88, 101, 242, 0.4);
 }
 
-/* Loading and Success Modals */
 .loading-modal,
 .success-modal {
   width: 450px;
@@ -871,7 +856,6 @@ body {
   box-shadow: 0 10px 20px rgba(74, 107, 255, 0.4);
 }
 
-/* Custom Alerts */
 .center-alert {
   position: fixed;
   top: 50%;
@@ -905,7 +889,6 @@ body {
   font-size: 1.3rem;
 }
 
-/* Animations */
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -923,7 +906,6 @@ body {
   }
 }
 
-/* Responsive Design */
 @media (max-width: 1200px) {
   .layout-container {
     max-width: none;
@@ -994,7 +976,6 @@ body {
     background: rgba(74, 107, 255, 0.1);
   }
 }
-/* Modal Button Styles - Same Size */
 .modal-btn {
   padding: 10px 16px !important;
   font-size: 0.9rem !important;
@@ -1033,7 +1014,6 @@ body {
   color: var(--primary) !important;
 }
 
-/* Settings Modal (inherits modal styles) */
 #settingsModal .modal-content {
   background: var(--card);
   border-radius: 16px;
@@ -1059,7 +1039,6 @@ body {
   accent-color: var(--primary);
 }
 
-/* Footer Styles */
 .footer {
   background: var(--surface);
   border-top: 1px solid var(--border);

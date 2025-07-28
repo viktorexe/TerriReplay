@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements - Replay functionality
     const replayLinkInput = document.getElementById('replayLink');
     const playReplayBtn = document.getElementById('playReplayBtn');
     const gameModal = document.getElementById('gameModal');
@@ -7,8 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameTitle = document.getElementById('gameTitle');
     const closeGameModal = document.getElementById('closeGameModal');
     const loadingSpinner = document.getElementById('loadingSpinner');
-    
-    // DOM Elements - New UI features
     const discordBtn = document.getElementById('discordBtn');
     const accountBtn = document.getElementById('accountBtn');
     const accountText = document.getElementById('accountText');
@@ -18,23 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeDiscordModal = document.getElementById('closeDiscordModal');
     const closeAccountModal = document.getElementById('closeAccountModal');
     const mobileCSS = document.getElementById('mobileCSS');
-    // Settings modal elements
-    const settingsBtn = document.getElementById('settingsBtn');
-    const settingsModal = document.getElementById('settingsModal');
-    const closeSettingsModal = document.getElementById('closeSettingsModal');
-    const placeBalanceAboveCheckbox = document.getElementById('placeBalanceAboveCheckbox');
-    
-    // File upload elements
+
     const mobileFileUpload = document.getElementById('mobileFileUpload');
-    const replayFileInput = document.getElementById('replayFileInput');
-    
-    // Loading and success modal elements
+    const replayFileInput = document.getElementById('replayFileInput');    
     const loadingModal = document.getElementById('loadingModal');
     const successModal = document.getElementById('successModal');
     const progressFill = document.getElementById('progressFill');
-    const successOkBtn = document.getElementById('successOkBtn');
-    
-    // Account form elements
+    const successOkBtn = document.getElementById('successOkBtn');    
     const accountOptions = document.getElementById('accountOptions');
     const loginForm = document.getElementById('loginForm');
     const signupForm = document.getElementById('signupForm');
@@ -44,49 +31,36 @@ document.addEventListener('DOMContentLoaded', () => {
     const backFromSignup = document.getElementById('backFromSignup');
     const loginSubmitBtn = document.getElementById('loginSubmitBtn');
     const signupSubmitBtn = document.getElementById('signupSubmitBtn');
-    
-    // Password toggles
     const loginPasswordToggle = document.getElementById('loginPasswordToggle');
     const signupPasswordToggle = document.getElementById('signupPasswordToggle');
     const confirmPasswordToggle = document.getElementById('confirmPasswordToggle');
-    
-    // State
     let isMobileUI = false;
     let currentUser = localStorage.getItem('currentUser');
     let savedReplays = JSON.parse(localStorage.getItem('savedReplays') || '[]');
     let savedFolders = JSON.parse(localStorage.getItem('savedFolders') || '[]');
     let currentFolder = '';
     let syncInterval;
-    
-    // Replay management elements
+
     const foldersContainer = document.getElementById('foldersContainer');
     const replaysContainer = document.getElementById('replaysContainer');
     const breadcrumb = document.getElementById('breadcrumb');
     const replaysTitle = document.getElementById('replaysTitle');
     const createFolderBtn = document.getElementById('createFolderBtn');
-    
-    // Initialize user state
     if (currentUser) {
         const icon = accountBtn.querySelector('i');
         icon.className = 'fas fa-user-check';
         accountText.textContent = currentUser;
-        // Load data from database first, then start syncing
         syncFromDatabase().then(() => {
             startSyncing();
             startContinuousMonitoring();
         });
     }
-    
-    // Initialize replay management
     loadReplays();
-    if (createFolderBtn) createFolderBtn.addEventListener('click', showCreateFolderPrompt);
-    
-    // Featured replay functions
+    if (createFolderBtn) createFolderBtn.addEventListener('click', showCreateFolderPrompt);    
     window.playFeaturedReplay = () => {
         const featuredLink = 'https://territorial.io/?replay=-8gi---7UV1-QTsD--0----V2PB6-1--5kN-1-3c-J-0g-53-TF0_-67-7--q-2Z-CK-1V-CV-kV2m-Bc-t-0--5s-RV0j----V--F------R---9B---JN--7iakV077-3-A2--V0HN-3-80--V0T7-3-Al--V077-3-9I--V0HN-3-80--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z4Y3-6s-7V-z-R3-6t--V-z1C3-6sGcV-z5A3-6t--V-r7-3-5s7kV-r133-5sqsV-r2O3-5sYVV-r4-3-5sO7V-r5p3-5sBNV-kJx3-51g7V-kIs3-519-V-kH33-51SkV-kJR3-51O7V-kK-3-51x-V-kLp3-4F8kV-e453-4FSkV-e283-4FCsV-e6c3-4FqcV-e1r3-4FV-V-e1a3-4FVcV-e3J3-4FV-V-e5c3-4FPVV-e4D3-4FNNV-e3R3-4F4kV-e-s3-4FVcV-e3E3-4F2sV-e0Y3-4Fe7V-e6h3-4FvVV-e4D3-4F-cV-e0-3-4FWsV-e2n3-4F6-V-e2a3-4FucV-e6I3-4FkVV-e4F3-4FV7V-e-s3-4F-cV-e4u3-4FS-V-e0-3-4FVsV-e0b3-4FJkV-e343-4F6-V-e0R3-4F4kV-e6O3-4F8NV-e373-4FZcV-e1h3-4F3cV-e593-4FjFV-e6L3-4FusV-e2n3-3at7V-Zos3-3aB-V-Zmr3-3alFV-Zpu3-3aukV-Znn3-3ayNV-Zpv3-3ajNV-Zl73-3a8-V-ZnE3-3ax7V-ZqB3-3alFV-Zlb3-3aX1V-Ol-08bH7-8Cpl-08gD7-8Bnl-08aT7-8C6l-08cz-cg1mFA4-dw19k7U-cw17F7M-Yw18k7O-WB11F78-VJ10F74-VJ10F74-VR1CF7h-WZ13F7I-VR10k74-VJ10F74-Wg1Dk7Q-WJ11k7K-VZ10F72-VZ13F7W-Vo13k7Q-WR10k7E-Vo1DF7G-Vw12F7K-VR13k7A-Vo11k7j-W317k7C-Vo13F78-Vw12k76-WB19k7b-VZ12k76-Vg11k7E-VR13F7K-Y312k78-VR13k7C-WR16F7A-WB16k76-VZ11k78-WZ12F7A-Vg15k76-Vo17F7K-VZ13F76-Vg11k7C-WB11k72-WZ11k7A-WJ12F76-Vg11k76-VR12k74-Vw13F7G-Vo12k7A-XB12k7E-WR12F7A-VR11k7A-VZ11F76-VR10F78-VJ12k7A-VZ11F76-W310F7I-VR11k74-VV';
         playReplay(featuredLink);
     };
-    
     window.saveFeaturedReplay = () => {
         const featuredReplay = {
             id: 'featured_cent_wr',
@@ -94,119 +68,71 @@ document.addEventListener('DOMContentLoaded', () => {
             link: 'https://territorial.io/?replay=-8gi---7UV1-QTsD--0----V2PB6-1--5kN-1-3c-J-0g-53-TF0_-67-7--q-2Z-CK-1V-CV-kV2m-Bc-t-0--5s-RV0j----V--F------R---9B---JN--7iakV077-3-A2--V0HN-3-80--V0T7-3-Al--V077-3-9I--V0HN-3-80--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z7-3-6t--V-z4Y3-6s-7V-z-R3-6t--V-z1C3-6sGcV-z5A3-6t--V-r7-3-5s7kV-r133-5sqsV-r2O3-5sYVV-r4-3-5sO7V-r5p3-5sBNV-kJx3-51g7V-kIs3-519-V-kH33-51SkV-kJR3-51O7V-kK-3-51x-V-kLp3-4F8kV-e453-4FSkV-e283-4FCsV-e6c3-4FqcV-e1r3-4FV-V-e1a3-4FVcV-e3J3-4FV-V-e5c3-4FPVV-e4D3-4FNNV-e3R3-4F4kV-e-s3-4FVcV-e3E3-4F2sV-e0Y3-4Fe7V-e6h3-4FvVV-e4D3-4F-cV-e0-3-4FWsV-e2n3-4F6-V-e2a3-4FucV-e6I3-4FkVV-e4F3-4FV7V-e-s3-4F-cV-e4u3-4FS-V-e0-3-4FVsV-e0b3-4FJkV-e343-4F6-V-e0R3-4F4kV-e6O3-4F8NV-e373-4FZcV-e1h3-4F3cV-e593-4FjFV-e6L3-4FusV-e2n3-3at7V-Zos3-3aB-V-Zmr3-3alFV-Zpu3-3aukV-Znn3-3ayNV-Zpv3-3ajNV-Zl73-3a8-V-ZnE3-3ax7V-ZqB3-3alFV-Zlb3-3aX1V-Ol-08bH7-8Cpl-08gD7-8Bnl-08aT7-8C6l-08cz-cg1mFA4-dw19k7U-cw17F7M-Yw18k7O-WB11F78-VJ10F74-VJ10F74-VR1CF7h-WZ13F7I-VR10k74-VJ10F74-Wg1Dk7Q-WJ11k7K-VZ10F72-VZ13F7W-Vo13k7Q-WR10k7E-Vo1DF7G-Vw12F7K-VR13k7A-Vo11k7j-W317k7C-Vo13F78-Vw12k76-WB19k7b-VZ12k76-Vg11k7E-VR13F7K-Y312k78-VR13k7C-WR16F7A-WB16k76-VZ11k78-WZ12F7A-Vg15k76-Vo17F7K-VZ13F76-Vg11k7C-WB11k72-WZ11k7A-WJ12F76-Vg11k76-VR12k74-Vw13F7G-Vo12k7A-XB12k7E-WR12F7A-VR11k7A-VZ11F76-VR10F78-VJ12k7A-VZ11F76-W310F7I-VR11k74-VV',
             folder: '',
             created_at: new Date().toISOString()
-        };
-        
+        };  
         savedReplays.unshift(featuredReplay);
         localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
-        
         loadReplays();
         showCenterAlert('Featured replay saved!', 'success');
-        
         if (currentUser) {
-            // Force immediate sync
             setTimeout(() => syncToDatabase(), 100);
         }
     };
-    
-    // Event Listeners - Replay functionality
     if (playReplayBtn) playReplayBtn.addEventListener('click', handlePlayReplay);
     if (replayLinkInput) replayLinkInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             handlePlayReplay();
         }
     });
-    
     if (closeGameModal) closeGameModal.addEventListener('click', closeGameModalFn);
-    
-    // Event Listeners - New UI features
     if (discordBtn) discordBtn.addEventListener('click', () => showModalFn(discordModal));
     if (accountBtn) accountBtn.addEventListener('click', handleAccountClick);
     if (mobileUIBtn) mobileUIBtn.addEventListener('click', toggleMobileUI);
     if (closeDiscordModal) closeDiscordModal.addEventListener('click', () => hideModalFn(discordModal));
     if (closeAccountModal) closeAccountModal.addEventListener('click', () => hideModalFn(accountModal));
-    if (settingsBtn) settingsBtn.addEventListener('click', () => showModalFn(settingsModal));
-    if (closeSettingsModal) closeSettingsModal.addEventListener('click', () => hideModalFn(settingsModal));
-    // Persist and load 'Place balance above' setting
-    if (placeBalanceAboveCheckbox) {
-        // Load from localStorage
-        const saved = localStorage.getItem('placeBalanceAbove');
-        placeBalanceAboveCheckbox.checked = saved === 'true';
-        placeBalanceAboveCheckbox.addEventListener('change', () => {
-            localStorage.setItem('placeBalanceAbove', placeBalanceAboveCheckbox.checked ? 'true' : 'false');
-        });
-    }
-    
-    // Account form event listeners
+
     if (showLoginBtn) showLoginBtn.addEventListener('click', showLoginForm);
     if (showSignupBtn) showSignupBtn.addEventListener('click', showSignupForm);
     if (backFromLogin) backFromLogin.addEventListener('click', showAccountOptions);
     if (backFromSignup) backFromSignup.addEventListener('click', showAccountOptions);
     if (loginSubmitBtn) loginSubmitBtn.addEventListener('click', handleLogin);
     if (signupSubmitBtn) signupSubmitBtn.addEventListener('click', handleSignup);
-    
-    // Password toggle listeners
     if (loginPasswordToggle) loginPasswordToggle.addEventListener('click', () => togglePassword('loginPassword', 'loginPasswordToggle'));
     if (signupPasswordToggle) signupPasswordToggle.addEventListener('click', () => togglePassword('signupPassword', 'signupPasswordToggle'));
     if (confirmPasswordToggle) confirmPasswordToggle.addEventListener('click', () => togglePassword('confirmPassword', 'confirmPasswordToggle'));
-    
-    // File upload listener
     if (replayFileInput) replayFileInput.addEventListener('change', handleFileUpload);
-    
-    // Success modal listener
     if (successOkBtn) successOkBtn.addEventListener('click', () => hideModalFn(successModal));
-    
-    // Close modals when clicking outside
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
-            // Don't close loading modal by clicking outside
             if (e.target === loadingModal) return;
-            
             hideModalFn(e.target);
-            showAccountOptions(); // Reset account modal to options view
+            showAccountOptions(); 
         }
     });
-    
-    // Initialize mobile UI state on page load
     if (document.body.classList.contains('mobile-ui')) {
         mobileFileUpload.style.display = 'block';
     }
-    
-    // Functions - Replay functionality (unchanged)
     function handlePlayReplay() {
         const replayLink = replayLinkInput.value.trim();
-        
         if (!replayLink) {
             alert('Please enter a replay link');
             return;
         }
-        
         if (!replayLink.includes('territorial.io') || !replayLink.includes('?')) {
             alert('Please enter a valid Territorial.io replay link');
             return;
         }
-        
         playReplay(replayLink);
     }
-    
     function playReplay(replayLink) {
         console.log('[PLAY REPLAY] INSTANT SAVE - Starting replay:', replayLink);
-        
-        // INSTANT SAVE - Save replay immediately when played
         const replayName = generateReplayName(replayLink);
         console.log('[PLAY REPLAY] INSTANT SAVE - Generated name:', replayName);
-        
-        // Save to localStorage immediately
         saveReplayToHistory(replayLink, replayName);
-        
-        // Send webhooks immediately
         sendReplayViewWebhook(replayName, replayLink);
         sendReplayPlayedWebhook(replayName, replayLink);
-        
         gameTitle.textContent = 'Loading Replay...';
         showGameModal();
         showLoading();
-        
-        // Get the appropriate game version
         fetch('/get_version', {
             method: 'POST',
             headers: {
@@ -225,51 +151,40 @@ document.addEventListener('DOMContentLoaded', () => {
             closeGameModalFn();
         });
     }
-    
     function extractReplayData(replayLink) {
         if (!replayLink || !replayLink.includes('?')) {
             return '';
         }
-        
         try {
             const parts = replayLink.split('?');
             if (parts.length > 1) {
                 let replayData = parts[1];
-                
-                // Remove parameter names if present
                 if (replayData.startsWith('replay=')) {
                     replayData = replayData.replace('replay=', '');
                 } else if (replayData.startsWith('data=')) {
                     replayData = replayData.replace('data=', '');
                 }
-                
                 return replayData;
             }
         } catch (e) {
             console.error('Error extracting replay data:', e);
         }
-        
         return '';
     }
-    
     function loadGameVersion(version, replayData, replayLink, replayName) {
         const versionPath = `/emulated_versions/${version}`;
         gameFrame.src = versionPath;
-        
         gameFrame.onload = () => {
             automateReplayPlayback(replayData, replayLink, replayName);
         };
-        
         gameFrame.onerror = () => {
             alert('Failed to load game version');
             closeGameModalFn();
         };
     }
-    
     function automateReplayPlayback(replayData, replayLink, replayName) {
         try {
             const iframeDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
-            // Add styles to hide UI elements
             const style = iframeDoc.createElement('style');
             style.textContent = `
                 .loading, button, textarea, input, select, .menu, .menuContainer, #menuContainer, 
@@ -298,33 +213,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             `;
             iframeDoc.head.appendChild(style);
-            // Execute automation steps with multiple UI layout support
             (async () => {
-                console.log('[AUTOMATION] Starting multi-version replay automation');
+                console.log('[AUTOMATION] Starting replay automation');
                 let automationSuccess = false;
-                let placeBalanceAbove = false;
-                try {
-                    placeBalanceAbove = localStorage.getItem('placeBalanceAbove') === 'true';
-                } catch (e) {}
-                if (placeBalanceAbove) {
-                    automationSuccess = await automatePlaceBalanceAbove(iframeDoc, replayData);
-                    if (!automationSuccess) {
-                        console.warn('[AUTOMATION] Place balance above automation failed, falling back to normal.');
-                    }
+                
+                automationSuccess = await tryModernUI(iframeDoc, replayData);
+                if (!automationSuccess) {
+                    console.log('[AUTOMATION] Modern UI failed, trying canvas UI');
+                    automationSuccess = await tryCanvasUI(iframeDoc, replayData);
                 }
                 if (!automationSuccess) {
-                    // Strategy 1: Try modern UI (Game Menu button)
-                    automationSuccess = await tryModernUI(iframeDoc, replayData);
-                    if (!automationSuccess) {
-                        console.log('[AUTOMATION] Modern UI failed, trying canvas-based UI');
-                        // Strategy 2: Try canvas-based UI (more button on canvas)
-                        automationSuccess = await tryCanvasUI(iframeDoc, replayData);
-                    }
-                    if (!automationSuccess) {
-                        console.log('[AUTOMATION] Canvas UI failed, trying direct search');
-                        // Strategy 3: Direct search for replay elements
-                        automationSuccess = await tryDirectSearch(iframeDoc, replayData);
-                    }
+                    console.log('[AUTOMATION] Canvas UI failed, trying direct search');
+                    automationSuccess = await tryDirectSearch(iframeDoc, replayData);
+                }
+                if (!automationSuccess) {
+                    console.log('[AUTOMATION] All strategies failed, trying emergency fallback');
+                    automationSuccess = await emergencyFallback(iframeDoc, replayData);
                 }
                 if (automationSuccess) {
                     await waitForGameToStart(iframeDoc);
@@ -333,7 +237,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log('[AUTOMATION COMPLETE] Replay loaded successfully');
                 } else {
                     console.error('[AUTOMATION] All strategies failed, retrying fallback automation.');
-                    // As a last resort, try pasting replay data directly
                     await pasteReplayData(iframeDoc, replayData);
                     await waitForGameToStart(iframeDoc);
                     gameTitle.textContent = 'Territorial.io Replay';
@@ -345,25 +248,20 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoading();
         }
     }
-    
     async function waitForGameToStart(iframeDoc) {
         const maxAttempts = 100;
         let attempts = 0;
-        
         return new Promise(resolve => {
             const checkForGameElements = async () => {
                 attempts++;
-                
                 const canvas = iframeDoc.querySelector('canvas');
                 const gameCanvas = iframeDoc.getElementById('gameCanvas');
                 const gameContainer = iframeDoc.querySelector('.game-container');
-                
                 const menuElements = iframeDoc.querySelectorAll('button, .menu, #menuContainer');
                 const menuVisible = Array.from(menuElements).some(el => {
                     const style = window.getComputedStyle(el);
                     return style.display !== 'none' && style.visibility !== 'hidden';
                 });
-                
                 if ((canvas || gameCanvas || gameContainer) && !menuVisible || attempts >= maxAttempts) {
                     await sleep(300);
                     resolve();
@@ -371,62 +269,74 @@ document.addEventListener('DOMContentLoaded', () => {
                     setTimeout(checkForGameElements, 50);
                 }
             };
-            
             checkForGameElements();
         });
     }
-    
-    // Modern UI automation (Game Menu button approach)
     async function tryModernUI(iframeDoc, replayData) {
         try {
-            console.log('[MODERN UI] Attempting modern UI automation');
+            console.log('[MODERN UI] Starting modern UI automation');
             
-            const gameMenuButton = findButtonByText(iframeDoc, 'Game Menu');
-            if (!gameMenuButton) return false;
+            // Wait for page to load
+            await sleep(1000);
             
+            // Find Game Menu button with multiple strategies
+            let gameMenuButton = findButtonByText(iframeDoc, 'Game Menu');
+            if (!gameMenuButton) {
+                gameMenuButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
+                    btn.textContent.includes('☰') || 
+                    btn.textContent.toLowerCase().includes('menu')
+                );
+            }
+            
+            if (!gameMenuButton) {
+                console.log('[MODERN UI] No Game Menu button found');
+                return false;
+            }
+            
+            console.log('[MODERN UI] Found Game Menu, clicking');
             clickElement(gameMenuButton);
-            await sleep(100);
+            await sleep(800);
             
-            const replayButton = findButtonByText(iframeDoc, 'Replay');
-            if (!replayButton) return false;
+            // Find Replay button
+            let replayButton = findButtonByText(iframeDoc, 'Replay');
+            if (!replayButton) {
+                replayButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
+                    btn.textContent.includes('▶️') || 
+                    btn.textContent.toLowerCase().includes('replay')
+                );
+            }
             
+            if (!replayButton) {
+                console.log('[MODERN UI] No Replay button found');
+                return false;
+            }
+            
+            console.log('[MODERN UI] Found Replay button, clicking');
             clickElement(replayButton);
-            await sleep(100);
+            await sleep(800);
             
+            console.log('[MODERN UI] Attempting to paste replay data');
             return await pasteReplayData(iframeDoc, replayData);
+            
         } catch (e) {
             console.error('[MODERN UI] Error:', e);
             return false;
         }
     }
-    
-    // Canvas-based UI automation (more button on canvas)
     async function tryCanvasUI(iframeDoc, replayData) {
         try {
             console.log('[CANVAS UI] Attempting canvas-based UI automation');
-            
-            // Look for canvas element
             const canvas = iframeDoc.getElementById('canvasA') || iframeDoc.querySelector('canvas');
             if (!canvas) return false;
-            
             console.log('[CANVAS UI] Found canvas:', canvas.id, 'Size:', canvas.width, 'x', canvas.height);
-            
-            // For version-V.html and similar, try multiple click strategies
             const strategies = [
-                // Strategy 1: Top-right corner (typical more button location)
                 { x: canvas.width - 20, y: 20, desc: 'top-right corner' },
-                // Strategy 2: Slightly more inward
                 { x: canvas.width - 30, y: 30, desc: 'top-right inward' },
-                // Strategy 3: Different corner positions
                 { x: canvas.width - 40, y: 15, desc: 'top-right alternative' },
-                // Strategy 4: Try clicking on canvas center-right
                 { x: canvas.width - 25, y: canvas.height / 4, desc: 'right side' }
             ];
-            
             for (const strategy of strategies) {
                 console.log(`[CANVAS UI] Trying ${strategy.desc} at (${strategy.x}, ${strategy.y})`);
-                
-                // Create multiple types of events
                 const events = [
                     new MouseEvent('mousedown', { clientX: strategy.x, clientY: strategy.y, bubbles: true }),
                     new MouseEvent('mouseup', { clientX: strategy.x, clientY: strategy.y, bubbles: true }),
@@ -434,8 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     new PointerEvent('pointerdown', { clientX: strategy.x, clientY: strategy.y, bubbles: true }),
                     new PointerEvent('pointerup', { clientX: strategy.x, clientY: strategy.y, bubbles: true })
                 ];
-                
-                // Dispatch all events
                 events.forEach(event => {
                     try {
                         canvas.dispatchEvent(event);
@@ -443,17 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         console.log('[CANVAS UI] Event dispatch failed:', e.message);
                     }
                 });
-                
                 await sleep(300);
-                
-                // Check if any UI elements appeared
                 if (await checkForReplayUI(iframeDoc, replayData)) {
                     console.log(`[CANVAS UI] Success with ${strategy.desc}`);
                     return true;
                 }
             }
-            
-            // Try keyboard shortcuts as fallback
             console.log('[CANVAS UI] Trying keyboard shortcuts');
             const keyEvents = [
                 new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }),
@@ -461,7 +364,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 new KeyboardEvent('keydown', { key: 'R', bubbles: true }),
                 new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })
             ];
-            
             for (const keyEvent of keyEvents) {
                 iframeDoc.dispatchEvent(keyEvent);
                 await sleep(200);
@@ -470,27 +372,20 @@ document.addEventListener('DOMContentLoaded', () => {
                     return true;
                 }
             }
-            
             return false;
         } catch (e) {
             console.error('[CANVAS UI] Error:', e);
             return false;
         }
     }
-    
-    // Check for replay UI elements and handle them
     async function checkForReplayUI(iframeDoc, replayData) {
-        // Look for any new elements that might be the replay interface
         const possibleElements = [
             ...iframeDoc.querySelectorAll('div, button, input, textarea'),
             ...iframeDoc.querySelectorAll('[onclick*="replay"], [onclick*="Replay"]')
         ];
-        
-        // Check for text content that suggests replay functionality
         for (const element of possibleElements) {
             const text = element.textContent?.toLowerCase() || '';
             const onclick = element.getAttribute('onclick') || '';
-            
             if (text.includes('replay') || onclick.includes('replay')) {
                 console.log('[CANVAS UI] Found potential replay element:', element.tagName, text);
                 clickElement(element);
@@ -501,23 +396,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
-        
-        // Check for textarea or input that might accept replay data
         const textInputs = iframeDoc.querySelectorAll('textarea, input[type="text"]');
         if (textInputs.length > 0) {
             console.log('[CANVAS UI] Found text inputs, trying to paste replay data');
             return await pasteReplayData(iframeDoc, replayData);
         }
-        
         return false;
     }
-    
-    // Direct search automation with aggressive replay detection
     async function tryDirectSearch(iframeDoc, replayData) {
         try {
             console.log('[DIRECT SEARCH] Attempting aggressive replay detection');
-            
-            // Strategy 1: Look for existing textarea/input (replay might already be open)
             const existingInputs = iframeDoc.querySelectorAll('textarea, input[type="text"]');
             if (existingInputs.length > 0) {
                 console.log('[DIRECT SEARCH] Found existing inputs, trying direct paste');
@@ -525,8 +413,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     return true;
                 }
             }
-            
-            // Strategy 2: Try all possible keyboard shortcuts
             const shortcuts = [
                 { key: 'r', desc: 'R key for replay' },
                 { key: 'R', desc: 'Shift+R for replay' },
@@ -537,94 +423,71 @@ document.addEventListener('DOMContentLoaded', () => {
                 { key: ' ', desc: 'Space bar' },
                 { key: 'Tab', desc: 'Tab navigation' }
             ];
-            
             for (const shortcut of shortcuts) {
                 console.log(`[DIRECT SEARCH] Trying ${shortcut.desc}`);
-                
                 const keyEvent = new KeyboardEvent('keydown', {
                     key: shortcut.key,
                     bubbles: true,
                     cancelable: true
                 });
-                
                 iframeDoc.dispatchEvent(keyEvent);
                 iframeDoc.body?.dispatchEvent(keyEvent);
-                
                 await sleep(300);
-                
-                // Check if replay interface appeared
                 if (await pasteReplayData(iframeDoc, replayData)) {
                     console.log(`[DIRECT SEARCH] Success with ${shortcut.desc}`);
                     return true;
                 }
             }
-            
-            // Strategy 3: Try clicking everywhere on the screen
             const canvas = iframeDoc.querySelector('canvas');
             if (canvas) {
                 console.log('[DIRECT SEARCH] Trying systematic canvas clicks');
-                
                 const clickPositions = [
-                    // Corners
                     { x: 10, y: 10 }, { x: canvas.width - 10, y: 10 },
                     { x: 10, y: canvas.height - 10 }, { x: canvas.width - 10, y: canvas.height - 10 },
-                    // Edges
                     { x: canvas.width / 2, y: 10 }, { x: canvas.width / 2, y: canvas.height - 10 },
                     { x: 10, y: canvas.height / 2 }, { x: canvas.width - 10, y: canvas.height / 2 },
-                    // Center areas
                     { x: canvas.width / 2, y: canvas.height / 2 },
                     { x: canvas.width * 0.25, y: canvas.height * 0.25 },
                     { x: canvas.width * 0.75, y: canvas.height * 0.25 },
                     { x: canvas.width * 0.25, y: canvas.height * 0.75 },
                     { x: canvas.width * 0.75, y: canvas.height * 0.75 }
                 ];
-                
                 for (const pos of clickPositions) {
-                    // Try multiple event types
                     const events = [
                         new MouseEvent('click', { clientX: pos.x, clientY: pos.y, bubbles: true }),
                         new MouseEvent('dblclick', { clientX: pos.x, clientY: pos.y, bubbles: true }),
                         new MouseEvent('contextmenu', { clientX: pos.x, clientY: pos.y, bubbles: true })
                     ];
-                    
                     for (const event of events) {
                         canvas.dispatchEvent(event);
                     }
-                    
                     await sleep(200);
-                    
                     if (await pasteReplayData(iframeDoc, replayData)) {
                         console.log(`[DIRECT SEARCH] Success with canvas click at (${pos.x}, ${pos.y})`);
                         return true;
                     }
                 }
             }
-            
-            // Strategy 4: Try to trigger any JavaScript functions that might open replay
             console.log('[DIRECT SEARCH] Trying to trigger replay functions');
             const win = iframeDoc.defaultView || iframeDoc.parentWindow;
-            
             if (win) {
                 const possibleFunctions = [
                     'openReplay', 'showReplay', 'replayMode', 'loadReplay',
                     'openMenu', 'showMenu', 'gameMenu', 'mainMenu',
                     'toggleMenu', 'menu', 'replay', 'r', 'R'
                 ];
-                
                 for (const funcName of possibleFunctions) {
                     try {
                         if (typeof win[funcName] === 'function') {
                             console.log(`[DIRECT SEARCH] Calling function: ${funcName}`);
                             win[funcName]();
                             await sleep(300);
-                            
                             if (await pasteReplayData(iframeDoc, replayData)) {
                                 console.log(`[DIRECT SEARCH] Success with function: ${funcName}`);
                                 return true;
                             }
                         }
                     } catch (e) {
-                        // Ignore function call errors
                     }
                 }
             }
@@ -635,52 +498,72 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     }
-    
-    // Paste replay data into textarea
     async function pasteReplayData(iframeDoc, replayData) {
         try {
-            // Look for textarea with various selectors
-            const textarea = iframeDoc.getElementById('textArea1') || 
-                           iframeDoc.querySelector('textarea[placeholder*="replay"]') ||
-                           iframeDoc.querySelector('textarea[placeholder*="Replay"]') ||
-                           iframeDoc.querySelector('textarea') ||
-                           iframeDoc.querySelector('input[type="text"]');
+            console.log('[PASTE] Looking for textarea/input field');
+            
+            // Wait a bit for UI to appear
+            await sleep(500);
+            
+            let textarea = iframeDoc.getElementById('textArea1') || 
+                          iframeDoc.querySelector('textarea[placeholder*="replay"]') ||
+                          iframeDoc.querySelector('textarea[placeholder*="Replay"]') ||
+                          iframeDoc.querySelector('textarea') ||
+                          iframeDoc.querySelector('input[type="text"]');
+            
+            // If no textarea found, wait and try again
+            if (!textarea) {
+                console.log('[PASTE] No textarea found, waiting and retrying');
+                await sleep(1000);
+                textarea = iframeDoc.querySelector('textarea') || iframeDoc.querySelector('input[type="text"]');
+            }
             
             if (!textarea) {
-                console.log('[PASTE] No textarea found');
+                console.log('[PASTE] Still no textarea found');
                 return false;
             }
             
-            console.log('[PASTE] Found textarea, pasting data');
+            console.log('[PASTE] Found textarea, pasting replay data');
+            textarea.focus();
             textarea.value = replayData || '';
+            
+            // Trigger multiple events to ensure the paste is registered
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
             textarea.dispatchEvent(new Event('change', { bubbles: true }));
+            textarea.dispatchEvent(new Event('keyup', { bubbles: true }));
             
-            await sleep(100);
+            await sleep(500);
             
-            // Look for launch/play/start button
+            // Look for launch button
             const launchButton = findButtonByText(iframeDoc, 'Launch') ||
                                findButtonByText(iframeDoc, 'Play') ||
                                findButtonByText(iframeDoc, 'Start') ||
-                               findButtonByText(iframeDoc, 'GO');
+                               findButtonByText(iframeDoc, 'GO') ||
+                               Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
+                                   btn.textContent.toLowerCase().includes('launch') ||
+                                   btn.textContent.toLowerCase().includes('play') ||
+                                   btn.textContent.toLowerCase().includes('start')
+                               );
             
             if (launchButton) {
-                console.log('[PASTE] Clicking launch button');
+                console.log('[PASTE] Found launch button, clicking');
                 clickElement(launchButton);
+                await sleep(500);
+            } else {
+                console.log('[PASTE] No launch button found, trying Enter key');
+                textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
             }
             
             return true;
+            
         } catch (e) {
             console.error('[PASTE] Error:', e);
             return false;
         }
     }
-    
     function findButtonByText(doc, text) {
         const elements = Array.from(doc.querySelectorAll('button'));
-        
         let button = elements.find(el => el.textContent.trim() === text);
-        
         if (!button) {
             button = elements.find(el => el.textContent.includes(text));
         }
@@ -692,7 +575,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         return button;
     }
-    
     function findElementByText(doc, text) {
         const elements = Array.from(doc.querySelectorAll('*'));
         const lowerText = text.toLowerCase();
@@ -738,22 +620,20 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingSpinner.style.display = 'none';
         gameFrame.style.opacity = '1';
     }
-    
     function toggleMinimize() {
         const content = gameModal.querySelector('.modal-content');
         content.classList.toggle('minimized');
     }
-    
+
     function toggleFullscreen() {
         const content = gameModal.querySelector('.modal-content');
         content.classList.toggle('fullscreen');
     }
-    
+
     function sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-    
-    // New UI Functions
+
     function showModalFn(modal) {
         modal.style.display = 'flex';
     }
@@ -777,8 +657,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mobileFileUpload.style.display = 'none';
         }
     }
-    
-    // Account Functions
+
     function showLoginForm() {
         accountOptions.style.display = 'none';
         loginForm.style.display = 'block';
@@ -843,11 +722,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideModalFn(accountModal);
                 showCustomAlert(`Welcome back, ${username}!`, 'success');
                 startSyncing();
-                // Force immediate sync of local data to database after login
                 setTimeout(() => {
                     console.log('[LOGIN] Starting aggressive sync...');
                     syncToDatabase();
-                    // Debug the user after login
                     setTimeout(() => {
                         window.debugUser();
                     }, 2000);
@@ -900,7 +777,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const result = await response.json();
             
-            // Hide loading modal
             hideModalFn(loadingModal);
             
             if (result.success) {
@@ -910,15 +786,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon.className = 'fas fa-user-check';
                 accountText.textContent = username;
                 hideModalFn(accountModal);
-                
-                // Show success modal instead of alert
                 showSuccessModal(username);
                 startSyncing();
-                // Force immediate sync of local data to database after account creation
                 setTimeout(() => {
                     console.log('[ACCOUNT CREATED] Starting aggressive sync...');
                     syncToDatabase();
-                    // Debug the user after account creation
                     setTimeout(() => {
                         window.debugUser();
                     }, 2000);
@@ -933,7 +805,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // File Upload Function
     function handleFileUpload(event) {
         const file = event.target.files[0];
         
@@ -956,8 +827,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 replayFileInput.value = '';
                 return;
             }
-            
-            // Clean the content - remove all whitespace, newlines, etc.
+
             content = content.replace(/\s+/g, '').trim();
             
             console.log('File content after cleaning:', content);
@@ -968,15 +838,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 replayFileInput.value = '';
                 return;
             }
-            
-            // More flexible validation - just check if it contains territorial.io
             if (!content.includes('territorial.io')) {
                 alert('The file does not contain a Territorial.io link.');
                 replayFileInput.value = '';
                 return;
             }
-            
-            // If it doesn't start with http, add it
+
             if (!content.startsWith('http')) {
                 if (content.startsWith('territorial.io')) {
                     content = 'https://' + content;
@@ -984,12 +851,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             console.log('Final content to play:', content);
-            
-            // Set the replay link and play it
             replayLinkInput.value = content;
             playReplay(content);
-            
-            // Clear the file input
             replayFileInput.value = '';
         };
         
@@ -1000,25 +863,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         reader.readAsText(file);
     }
-    
-    // Loading Modal Functions
     function showLoadingModal(title = 'Loading...', message = 'Please wait...') {
         document.getElementById('loadingTitle').textContent = title;
         document.getElementById('loadingMessage').textContent = message;
         showModalFn(loadingModal);
-        
-        // Animate progress bar
         let progress = 0;
         const interval = setInterval(() => {
             progress += Math.random() * 15;
             if (progress > 90) progress = 90;
             progressFill.style.width = progress + '%';
         }, 200);
-        
-        // Store interval to clear it later
         loadingModal.progressInterval = interval;
     }
-    
     function hideLoadingModal() {
         if (loadingModal.progressInterval) {
             clearInterval(loadingModal.progressInterval);
@@ -1029,13 +885,11 @@ document.addEventListener('DOMContentLoaded', () => {
             progressFill.style.width = '0%';
         }, 300);
     }
-    
     function showSuccessModal(username) {
         document.getElementById('successTitle').textContent = 'Welcome to TerriReplay!';
         document.getElementById('successMessage').textContent = `Hi ${username}! Your account has been created successfully. You are now logged in and ready to start watching Territorial.io replays.`;
         showModalFn(successModal);
     }
-    
     function handleAccountClick() {
         if (currentUser) {
             showLogoutPrompt();
@@ -1043,7 +897,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showModalFn(accountModal);
         }
     }
-    
     function showLogoutPrompt() {
         const logoutModal = document.createElement('div');
         logoutModal.className = 'modal';
@@ -1067,7 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
         document.body.appendChild(logoutModal);
         
         window.confirmLogout = () => {
@@ -1088,7 +940,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function showCustomAlert(message, type = 'info') {
-        // Remove any existing alerts first
         const existingAlerts = document.querySelectorAll('.custom-alert');
         existingAlerts.forEach(alert => {
             if (document.body.contains(alert)) {
@@ -1168,15 +1019,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }, 2000);
     }
-    
-    // Advanced Replay Functions
     function generateReplayName(replayLink) {
         const now = new Date();
         const timeStr = now.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
         const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
         return `Replay ${dateStr} ${timeStr}`;
     }
-    
     function sendReplayViewWebhook(replayName, replayLink) {
         if (!replayLink) return;
         
@@ -1190,7 +1038,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         }).catch(e => console.error('Webhook error:', e));
     }
-    
+
     async function saveReplayToDatabase(replayName, replayLink) {
         if (!currentUser || !replayLink) return;
         
@@ -1273,8 +1121,6 @@ document.addEventListener('DOMContentLoaded', () => {
             })
         }).catch(e => console.error('Replay renamed webhook error:', e));
     }
-    
-    // Replay Management Functions
     function saveReplayToHistory(replayLink, replayName = 'Replay') {
         console.log('[SAVE REPLAY] Starting save process for:', replayName);
         
@@ -1286,8 +1132,6 @@ document.addEventListener('DOMContentLoaded', () => {
             folder: currentFolder,
             created_at: new Date().toISOString()
         };
-        
-        // Check if replay already exists
         const existingIndex = savedReplays.findIndex(r => r.link === replayLink);
         if (existingIndex !== -1) {
             console.log('[SAVE REPLAY] Replay already exists, updating name');
@@ -1296,24 +1140,16 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('[SAVE REPLAY] Adding new replay to collection');
             savedReplays.unshift(replay);
         }
-        
-        // Save to local storage immediately
         localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
         console.log('[SAVE REPLAY] Saved to localStorage, total replays:', savedReplays.length);
-        
-        // Update UI
         loadReplays();
-        
         if (currentUser) {
             console.log('[SAVE REPLAY] User logged in, saving to database');
-            // Save directly to database with multiple attempts
             saveReplayToDatabase(replayName, replayLink);
-            // Force immediate aggressive sync
             setTimeout(() => {
                 console.log('[SAVE REPLAY] Starting sync to database');
                 syncToDatabase();
             }, 200);
-            // Backup sync after 2 seconds
             setTimeout(() => {
                 console.log('[SAVE REPLAY] Backup sync to database');
                 syncToDatabase();
@@ -1366,7 +1202,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const currentReplays = savedReplays.filter(r => r.folder === currentFolder);
         
-        // Update breadcrumb and title
         if (currentFolder) {
             const folder = savedFolders.find(f => f.id === currentFolder);
             const folderName = folder ? folder.name : 'Unknown Folder';
@@ -1479,9 +1314,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showCenterAlert('Folder created successfully', 'success');
         
         if (currentUser) {
-            // Send webhook
             sendFolderCreatedWebhook(name);
-            // Force immediate sync
             setTimeout(() => syncToDatabase(), 100);
         }
     }
@@ -1529,31 +1362,20 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('🔧 [EDIT REPLAY] Found replay at index:', replayIndex);
         
         if (replayIndex !== -1) {
-            // Get old values BEFORE updating
             const oldName = savedReplays[replayIndex].name;
             const oldFolder = savedReplays[replayIndex].folder;
-            
             console.log('🔧 [EDIT REPLAY] BEFORE - Name:', oldName, 'Folder:', oldFolder);
             console.log('🔧 [EDIT REPLAY] BEFORE - Full replay:', JSON.stringify(savedReplays[replayIndex]));
-            
-            // Update the replay
             savedReplays[replayIndex].name = newName;
             savedReplays[replayIndex].folder = newFolder;
             savedReplays[replayIndex].updated_at = new Date().toISOString();
-            
             console.log('🔧 [EDIT REPLAY] AFTER - Name:', savedReplays[replayIndex].name, 'Folder:', savedReplays[replayIndex].folder);
             console.log('🔧 [EDIT REPLAY] AFTER - Full replay:', JSON.stringify(savedReplays[replayIndex]));
-            
-            // Save to localStorage immediately
             localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
             console.log('🔧 [EDIT REPLAY] ✅ Saved to localStorage');
-            
-            // Verify localStorage save
             const verifyLocal = JSON.parse(localStorage.getItem('savedReplays') || '[]');
             const verifyReplay = verifyLocal.find(r => r.id === replayId);
             console.log('🔧 [EDIT REPLAY] 🔍 VERIFY localStorage - Found replay:', verifyReplay ? JSON.stringify(verifyReplay) : 'NOT FOUND');
-            
-            // STOP ALL SYNCING TEMPORARILY
             if (syncInterval) {
                 clearInterval(syncInterval);
                 console.log('🔧 [EDIT REPLAY] ⏸️ STOPPED sync interval');
@@ -1563,37 +1385,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('🔧 [EDIT REPLAY] ⏸️ STOPPED monitoring interval');
             }
             
-            // Update UI
             loadReplays();
             showCenterAlert('Replay updated successfully', 'success');
             
-            // Verify UI update
             setTimeout(() => {
                 const currentReplays = savedReplays.filter(r => r.folder === currentFolder);
                 const uiReplay = currentReplays.find(r => r.id === replayId);
                 console.log('🔧 [EDIT REPLAY] 🔍 VERIFY UI - Current folder:', currentFolder);
                 console.log('🔧 [EDIT REPLAY] 🔍 VERIFY UI - Found in current view:', uiReplay ? JSON.stringify(uiReplay) : 'NOT IN CURRENT VIEW');
                 
-                // RESTART SYNCING AFTER 5 SECONDS
                 setTimeout(() => {
                     console.log('🔧 [EDIT REPLAY] ▶️ RESTARTING sync systems');
                     if (currentUser) {
                         startSyncing();
                         startContinuousMonitoring();
-                        // Force sync after restart
                         setTimeout(() => syncToDatabase(), 1000);
                     }
                 }, 5000);
             }, 500);
             
             if (currentUser) {
-                // Send webhook if name changed
                 if (oldName !== newName) {
                     console.log('🔧 [EDIT REPLAY] 📢 Name changed, sending webhook');
                     sendReplayRenamedWebhook(oldName, newName);
                 }
-                
-                // Force immediate database sync with the updated data
+
                 console.log('🔧 [EDIT REPLAY] 🚀 Force syncing updated replay to database');
                 setTimeout(() => {
                     syncToDatabase();
@@ -1603,29 +1419,22 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('🔧 [EDIT REPLAY] ❌ Replay not found with ID:', replayId);
             console.error('🔧 [EDIT REPLAY] ❌ Available IDs:', savedReplays.map(r => r.id));
         }
-        
         console.log('🔧 [EDIT REPLAY] === EDIT COMPLETE ===');
     }
-    
     function showDeleteReplayPrompt(replayId, replayName) {
         showCustomConfirm('Delete Replay', `Are you sure you want to delete "${replayName}"?`, () => {
             deleteReplay(replayId);
         });
     }
-    
     function deleteReplay(replayId) {
         savedReplays = savedReplays.filter(r => r.id !== replayId);
         localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
-        
         loadReplays();
         showCenterAlert('Replay deleted successfully', 'success');
-        
         if (currentUser) {
-            // Force immediate sync
             setTimeout(() => syncToDatabase(), 100);
         }
     }
-    
     function showRenameFolderPrompt(folderId, currentName) {
         const modal = document.createElement('div');
         modal.className = 'modal';
@@ -1651,13 +1460,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
         document.body.appendChild(modal);
-        
         const input = document.getElementById('renameFolderInput');
         input.focus();
         input.select();
-        
         window.confirmRenameFolder = () => {
             const name = input.value.trim();
             if (name) {
@@ -1665,44 +1471,35 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.body.removeChild(modal);
             }
         };
-        
         window.cancelRenameFolder = () => {
             document.body.removeChild(modal);
         };
-        
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 window.confirmRenameFolder();
             }
         });
     }
-    
     function renameFolder(folderId, newName) {
         const folderIndex = savedFolders.findIndex(f => f.id === folderId);
         if (folderIndex !== -1) {
             savedFolders[folderIndex].name = newName;
             localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
-            
             loadReplays();
             showCenterAlert('Folder renamed successfully', 'success');
-            
             if (currentUser) {
-                // Send webhook
                 const oldFolder = savedFolders.find(f => f.id === folderId);
                 const oldName = oldFolder ? oldFolder.name : 'Unknown';
                 sendFolderRenamedWebhook(oldName, newName);
-                // Force immediate sync
                 setTimeout(() => syncToDatabase(), 100);
             }
         }
     }
-    
     function showDeleteFolderPrompt(folderId, folderName) {
         showCustomConfirm('Delete Folder', `Are you sure you want to delete "${folderName}"? All replays in this folder will be moved to the root.`, () => {
             deleteFolder(folderId);
         });
     }
-    
     function deleteFolder(folderId) {
         savedFolders = savedFolders.filter(f => f.id !== folderId);
         savedReplays.forEach(r => {
@@ -1720,12 +1517,9 @@ document.addEventListener('DOMContentLoaded', () => {
         showCenterAlert('Folder deleted successfully', 'success');
         
         if (currentUser) {
-            // Force immediate sync
             setTimeout(() => syncToDatabase(), 100);
         }
     }
-    
-    // Custom Prompt Functions
     function showCustomPrompt(title, message, defaultValue = '', callback) {
         const modal = document.createElement('div');
         modal.className = 'modal';
@@ -1748,19 +1542,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
         document.body.appendChild(modal);
-        
         window.confirmPrompt = () => {
             callback(true);
             document.body.removeChild(modal);
         };
-        
         window.cancelPrompt = () => {
             document.body.removeChild(modal);
         };
     }
-    
     function showCustomConfirm(title, message, callback) {
         const modal = document.createElement('div');
         modal.className = 'modal';
@@ -1783,65 +1573,50 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             </div>
         `;
-        
         document.body.appendChild(modal);
-        
         window.confirmAction = () => {
             callback();
             document.body.removeChild(modal);
         };
-        
         window.cancelAction = () => {
             document.body.removeChild(modal);
         };
     }
-    
-    // Continuous monitoring system
     let monitoringInterval;
     let lastReplayState = '';
     let lastFolderState = '';
-    
     function startContinuousMonitoring() {
         if (monitoringInterval) clearInterval(monitoringInterval);
         console.log('[MONITOR] Starting continuous monitoring for user:', currentUser);
-        // Store initial state as JSON string
         lastReplayState = JSON.stringify(savedReplays);
         lastFolderState = JSON.stringify(savedFolders);
         monitoringInterval = setInterval(() => {
             if (currentUser) {
-                // Always sync every second
                 syncToDatabase();
             }
-        }, 1000); // Sync every second
+        }, 1000);
     }
-    
     function stopSyncing() {
         if (monitoringInterval) {
             clearInterval(monitoringInterval);
             monitoringInterval = null;
         }
     }
-    
-    // Advanced Sync Functions
     function startSyncing() {
         if (syncInterval) clearInterval(syncInterval);
         console.log('[SYNC] Starting sync system for user:', currentUser);
-        // Sync every 3 seconds to ensure data is backed up
         syncInterval = setInterval(() => {
             if (currentUser) {
                 syncToDatabase();
             }
         }, 3000);
     }
-    
     async function syncToDatabase() {
         if (!currentUser) {
             return;
         }
         try {
             console.log(`[SYNC TO DB] User: ${currentUser} | Replays: ${savedReplays.length} | Folders: ${savedFolders.length}`);
-            
-            // Ensure all data has proper structure with updated names
             const cleanReplays = savedReplays.filter(r => r && r.link).map(r => ({
                 id: r.id || `replay_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 name: r.name || 'Unnamed Replay',
@@ -1850,37 +1625,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 created_at: r.created_at || new Date().toISOString(),
                 updated_at: r.updated_at || new Date().toISOString()
             }));
-            
             const cleanFolders = savedFolders.filter(f => f && f.name).map(f => ({
                 id: f.id || `folder_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
                 name: f.name,
                 created_at: f.created_at || new Date().toISOString(),
                 updated_at: f.updated_at || new Date().toISOString()
             }));
-            
             console.log(`[SYNC TO DB] Clean data - Replays: ${cleanReplays.length}, Folders: ${cleanFolders.length}`);
-            
-            // Log first few replays to verify names
             if (cleanReplays.length > 0) {
                 console.log(`[SYNC TO DB] Sample replay names:`, cleanReplays.slice(0, 3).map(r => r.name));
             }
-            
             const syncData = {
                 username: currentUser,
                 replays: cleanReplays,
                 folders: cleanFolders
             };
-            
             const response = await fetch('/api/sync_data', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(syncData)
             });
-            
             if (!response.ok) {
                 throw new Error(`HTTP ${response.status}: ${response.statusText}`);
             }
-            
             const result = await response.json();
             if (result.success) {
                 console.log(`[SYNC SUCCESS] MongoDB updated: ${result.synced_replays || 0} replays, ${result.synced_folders || 0} folders`);
@@ -1901,7 +1668,6 @@ document.addEventListener('DOMContentLoaded', () => {
             showCustomAlert('Sync error: ' + e.message, 'error');
         }
     }
-    
     async function syncFromDatabase() {
         if (!currentUser) {
             console.log('[SYNC] No current user, skipping sync from DB');
@@ -1912,31 +1678,23 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('🔄 [SYNC FROM DB] User:', currentUser);
             console.log('🔄 [SYNC FROM DB] BEFORE - Local replays:', savedReplays.length);
             console.log('🔄 [SYNC FROM DB] BEFORE - Local folders:', savedFolders.length);
-            
             const response = await fetch('/api/get_data', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: currentUser })
             });
-            
             const data = await response.json();
-            
             if (data.success) {
                 const dbReplays = data.replays || [];
                 const dbFolders = data.folders || [];
-                
                 console.log('🔄 [SYNC FROM DB] Database has:', dbReplays.length, 'replays,', dbFolders.length, 'folders');
                 console.log('🔄 [SYNC FROM DB] Local has:', savedReplays.length, 'replays,', savedFolders.length, 'folders');
-                
-                // OVERWRITE LOCAL DATA with database data on login/sync
                 console.log('🔄 [SYNC FROM DB] ✅ Overwriting local data with database data');
                 savedReplays = dbReplays;
                 savedFolders = dbFolders;
                 localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
                 localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
-                loadReplays(); // Refresh UI
-                
-                // Now start aggressive sync from local to backend
+                loadReplays(); 
                 setTimeout(() => {
                     console.log('🔄 [SYNC FROM DB] 🚀 Triggering sync TO database');
                     syncToDatabase();
@@ -1950,8 +1708,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         console.log('🔄 [SYNC FROM DB] === SYNC FROM DATABASE COMPLETE ===');
     }
-    
-    // Debug functions for troubleshooting
     window.debugUser = async function() {
         if (!currentUser) {
             console.log('[DEBUG] No current user');
@@ -1971,13 +1727,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('[DEBUG] Error:', e);
         }
     };
-    
     window.forceSync = async function() {
         if (!currentUser) {
             console.log('[FORCE SYNC] No current user');
             return;
         }
-        
         try {
             const response = await fetch('/api/force_sync', {
                 method: 'POST',
@@ -1988,7 +1742,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('[FORCE SYNC] Result:', result);
             if (result.success) {
                 showCustomAlert('Force sync completed! Check Discord for webhook.', 'success');
-                // Refresh data
                 setTimeout(() => syncFromDatabase(), 1000);
             }
             return result;
@@ -1996,8 +1749,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('[FORCE SYNC] Error:', e);
         }
     };
-    
-    // Make functions global for onclick handlers
     window.navigateToFolder = navigateToFolder;
     window.showRenameFolderPrompt = showRenameFolderPrompt;
     window.showDeleteFolderPrompt = showDeleteFolderPrompt;
@@ -2008,63 +1759,73 @@ document.addEventListener('DOMContentLoaded', () => {
     window.confirmRenameFolder = null;
     window.cancelRenameFolder = null;
     
-    // New automation for 'Place balance above' option
-    async function automatePlaceBalanceAbove(iframeDoc, replayData) {
+    async function emergencyFallback(iframeDoc, replayData) {
         try {
-            // Helper to robustly find a button by text, with retries and alternatives
-            async function robustFindButton(texts, retries = 5, delay = 200) {
-                for (let i = 0; i < retries; i++) {
-                    for (const text of texts) {
-                        let btn = findButtonByText(iframeDoc, text);
-                        if (btn) return btn;
-                    }
-                    await sleep(delay);
+            console.log('[EMERGENCY] Starting emergency fallback automation');
+            
+            // Wait for page to fully load
+            await sleep(1000);
+            
+            // Try to find any textarea or input
+            let textarea = iframeDoc.querySelector('textarea') || iframeDoc.querySelector('input[type="text"]');
+            
+            if (textarea) {
+                console.log('[EMERGENCY] Found input field, pasting data directly');
+                textarea.value = replayData;
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                textarea.dispatchEvent(new Event('change', { bubbles: true }));
+                
+                // Try to find launch button
+                const buttons = Array.from(iframeDoc.querySelectorAll('button'));
+                const launchBtn = buttons.find(btn => 
+                    btn.textContent.toLowerCase().includes('launch') ||
+                    btn.textContent.toLowerCase().includes('play') ||
+                    btn.textContent.toLowerCase().includes('start') ||
+                    btn.textContent.toLowerCase().includes('go')
+                );
+                
+                if (launchBtn) {
+                    console.log('[EMERGENCY] Found launch button, clicking');
+                    clickElement(launchBtn);
                 }
-                return null;
+                
+                return true;
             }
-            // 1. Click Game Menu button
-            const gameMenuBtn = await robustFindButton(['Game Menu', '☰ Game Menu', 'Menu', 'MENU']);
-            if (!gameMenuBtn) { console.warn('[AUTOMATION] Could not find Game Menu button'); return false; }
-            clickElement(gameMenuBtn);
-            await sleep(400);
-            // 2. Click Settings button
-            const settingsBtn = await robustFindButton(['Settings', '⚙️ Settings', 'SETTINGS']);
-            if (!settingsBtn) { console.warn('[AUTOMATION] Could not find Settings button'); return false; }
-            clickElement(settingsBtn);
-            await sleep(400);
-            // 3. Find the <p> with 'Activated' (try multiple times)
-            let activatedP = null;
-            for (let i = 0; i < 5; i++) {
-                activatedP = Array.from(iframeDoc.querySelectorAll('p')).find(p => p.textContent.includes('Activated'));
-                if (activatedP) break;
-                await sleep(200);
+            
+            // Try clicking anywhere on the page to activate it
+            console.log('[EMERGENCY] No input found, trying page activation');
+            const body = iframeDoc.body;
+            if (body) {
+                body.click();
+                await sleep(500);
+                
+                // Try keyboard shortcuts
+                const shortcuts = ['r', 'R', 'Escape', 'Enter', 'm', 'M'];
+                for (const key of shortcuts) {
+                    const keyEvent = new KeyboardEvent('keydown', { key, bubbles: true });
+                    iframeDoc.dispatchEvent(keyEvent);
+                    body.dispatchEvent(keyEvent);
+                    await sleep(200);
+                    
+                    // Check if textarea appeared
+                    textarea = iframeDoc.querySelector('textarea') || iframeDoc.querySelector('input[type="text"]');
+                    if (textarea) {
+                        console.log(`[EMERGENCY] Textarea appeared after ${key} key`);
+                        textarea.value = replayData;
+                        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                        return true;
+                    }
+                }
             }
-            if (!activatedP) { console.warn('[AUTOMATION] Could not find Activated toggle'); return false; }
-            // If not green (emoji is not green), click to enable
-            if (activatedP.textContent.trim().startsWith('⬜')) {
-                clickElement(activatedP);
-                await sleep(400);
-            }
-            // 4. Click Back button
-            const backBtn = await robustFindButton(['Back', '⬅️', '←', 'back']);
-            if (!backBtn) { console.warn('[AUTOMATION] Could not find Back button'); return false; }
-            clickElement(backBtn);
-            await sleep(400);
-            // 5. Click Replay button
-            const replayBtn = await robustFindButton(['Replay', '▶️ Replay', 'REPLAY']);
-            if (!replayBtn) { console.warn('[AUTOMATION] Could not find Replay button'); return false; }
-            clickElement(replayBtn);
-            await sleep(400);
-            // 6. Continue with normal replay paste
-            const pasteSuccess = await pasteReplayData(iframeDoc, replayData);
-            if (!pasteSuccess) {
-                console.warn('[AUTOMATION] Could not paste replay data after activating balance above');
-                return false;
-            }
-            return true;
+            
+            console.log('[EMERGENCY] All emergency strategies failed');
+            return false;
+            
         } catch (e) {
-            console.error('[AUTOMATION] automatePlaceBalanceAbove error:', e);
+            console.error('[EMERGENCY] Error:', e);
             return false;
         }
     }
+
+
 });

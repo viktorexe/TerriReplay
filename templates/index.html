@@ -12,7 +12,6 @@
     <link rel="icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
 </head>
 <body>
-    <!-- Top Navigation -->
     <nav class="top-nav">
         <div class="nav-left">
             <img src="{{ url_for('static', filename='img/logo.png') }}" alt="TerriReplay Logo" class="nav-logo">
@@ -22,9 +21,7 @@
             <button id="accountBtn" class="nav-btn">
                 <i class="fas fa-user"></i> <span id="accountText">Account</span>
             </button>
-            <button id="settingsBtn" class="nav-btn" title="Settings">
-                <i class="fas fa-cog"></i>
-            </button>
+
             <button id="mobileUIBtn" class="nav-btn">
                 <i class="fas fa-mobile-alt"></i> Mobile UI
             </button>
@@ -35,7 +32,6 @@
         </div>
     </nav>
 
-    <!-- Main Layout -->
     <div class="main-layout">
         <header class="header">
             <h1>Territorial.io Replay Emulator</h1>
@@ -44,10 +40,7 @@
         
         <div class="layout-container">
             <div class="content-area">
-            
-            <!-- Top Section with Input and Featured -->
             <div class="top-section">
-                <!-- Replay Input -->
                 <div class="replay-input-section">
                     <div class="input-container">
                         <input type="text" id="replayLink" placeholder="Paste your Territorial.io replay link here..." class="replay-input">
@@ -57,7 +50,6 @@
                     </div>
                     <p class="help-text">Paste a link like: https://territorial.io/replay?...</p>
                     
-                    <!-- Mobile File Upload (hidden by default) -->
                     <div class="mobile-file-upload" id="mobileFileUpload" style="display: none;">
                         <div class="upload-divider">
                             <span>OR</span>
@@ -72,7 +64,6 @@
                     </div>
                 </div>
                 
-                <!-- Featured Replay Card -->
                 <div class="featured-card">
                     <div class="featured-header">
                         <img src="{{ url_for('static', filename='img/cent.png') }}" alt="Cent" class="featured-avatar" onerror="this.style.display='none'">
@@ -92,7 +83,6 @@
                 </div>
             </div>
             
-            <!-- Folders Section -->
             <div class="folders-section">
                 <div class="section-header">
                     <h2 class="section-title"><i class="fas fa-folder"></i> Folders</h2>
@@ -109,7 +99,6 @@
                 </div>
             </div>
             
-            <!-- Replays Section -->
             <div class="replays-section">
                 <div class="section-header">
                     <h2 class="section-title"><i class="fas fa-play-circle"></i> <span id="replaysTitle">My Replays</span></h2>
@@ -128,7 +117,6 @@
         </div>
     </div>
     
-    <!-- Discord Modal -->
     <div class="modal" id="discordModal">
         <div class="modal-content discord-modal">
             <div class="modal-header">
@@ -144,7 +132,6 @@
         </div>
     </div>
 
-    <!-- Account Modal -->
     <div class="modal" id="accountModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -161,7 +148,6 @@
                     </button>
                 </div>
                 
-                <!-- Login Form -->
                 <div class="account-form" id="loginForm" style="display: none;">
                     <h4>Login to Your Account</h4>
                     <div class="form-group">
@@ -183,7 +169,6 @@
                     </button>
                 </div>
                 
-                <!-- Signup Form -->
                 <div class="account-form" id="signupForm" style="display: none;">
                     <h4>Create New Account</h4>
                     <div class="form-group">
@@ -216,24 +201,8 @@
         </div>
     </div>
 
-    <!-- Settings Modal -->
-    <div class="modal" id="settingsModal">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3><i class="fas fa-cog"></i> Settings</h3>
-                <button class="close-modal" id="closeSettingsModal"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="modal-body">
-                <div class="form-group" style="display: flex; align-items: center; gap: 12px;">
-                    <input type="checkbox" id="placeBalanceAboveCheckbox" style="width: 20px; height: 20px;">
-                    <label for="placeBalanceAboveCheckbox" style="font-size: 1rem; cursor: pointer;">Place balance above</label>
-                </div>
-                <p style="color: var(--text-light); font-size: 0.95rem; margin-top: 10px;">When enabled, the replay automation will activate the 'Place balance above' option in-game before playing a replay.</p>
-            </div>
-        </div>
-    </div>
 
-    <!-- Loading Modal -->
+
     <div class="modal" id="loadingModal">
         <div class="modal-content loading-modal">
             <div class="loading-container">
@@ -247,7 +216,6 @@
         </div>
     </div>
 
-    <!-- Success Modal -->
     <div class="modal" id="successModal">
         <div class="modal-content success-modal">
             <div class="success-container">
@@ -263,7 +231,6 @@
         </div>
     </div>
 
-    <!-- Game Modal -->
     <div class="modal" id="gameModal">
         <div class="modal-content game-modal-content">
             <div class="modal-header game-header">
@@ -281,7 +248,6 @@
         </div>
     </div>
     
-    <!-- Footer -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-links">
