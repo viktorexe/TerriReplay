@@ -274,50 +274,21 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     async function tryModernUI(iframeDoc, replayData) {
         try {
-            console.log('[MODERN UI] Starting modern UI automation');
+            console.log('[MODERN UI] Attempting modern UI automation');
             
-            // Wait for page to load
-            await sleep(1000);
+            const gameMenuButton = findButtonByText(iframeDoc, 'Game Menu');
+            if (!gameMenuButton) return false;
             
-            // Find Game Menu button with multiple strategies
-            let gameMenuButton = findButtonByText(iframeDoc, 'Game Menu');
-            if (!gameMenuButton) {
-                gameMenuButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
-                    btn.textContent.includes('☰') || 
-                    btn.textContent.toLowerCase().includes('menu')
-                );
-            }
-            
-            if (!gameMenuButton) {
-                console.log('[MODERN UI] No Game Menu button found');
-                return false;
-            }
-            
-            console.log('[MODERN UI] Found Game Menu, clicking');
             clickElement(gameMenuButton);
-            await sleep(800);
+            await sleep(100);
             
-            // Find Replay button
-            let replayButton = findButtonByText(iframeDoc, 'Replay');
-            if (!replayButton) {
-                replayButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
-                    btn.textContent.includes('▶️') || 
-                    btn.textContent.toLowerCase().includes('replay')
-                );
-            }
+            const replayButton = findButtonByText(iframeDoc, 'Replay');
+            if (!replayButton) return false;
             
-            if (!replayButton) {
-                console.log('[MODERN UI] No Replay button found');
-                return false;
-            }
-            
-            console.log('[MODERN UI] Found Replay button, clicking');
             clickElement(replayButton);
-            await sleep(800);
+            await sleep(100);
             
-            console.log('[MODERN UI] Attempting to paste replay data');
             return await pasteReplayData(iframeDoc, replayData);
-            
         } catch (e) {
             console.error('[MODERN UI] Error:', e);
             return false;
@@ -500,62 +471,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     async function pasteReplayData(iframeDoc, replayData) {
         try {
-            console.log('[PASTE] Looking for textarea/input field');
-            
-            // Wait a bit for UI to appear
-            await sleep(500);
-            
-            let textarea = iframeDoc.getElementById('textArea1') || 
-                          iframeDoc.querySelector('textarea[placeholder*="replay"]') ||
-                          iframeDoc.querySelector('textarea[placeholder*="Replay"]') ||
-                          iframeDoc.querySelector('textarea') ||
-                          iframeDoc.querySelector('input[type="text"]');
-            
-            // If no textarea found, wait and try again
-            if (!textarea) {
-                console.log('[PASTE] No textarea found, waiting and retrying');
-                await sleep(1000);
-                textarea = iframeDoc.querySelector('textarea') || iframeDoc.querySelector('input[type="text"]');
-            }
+            const textarea = iframeDoc.getElementById('textArea1') || 
+                           iframeDoc.querySelector('textarea[placeholder*="replay"]') ||
+                           iframeDoc.querySelector('textarea[placeholder*="Replay"]') ||
+                           iframeDoc.querySelector('textarea') ||
+                           iframeDoc.querySelector('input[type="text"]');
             
             if (!textarea) {
-                console.log('[PASTE] Still no textarea found');
+                console.log('[PASTE] No textarea found');
                 return false;
             }
-            
-            console.log('[PASTE] Found textarea, pasting replay data');
-            textarea.focus();
+            console.log('[PASTE] Found textarea, pasting data');
             textarea.value = replayData || '';
-            
-            // Trigger multiple events to ensure the paste is registered
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
             textarea.dispatchEvent(new Event('change', { bubbles: true }));
-            textarea.dispatchEvent(new Event('keyup', { bubbles: true }));
-            
-            await sleep(500);
-            
-            // Look for launch button
+            await sleep(100);
             const launchButton = findButtonByText(iframeDoc, 'Launch') ||
                                findButtonByText(iframeDoc, 'Play') ||
                                findButtonByText(iframeDoc, 'Start') ||
-                               findButtonByText(iframeDoc, 'GO') ||
-                               Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
-                                   btn.textContent.toLowerCase().includes('launch') ||
-                                   btn.textContent.toLowerCase().includes('play') ||
-                                   btn.textContent.toLowerCase().includes('start')
-                               );
-            
+                               findButtonByText(iframeDoc, 'GO');
             if (launchButton) {
-                console.log('[PASTE] Found launch button, clicking');
+                console.log('[PASTE] Clicking launch button');
                 clickElement(launchButton);
-                await sleep(500);
-            } else {
-                console.log('[PASTE] No launch button found, trying Enter key');
-                textarea.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
             }
-            
             return true;
-            
         } catch (e) {
             console.error('[PASTE] Error:', e);
             return false;
