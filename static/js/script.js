@@ -16,6 +16,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeAccountModal = document.getElementById('closeAccountModal');
     const mobileCSS = document.getElementById('mobileCSS');
 
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettingsModal = document.getElementById('closeSettingsModal');
+    const placeBalanceAboveCheckbox = document.getElementById('placeBalanceAboveCheckbox');
+    const resetSettingsBtn = document.getElementById('resetSettingsBtn');
+    const hideZoomButtonsCheckbox = document.getElementById('hideZoomButtonsCheckbox');
+    const fontSizeRadios = document.querySelectorAll('input[name="fontSize"]');
+    const resolutionRadios = document.querySelectorAll('input[name="resolution"]');
     const mobileFileUpload = document.getElementById('mobileFileUpload');
     const replayFileInput = document.getElementById('replayFileInput');    
     const loadingModal = document.getElementById('loadingModal');
@@ -93,6 +101,64 @@ document.addEventListener('DOMContentLoaded', () => {
     if (mobileUIBtn) mobileUIBtn.addEventListener('click', toggleMobileUI);
     if (closeDiscordModal) closeDiscordModal.addEventListener('click', () => hideModalFn(discordModal));
     if (closeAccountModal) closeAccountModal.addEventListener('click', () => hideModalFn(accountModal));
+    if (settingsBtn) settingsBtn.addEventListener('click', () => showModalFn(settingsModal));
+    if (closeSettingsModal) closeSettingsModal.addEventListener('click', () => hideModalFn(settingsModal));
+    if (placeBalanceAboveCheckbox) {
+        const saved = localStorage.getItem('placeBalanceAbove');
+        placeBalanceAboveCheckbox.checked = saved === 'true';
+        placeBalanceAboveCheckbox.addEventListener('change', () => {
+            localStorage.setItem('placeBalanceAbove', placeBalanceAboveCheckbox.checked ? 'true' : 'false');
+            console.log('💾 [SETTINGS] Place balance above:', placeBalanceAboveCheckbox.checked);
+        });
+    }
+    if (hideZoomButtonsCheckbox) {
+        const saved = localStorage.getItem('hideZoomButtons');
+        hideZoomButtonsCheckbox.checked = saved === 'true';
+        hideZoomButtonsCheckbox.addEventListener('change', () => {
+            localStorage.setItem('hideZoomButtons', hideZoomButtonsCheckbox.checked ? 'true' : 'false');
+            console.log('💾 [SETTINGS] Hide zoom buttons:', hideZoomButtonsCheckbox.checked);
+        });
+    }
+    // Load font size setting
+    const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+    fontSizeRadios.forEach(radio => {
+        if (radio.value === savedFontSize) radio.checked = true;
+        radio.addEventListener('change', () => {
+            if (radio.checked) {
+                localStorage.setItem('fontSize', radio.value);
+                console.log('💾 [SETTINGS] Font size:', radio.value);
+            }
+        });
+    });
+    
+    // Load resolution setting
+    const savedResolution = localStorage.getItem('resolution') || 'medium';
+    resolutionRadios.forEach(radio => {
+        if (radio.value === savedResolution) radio.checked = true;
+        radio.addEventListener('change', () => {
+            if (radio.checked) {
+                localStorage.setItem('resolution', radio.value);
+                console.log('💾 [SETTINGS] Resolution:', radio.value);
+            }
+        });
+    });
+    
+    if (resetSettingsBtn) {
+        resetSettingsBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to reset all settings to default?')) {
+                localStorage.removeItem('placeBalanceAbove');
+                localStorage.removeItem('hideZoomButtons');
+                localStorage.removeItem('fontSize');
+                localStorage.removeItem('resolution');
+                placeBalanceAboveCheckbox.checked = false;
+                hideZoomButtonsCheckbox.checked = false;
+                document.getElementById('fontMedium').checked = true;
+                document.getElementById('resMedium').checked = true;
+                console.log('🔄 [SETTINGS] All settings reset to default');
+                showCenterAlert('Settings reset successfully', 'success');
+            }
+        });
+    }
 
     if (showLoginBtn) showLoginBtn.addEventListener('click', showLoginForm);
     if (showSignupBtn) showSignupBtn.addEventListener('click', showSignupForm);
@@ -136,7 +202,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sendReplayPlayedWebhook(replayName, replayLink);
         gameTitle.textContent = 'Loading Replay...';
         showGameModal();
-        showLoading();
+        // Don't show loading spinner so we can see the automation
         fetch('/get_version', {
             method: 'POST',
             headers: {
@@ -191,12 +257,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const iframeDoc = gameFrame.contentDocument || gameFrame.contentWindow.document;
             const style = iframeDoc.createElement('style');
             style.textContent = `
-                .loading, button, textarea, input, select, .menu, .menuContainer, #menuContainer, 
-                div[id*="menu"], div[class*="menu"], .ui-container, .ui, .interface, 
-                div:not(.game-container):not(.canvas-container):not(#gameCanvas):not(canvas) {
-                    opacity: 0 !important;
-                    visibility: hidden !important;
-                }
                 body, html {
                     background-color: black !important;
                     margin: 0 !important;
@@ -237,19 +297,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (automationSuccess) {
                     await waitForGameToStart(iframeDoc);
                     gameTitle.textContent = 'Territorial.io Replay';
-                    hideLoading();
                     console.log('[AUTOMATION COMPLETE] Replay loaded successfully');
                 } else {
                     console.error('[AUTOMATION] All strategies failed, retrying fallback automation.');
                     await pasteReplayData(iframeDoc, replayData);
                     await waitForGameToStart(iframeDoc);
                     gameTitle.textContent = 'Territorial.io Replay';
-                    hideLoading();
                 }
             })();
         } catch (error) {
             console.error('Automation error:', error);
-            hideLoading();
         }
     }
     async function waitForGameToStart(iframeDoc) {
@@ -280,17 +337,286 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             console.log('[MODERN UI] Attempting modern UI automation');
             
+            console.log('🔍 [MODERN UI] Looking for Game Menu button...');
             const gameMenuButton = findButtonByText(iframeDoc, 'Game Menu');
-            if (!gameMenuButton) return false;
+            if (!gameMenuButton) {
+                console.log('❌ [MODERN UI] Game Menu button not found');
+                return false;
+            }
             
+            console.log('🎮 [MODERN UI] Found Game Menu button, clicking...');
             clickElement(gameMenuButton);
-            await sleep(100);
+            await sleep(500);
             
+            // Check if any settings need to be applied (always check settings to ensure correct state)
+            const placeBalanceEnabled = localStorage.getItem('placeBalanceAbove') === 'true';
+            const hideZoomButtonsEnabled = localStorage.getItem('hideZoomButtons') === 'true';
+            const fontSize = localStorage.getItem('fontSize');
+            const resolution = localStorage.getItem('resolution');
+            
+            // Always go to settings to verify and apply correct state
+            console.log('⚙️ [SETTINGS] Checking and applying all settings...');
+            try {
+                console.log('⚙️ [SETTINGS] Settings need to be applied, going to settings...');
+                
+                // Find Settings button
+                const settingsButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
+                    btn.textContent.includes('⚙️') && btn.textContent.includes('Settings')
+                );
+                if (!settingsButton) {
+                    console.log('❌ [SETTINGS] Settings button not found');
+                    return false;
+                }
+                
+                console.log('⚙️ [SETTINGS] Found Settings button, clicking...');
+                clickElement(settingsButton);
+                await sleep(500);
+                
+                // Check for Accept button that might appear
+                const acceptButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
+                    btn.textContent.includes('✅') && btn.textContent.includes('Accept')
+                );
+                if (acceptButton) {
+                    console.log('✅ [SETTINGS] Found Accept button, clicking...');
+                    clickElement(acceptButton);
+                    await sleep(500);
+                }
+                
+                // Apply Place Balance Above setting
+                try {
+                    const placeBalanceHeader = Array.from(iframeDoc.querySelectorAll('h2')).find(h2 => 
+                        h2.textContent && h2.textContent.includes('Place Balance Above')
+                    );
+                    
+                    if (placeBalanceHeader) {
+                        let activatedToggle = null;
+                        let nextElement = placeBalanceHeader.nextElementSibling;
+                        let attempts = 0;
+                        
+                        while (nextElement && attempts < 10) {
+                            if (nextElement.tagName === 'P' && nextElement.textContent && nextElement.textContent.includes('Activated')) {
+                                activatedToggle = nextElement;
+                                break;
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                            attempts++;
+                        }
+                        
+                        if (activatedToggle) {
+                            const currentState = activatedToggle.textContent.trim();
+                            const isEnabled = currentState.startsWith('🟢');
+                            const isDisabled = currentState.startsWith('⬜');
+                            
+                            // Always click to match desired state
+                            if (placeBalanceEnabled && isDisabled) {
+                                console.log('✅ [SETTINGS] Enabling Place Balance Above (white -> green)...');
+                                clickElement(activatedToggle);
+                                await sleep(500);
+                            } else if (!placeBalanceEnabled && isEnabled) {
+                                console.log('❌ [SETTINGS] Disabling Place Balance Above (green -> white)...');
+                                clickElement(activatedToggle);
+                                await sleep(500);
+                            } else {
+                                console.log('ℹ️ [SETTINGS] Place Balance Above already in correct state');
+                            }
+                        } else {
+                            console.warn('⚠️ [SETTINGS] Place Balance Above toggle not found');
+                        }
+                    } else {
+                        console.warn('⚠️ [SETTINGS] Place Balance Above header not found');
+                    }
+                } catch (e) {
+                    console.error('❌ [SETTINGS] Error applying Place Balance Above:', e);
+                }
+                
+                // Apply Hide Zoom Buttons setting
+                try {
+                    const hideZoomHeader = Array.from(iframeDoc.querySelectorAll('h2')).find(h2 => 
+                        h2.textContent && h2.textContent.includes('Hide Zoom Buttons')
+                    );
+                    
+                    if (hideZoomHeader) {
+                        let zoomToggle = null;
+                        let nextElement = hideZoomHeader.nextElementSibling;
+                        let attempts = 0;
+                        
+                        while (nextElement && attempts < 10) {
+                            if (nextElement.tagName === 'P' && nextElement.textContent && nextElement.textContent.includes('Activated')) {
+                                zoomToggle = nextElement;
+                                break;
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                            attempts++;
+                        }
+                        
+                        if (zoomToggle) {
+                            const currentState = zoomToggle.textContent.trim();
+                            const isEnabled = currentState.startsWith('🟢');
+                            const isDisabled = currentState.startsWith('⬜');
+                            
+                            if (hideZoomButtonsEnabled && isDisabled) {
+                                console.log('🔍 [SETTINGS] Enabling Hide Zoom Buttons (white -> green)...');
+                                clickElement(zoomToggle);
+                                await sleep(500);
+                            } else if (!hideZoomButtonsEnabled && isEnabled) {
+                                console.log('🔍 [SETTINGS] Disabling Hide Zoom Buttons (green -> white)...');
+                                clickElement(zoomToggle);
+                                await sleep(500);
+                            } else {
+                                console.log('ℹ️ [SETTINGS] Hide Zoom Buttons already in correct state');
+                            }
+                        } else {
+                            console.warn('⚠️ [SETTINGS] Hide Zoom Buttons toggle not found');
+                        }
+                    } else {
+                        console.warn('⚠️ [SETTINGS] Hide Zoom Buttons header not found');
+                    }
+                } catch (e) {
+                    console.error('❌ [SETTINGS] Error applying Hide Zoom Buttons:', e);
+                }
+                
+                // Apply Font Size setting
+                try {
+                    const fontSizeHeader = Array.from(iframeDoc.querySelectorAll('h2')).find(h2 => 
+                        h2.textContent && h2.textContent.includes('Minimum Font Size')
+                    );
+                    
+                    if (fontSizeHeader) {
+                        const fontMap = { medium: 'Medium', small: 'Small', verySmall: 'Very Small' };
+                        const targetText = fontMap[fontSize || 'medium'];
+                        let foundTarget = false;
+                        let attempts = 0;
+                        
+                        let nextElement = fontSizeHeader.nextElementSibling;
+                        while (nextElement && attempts < 20) {
+                            if (nextElement.tagName === 'P' && nextElement.textContent) {
+                                const text = nextElement.textContent.trim();
+                                const isTarget = text.includes(targetText);
+                                const isSelected = text.startsWith('🟢');
+                                const isUnselected = text.startsWith('⚪');
+                                
+                                if (isTarget && isUnselected) {
+                                    console.log(`🔤 [SETTINGS] Setting font size to ${targetText}...`);
+                                    clickElement(nextElement);
+                                    await sleep(500);
+                                    foundTarget = true;
+                                    break;
+                                } else if (isTarget && isSelected) {
+                                    console.log(`ℹ️ [SETTINGS] Font size ${targetText} already selected`);
+                                    foundTarget = true;
+                                    break;
+                                }
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                            attempts++;
+                        }
+                        
+                        if (!foundTarget) {
+                            console.warn(`⚠️ [SETTINGS] Font size option ${targetText} not found`);
+                        }
+                    } else {
+                        console.warn('⚠️ [SETTINGS] Font Size header not found');
+                    }
+                } catch (e) {
+                    console.error('❌ [SETTINGS] Error applying Font Size:', e);
+                }
+                
+                // Apply Resolution setting
+                try {
+                    const resolutionHeader = Array.from(iframeDoc.querySelectorAll('h2')).find(h2 => 
+                        h2.textContent && h2.textContent.includes('Resolution')
+                    );
+                    
+                    if (resolutionHeader) {
+                        const resMap = { low: 'Low', medium: 'Medium', high: 'High', veryHigh: 'Very High' };
+                        const targetText = resMap[resolution || 'medium'];
+                        let foundTarget = false;
+                        let attempts = 0;
+                        
+                        let nextElement = resolutionHeader.nextElementSibling;
+                        while (nextElement && attempts < 20) {
+                            if (nextElement.tagName === 'P' && nextElement.textContent) {
+                                const text = nextElement.textContent.trim();
+                                const isTarget = text.includes(targetText);
+                                const isSelected = text.startsWith('🟢');
+                                const isUnselected = text.startsWith('⚪');
+                                
+                                if (isTarget && isUnselected) {
+                                    console.log(`📺 [SETTINGS] Setting resolution to ${targetText}...`);
+                                    clickElement(nextElement);
+                                    await sleep(500);
+                                    foundTarget = true;
+                                    break;
+                                } else if (isTarget && isSelected) {
+                                    console.log(`ℹ️ [SETTINGS] Resolution ${targetText} already selected`);
+                                    foundTarget = true;
+                                    break;
+                                }
+                            }
+                            nextElement = nextElement.nextElementSibling;
+                            attempts++;
+                        }
+                        
+                        if (!foundTarget) {
+                            console.warn(`⚠️ [SETTINGS] Resolution option ${targetText} not found`);
+                        }
+                    } else {
+                        console.warn('⚠️ [SETTINGS] Resolution header not found');
+                    }
+                } catch (e) {
+                    console.error('❌ [SETTINGS] Error applying Resolution:', e);
+                }
+                
+                // Find Back button
+                try {
+                    const backButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
+                        btn.textContent && (btn.textContent.includes('⬅️') || btn.textContent.includes('Back'))
+                    );
+                    
+                    if (!backButton) {
+                        console.warn('⚠️ [SETTINGS] Back button not found, trying alternative methods...');
+                        // Try pressing Escape key as fallback
+                        const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+                        iframeDoc.dispatchEvent(escapeEvent);
+                        await sleep(500);
+                    } else {
+                        console.log('⬅️ [SETTINGS] Found Back button, clicking...');
+                        clickElement(backButton);
+                        await sleep(500);
+                    }
+                } catch (e) {
+                    console.error('❌ [SETTINGS] Error with Back button:', e);
+                    // Try Escape key as last resort
+                    try {
+                        const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+                        iframeDoc.dispatchEvent(escapeEvent);
+                        await sleep(500);
+                    } catch (escapeError) {
+                        console.error('❌ [SETTINGS] Escape key fallback failed:', escapeError);
+                    }
+                }
+            } catch (settingsError) {
+                console.error('❌ [SETTINGS] Critical error in settings application:', settingsError);
+                // Try to exit settings with Escape key
+                try {
+                    const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+                    iframeDoc.dispatchEvent(escapeEvent);
+                    await sleep(500);
+                } catch (e) {
+                    console.error('❌ [SETTINGS] Emergency escape failed:', e);
+                }
+            }
+            
+            console.log('🔍 [MODERN UI] Looking for Replay button...');
             const replayButton = findButtonByText(iframeDoc, 'Replay');
-            if (!replayButton) return false;
+            if (!replayButton) {
+                console.log('❌ [MODERN UI] Replay button not found');
+                return false;
+            }
             
+            console.log('▶️ [MODERN UI] Found Replay button, clicking...');
             clickElement(replayButton);
-            await sleep(100);
+            await sleep(500);
             
             return await pasteReplayData(iframeDoc, replayData);
         } catch (e) {
@@ -485,18 +811,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('[PASTE] No textarea found');
                 return false;
             }
-            console.log('[PASTE] Found textarea, pasting data');
+            const textareaId = textarea.id || 'no-id';
+            const textareaTag = textarea.tagName.toLowerCase();
+            console.log(`📝 [PASTE] Found ${textareaTag}#${textareaId} - Pasting ${replayData.length} characters`);
             textarea.value = replayData || '';
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
             textarea.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log(`✅ [PASTE SUCCESS] Data pasted into ${textareaTag}#${textareaId}`);
             await sleep(100);
             const launchButton = findButtonByText(iframeDoc, 'Launch') ||
                                findButtonByText(iframeDoc, 'Play') ||
                                findButtonByText(iframeDoc, 'Start') ||
                                findButtonByText(iframeDoc, 'GO');
             if (launchButton) {
-                console.log('[PASTE] Clicking launch button');
+                console.log('🚀 [LAUNCH] Found launch button, clicking...');
                 clickElement(launchButton);
+            } else {
+                console.log('⚠️ [LAUNCH] No launch button found');
             }
             return true;
         } catch (e) {
@@ -529,8 +860,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function clickElement(element) {
+        const elementText = element.textContent.trim();
+        const elementTag = element.tagName.toLowerCase();
+        const elementId = element.id || 'no-id';
+        const elementClass = element.className || 'no-class';
+        
+        console.log(`🖱️ [CLICK] ${elementTag}#${elementId}.${elementClass} - Text: "${elementText}"`);
+        
         try {
             element.click();
+            console.log(`✅ [CLICK SUCCESS] Successfully clicked: "${elementText}"`);
         } catch (e) {
             try {
                 const event = new MouseEvent('click', {
@@ -539,8 +878,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     view: element.ownerDocument.defaultView
                 });
                 element.dispatchEvent(event);
+                console.log(`✅ [CLICK SUCCESS] Event dispatched for: "${elementText}"`);
             } catch (e2) {
-                console.error('Failed to click element:', e2);
+                console.error(`❌ [CLICK FAILED] Failed to click: "${elementText}"`, e2);
             }
         }
     }

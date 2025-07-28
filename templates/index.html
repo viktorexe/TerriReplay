@@ -22,6 +22,9 @@
                 <i class="fas fa-user"></i> <span id="accountText">Account</span>
             </button>
 
+            <button id="settingsBtn" class="nav-btn">
+                <i class="fas fa-cog"></i> Settings
+            </button>
             <button id="mobileUIBtn" class="nav-btn">
                 <i class="fas fa-mobile-alt"></i> Mobile UI
             </button>
@@ -227,6 +230,79 @@
                 <button class="success-btn" id="successOkBtn">
                     <i class="fas fa-rocket"></i> Get Started
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="settingsModal">
+        <div class="modal-content settings-modal">
+            <div class="modal-header">
+                <h3><i class="fas fa-cog"></i> Settings</h3>
+                <button class="close-modal" id="closeSettingsModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body settings-body">
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Place Balance Above</h4>
+                        <p>Enable the 'Place balance above' option in-game before playing replays</p>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="placeBalanceAboveCheckbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Hide Zoom Buttons</h4>
+                        <p>Hide the zoom buttons in-game interface</p>
+                    </div>
+                    <div class="setting-control">
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="hideZoomButtonsCheckbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Minimum Font Size</h4>
+                        <p>Set the minimum font size for in-game text</p>
+                    </div>
+                    <div class="setting-control">
+                        <div class="radio-group">
+                            <label><input type="radio" name="fontSize" value="medium" id="fontMedium"> Medium</label>
+                            <label><input type="radio" name="fontSize" value="small" id="fontSmall"> Small</label>
+                            <label><input type="radio" name="fontSize" value="verySmall" id="fontVerySmall"> Very Small</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Resolution</h4>
+                        <p>Set the game resolution quality</p>
+                    </div>
+                    <div class="setting-control">
+                        <div class="radio-group">
+                            <label><input type="radio" name="resolution" value="low" id="resLow"> Low</label>
+                            <label><input type="radio" name="resolution" value="medium" id="resMedium"> Medium</label>
+                            <label><input type="radio" name="resolution" value="high" id="resHigh"> High</label>
+                            <label><input type="radio" name="resolution" value="veryHigh" id="resVeryHigh"> Very High</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-info">
+                        <h4>Reset Settings</h4>
+                        <p>Clear all saved settings and return to defaults</p>
+                    </div>
+                    <div class="setting-control">
+                        <button class="reset-btn" id="resetSettingsBtn">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
