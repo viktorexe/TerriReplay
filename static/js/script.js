@@ -53,6 +53,10 @@ document.addEventListener('DOMContentLoaded', () => {
         syncFromDatabase().then(() => {
             startSyncing();
             startContinuousMonitoring();
+        }).catch(e => {
+            console.error('[INIT] Sync from database failed:', e);
+            startSyncing();
+            startContinuousMonitoring();
         });
     }
     loadReplays();
@@ -661,12 +665,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideModalFn(accountModal);
                 showCustomAlert(`Welcome back, ${username}!`, 'success');
                 startSyncing();
-                setTimeout(() => {
-                    console.log('[LOGIN] Starting aggressive sync...');
-                    syncToDatabase();
-                    setTimeout(() => {
-                        window.debugUser();
-                    }, 2000);
+                setTimeout(async () => {
+                    console.log('[LOGIN] Starting sync from database...');
+                    try {
+                        await syncFromDatabase();
+                        console.log('[LOGIN] Sync from database complete');
+                    } catch (e) {
+                        console.error('[LOGIN] Sync from database failed:', e);
+                    }
+                    startSyncing();
+                    startContinuousMonitoring();
                 }, 500);
             } else {
                 showCustomAlert(result.message || 'Login failed', 'error');
@@ -727,12 +735,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 hideModalFn(accountModal);
                 showSuccessModal(username);
                 startSyncing();
-                setTimeout(() => {
-                    console.log('[ACCOUNT CREATED] Starting aggressive sync...');
-                    syncToDatabase();
-                    setTimeout(() => {
-                        window.debugUser();
-                    }, 2000);
+                setTimeout(async () => {
+                    console.log('[ACCOUNT CREATED] Starting sync systems...');
+                    try {
+                        await syncFromDatabase();
+                        console.log('[ACCOUNT CREATED] Initial sync complete');
+                    } catch (e) {
+                        console.error('[ACCOUNT CREATED] Initial sync failed:', e);
+                    }
+                    startSyncing();
+                    startContinuousMonitoring();
                 }, 500);
             } else {
                 showCustomAlert(result.message || 'Account creation failed', 'error');
@@ -1536,10 +1548,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 1000);
     }
     function stopSyncing() {
+        if (syncInterval) {
+            clearInterval(syncInterval);
+            syncInterval = null;
+        }
         if (monitoringInterval) {
             clearInterval(monitoringInterval);
             monitoringInterval = null;
         }
+        console.log('[SYNC] All sync intervals stopped');
     }
     function startSyncing() {
         if (syncInterval) clearInterval(syncInterval);
@@ -1600,52 +1617,60 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 console.error('[SYNC FAILED]:', result.message);
-                showCustomAlert('Sync failed: ' + result.message, 'error');
+                // Only show critical sync errors, not routine ones
+                if (result.message && !result.message.includes('connection') && !result.message.includes('timeout')) {
+                    showCustomAlert('Sync failed: ' + result.message, 'error');
+                }
             }
         } catch (e) {
             console.error('[SYNC ERROR]:', e);
-            showCustomAlert('Sync error: ' + e.message, 'error');
+            // Don't show error alerts for network issues to avoid spam
+            if (!e.message.includes('fetch') && !e.message.includes('HTTP')) {
+                showCustomAlert('Sync error: ' + e.message, 'error');
+            }
         }
     }
     async function syncFromDatabase() {
         if (!currentUser) {
-            console.log('[SYNC] No current user, skipping sync from DB');
+            console.log('[SYNC FROM DB] No current user, skipping');
             return;
         }
         try {
-            console.log('🔄 [SYNC FROM DB] === STARTING SYNC FROM DATABASE ===');
-            console.log('🔄 [SYNC FROM DB] User:', currentUser);
-            console.log('🔄 [SYNC FROM DB] BEFORE - Local replays:', savedReplays.length);
-            console.log('🔄 [SYNC FROM DB] BEFORE - Local folders:', savedFolders.length);
+            console.log('[SYNC FROM DB] Starting sync for user:', currentUser);
             const response = await fetch('/api/get_data', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: currentUser })
             });
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
             const data = await response.json();
             if (data.success) {
                 const dbReplays = data.replays || [];
                 const dbFolders = data.folders || [];
-                console.log('🔄 [SYNC FROM DB] Database has:', dbReplays.length, 'replays,', dbFolders.length, 'folders');
-                console.log('🔄 [SYNC FROM DB] Local has:', savedReplays.length, 'replays,', savedFolders.length, 'folders');
-                console.log('🔄 [SYNC FROM DB] ✅ Overwriting local data with database data');
-                savedReplays = dbReplays;
-                savedFolders = dbFolders;
-                localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
-                localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
-                loadReplays(); 
-                setTimeout(() => {
-                    console.log('🔄 [SYNC FROM DB] 🚀 Triggering sync TO database');
-                    syncToDatabase();
-                }, 500);
+                console.log(`[SYNC FROM DB] Got ${dbReplays.length} replays, ${dbFolders.length} folders from database`);
                 
-                console.log('🔄 [SYNC FROM DB] AFTER - Local replays:', savedReplays.length);
-                console.log('🔄 [SYNC FROM DB] AFTER - Local folders:', savedFolders.length);
+                // Only update if we got valid data
+                if (Array.isArray(dbReplays) && Array.isArray(dbFolders)) {
+                    savedReplays = dbReplays;
+                    savedFolders = dbFolders;
+                    localStorage.setItem('savedReplays', JSON.stringify(savedReplays));
+                    localStorage.setItem('savedFolders', JSON.stringify(savedFolders));
+                    loadReplays();
+                    console.log('[SYNC FROM DB] Successfully synced from database');
+                } else {
+                    console.warn('[SYNC FROM DB] Invalid data format from database');
+                }
+            } else {
+                console.warn('[SYNC FROM DB] Database returned error:', data.message);
             }
         } catch (e) {
-            console.error('🔄 [SYNC FROM DB ERROR]:', e);
+            console.error('[SYNC FROM DB] Error:', e);
+            throw e;
         }
-        console.log('🔄 [SYNC FROM DB] === SYNC FROM DATABASE COMPLETE ===');
     }
     window.debugUser = async function() {
         if (!currentUser) {
