@@ -1170,7 +1170,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="replay-name">${replay.name}</span>
                     </div>
                     <div class="replay-actions">
-                        <button class="action-btn" onclick="playReplay('${replay.link}')">
+                        <button class="action-btn" onclick="window.playReplay('${replay.link}')">
                             <i class="fas fa-play"></i> Play
                         </button>
                         <button class="action-btn" onclick="showEditReplayPrompt('${replay.id}', '${replay.name}')">
@@ -1693,6 +1693,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.showDeleteFolderPrompt = showDeleteFolderPrompt;
     window.showEditReplayPrompt = showEditReplayPrompt;
     window.showDeleteReplayPrompt = showDeleteReplayPrompt;
+    window.playReplay = playReplay;
     window.confirmCreateFolder = null;
     window.cancelCreateFolder = null;
     window.confirmRenameFolder = null;
