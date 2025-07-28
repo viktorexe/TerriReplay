@@ -243,6 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     function loadGameVersion(version, replayData, replayLink, replayName) {
         const versionPath = `/emulated_versions/${version}`;
+        gameFrame.style.opacity = '0';
         gameFrame.src = versionPath;
         gameFrame.onload = () => {
             automateReplayPlayback(replayData, replayLink, replayName);
@@ -296,12 +297,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 if (automationSuccess) {
                     await waitForGameToStart(iframeDoc);
+                    loadingSpinner.style.display = 'none';
+                    gameFrame.style.opacity = '1';
                     gameTitle.textContent = 'Territorial.io Replay';
                     console.log('[AUTOMATION COMPLETE] Replay loaded successfully');
                 } else {
                     console.error('[AUTOMATION] All strategies failed, retrying fallback automation.');
                     await pasteReplayData(iframeDoc, replayData);
                     await waitForGameToStart(iframeDoc);
+                    loadingSpinner.style.display = 'none';
+                    gameFrame.style.opacity = '1';
                     gameTitle.textContent = 'Territorial.io Replay';
                 }
             })();
@@ -407,13 +412,13 @@ document.addEventListener('DOMContentLoaded', () => {
                             const isEnabled = currentState.startsWith('🟢');
                             const isDisabled = currentState.startsWith('⬜');
                             
-                            // Always click to match desired state
+                            // Click to match desired state
                             if (placeBalanceEnabled && isDisabled) {
                                 console.log('✅ [SETTINGS] Enabling Place Balance Above (white -> green)...');
                                 clickElement(activatedToggle);
                                 await sleep(500);
                             } else if (!placeBalanceEnabled && isEnabled) {
-                                console.log('❌ [SETTINGS] Disabling Place Balance Above (green -> white)...');
+                                console.log('⬜ [SETTINGS] Disabling Place Balance Above (green -> white)...');
                                 clickElement(activatedToggle);
                                 await sleep(500);
                             } else {
@@ -459,7 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 clickElement(zoomToggle);
                                 await sleep(500);
                             } else if (!hideZoomButtonsEnabled && isEnabled) {
-                                console.log('🔍 [SETTINGS] Disabling Hide Zoom Buttons (green -> white)...');
+                                console.log('⬜ [SETTINGS] Disabling Hide Zoom Buttons (green -> white)...');
                                 clickElement(zoomToggle);
                                 await sleep(500);
                             } else {
