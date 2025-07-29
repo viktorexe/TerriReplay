@@ -43,45 +43,25 @@
         
         <div class="layout-container">
             <div class="content-area">
-            <div class="top-section">
-                <div class="replay-input-section">
-                    <div class="input-container">
-                        <input type="text" id="replayLink" placeholder="Paste your Territorial.io replay link here..." class="replay-input">
-                        <button id="playReplayBtn" class="play-btn">
-                            <i class="fas fa-play"></i> Play Replay
-                        </button>
-                    </div>
-                    <p class="help-text">Paste a link like: https://territorial.io/replay?...</p>
-                    
-                    <div class="mobile-file-upload" id="mobileFileUpload" style="display: none;">
-                        <div class="upload-divider">
-                            <span>OR</span>
-                        </div>
-                        <div class="file-upload-container">
-                            <input type="file" id="replayFileInput" accept=".txt" class="file-input">
-                            <label for="replayFileInput" class="file-upload-btn">
-                                <i class="fas fa-upload"></i> Upload Replay File (.txt)
-                            </label>
-                            <p class="file-help-text">Upload a .txt file containing the replay link</p>
-                        </div>
-                    </div>
+            <div class="replay-input-section">
+                <div class="input-container">
+                    <input type="text" id="replayLink" placeholder="Paste your Territorial.io replay link here..." class="replay-input">
+                    <button id="playReplayBtn" class="play-btn">
+                        <i class="fas fa-play"></i> Play Replay
+                    </button>
                 </div>
+                <p class="help-text">Paste a link like: https://territorial.io/replay?...</p>
                 
-                <div class="featured-card">
-                    <div class="featured-header">
-                        <img src="{{ url_for('static', filename='img/cent.png') }}" alt="Cent" class="featured-avatar" onerror="this.style.display='none'">
-                        <div class="featured-info">
-                            <div class="featured-title">Cent's World Record</div>
-                            <div class="featured-meta">Epic gameplay • Black Arena</div>
-                        </div>
+                <div class="mobile-file-upload" id="mobileFileUpload" style="display: none;">
+                    <div class="upload-divider">
+                        <span>OR</span>
                     </div>
-                    <div class="featured-actions">
-                        <button class="featured-btn" onclick="playFeaturedReplay()">
-                            <i class="fas fa-play"></i> Play
-                        </button>
-                        <button class="featured-btn save" onclick="saveFeaturedReplay()">
-                            <i class="fas fa-save"></i> Save
-                        </button>
+                    <div class="file-upload-container">
+                        <input type="file" id="replayFileInput" accept=".txt" class="file-input">
+                        <label for="replayFileInput" class="file-upload-btn">
+                            <i class="fas fa-upload"></i> Upload Replay File (.txt)
+                        </label>
+                        <p class="file-help-text">Upload a .txt file containing the replay link</p>
                     </div>
                 </div>
             </div>

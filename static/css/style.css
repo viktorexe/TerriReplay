@@ -142,20 +142,16 @@ body {
   gap: 50px;
 }
 
-.top-section {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 40px;
-  align-items: start;
-}
-
 .replay-input-section {
   background: var(--surface);
   border-radius: 20px;
   padding: 40px;
   border: 1px solid var(--border);
   box-shadow: 0 10px 30px var(--shadow);
+  margin-bottom: 50px;
 }
+
+
 
 .input-container {
   display: flex;
@@ -212,87 +208,7 @@ body {
   display: none;
 }
 
-.featured-card {
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 30px 25px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
 
-.featured-card:hover {
-  border-color: var(--primary);
-  transform: translateY(-3px);
-  box-shadow: 0 10px 25px rgba(74, 107, 255, 0.2);
-}
-
-.featured-header {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.featured-avatar {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: 3px solid var(--primary);
-}
-
-.featured-info {
-  flex: 1;
-}
-
-.featured-title {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 5px;
-  color: var(--text);
-}
-
-.featured-meta {
-  font-size: 0.9rem;
-  color: var(--text-light);
-}
-
-.featured-actions {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-top: 15px;
-}
-
-.featured-btn {
-  padding: 8px 16px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--text-light);
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.featured-btn:hover {
-  background: var(--primary);
-  color: white;
-  border-color: var(--primary);
-  transform: translateY(-1px);
-}
-
-.featured-btn.save:hover {
-  background: var(--accent);
-  border-color: var(--accent);
-}
 
 .folders-section,
 .replays-section {
@@ -910,15 +826,6 @@ body {
   .layout-container {
     max-width: none;
     padding: 0 30px;
-  }
-  
-  .top-section {
-    grid-template-columns: 1fr;
-    gap: 30px;
-  }
-  
-  .featured-card {
-    order: -1;
   }
 }
 
