@@ -66,4 +66,3 @@ TerriReplay/
 
 Created by Dr.ViktorExe
 
-This project is not affiliated with Teritorial.io.
