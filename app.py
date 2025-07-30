@@ -32,15 +32,15 @@ FALLBACK_VERSION = "version3N.html"
 def index():
     return render_template('index.html')
 
-@app.route('/emulated_versions/<path:filename>')
+@app.route('/game_versions/<path:filename>')
 def serve_game_version(filename):
     """Serve game version files with proper headers"""
     print(f"SERVING GAME FILE: {filename}")
     try:
-        file_path = os.path.join('emulated_versions', filename)
+        file_path = os.path.join('game_versions', filename)
         if os.path.exists(file_path):
             print(f"File exists: {file_path}")
-            return send_from_directory('emulated_versions', filename)
+            return send_from_directory('game_versions', filename)
         else:
             print(f"File NOT found: {file_path}")
             return f"Game file not found: {filename}", 404
@@ -52,21 +52,21 @@ def serve_game_version(filename):
 def test_replay():
     """Test endpoint to check if replay system is working"""
     try:
-        # Check if emulated_versions directory exists
-        emulated_dir = os.path.join(os.getcwd(), 'emulated_versions')
+
+        emulated_dir = os.path.join(os.getcwd(), 'game_versions')
         if not os.path.exists(emulated_dir):
-            return f"emulated_versions directory not found at: {emulated_dir}"
+            return f"game_versions directory not found at: {emulated_dir}"
         
-        # List files in emulated_versions
+
         files = os.listdir(emulated_dir)
         
-        # Check for game files
+
         latest_exists = os.path.exists(os.path.join(emulated_dir, LATEST_VERSION))
         fallback_exists = os.path.exists(os.path.join(emulated_dir, FALLBACK_VERSION))
         
         return f"""
         Replay System Status:
-        - emulated_versions directory: EXISTS
+        - game_versions directory: EXISTS
         - Files found: {len(files)}
         - {LATEST_VERSION}: {'EXISTS' if latest_exists else 'NOT FOUND'}
         - {FALLBACK_VERSION}: {'EXISTS' if fallback_exists else 'NOT FOUND'}
@@ -87,14 +87,14 @@ def get_version():
         
         if not replay_link:
             print("No replay link provided, using latest version")
-            return jsonify({'version': LATEST_VERSION if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)) else FALLBACK_VERSION})
+            return jsonify({'version': LATEST_VERSION if os.path.exists(os.path.join('game_versions', LATEST_VERSION)) else FALLBACK_VERSION})
         
-        # Extract replay data to analyze
+
         replay_data = extract_replay_data(replay_link)
         print(f"Analyzing replay data: {replay_data[:50]}...")
         
-        # Get all available versions
-        emulated_dir = os.path.join('emulated_versions')
+
+        emulated_dir = os.path.join('game_versions')
         if not os.path.exists(emulated_dir):
             print("Emulated versions directory not found")
             return jsonify({'version': FALLBACK_VERSION})
@@ -102,7 +102,7 @@ def get_version():
         version_files = [f for f in os.listdir(emulated_dir) if f.endswith('.html')]
         print(f"Found {len(version_files)} version files: {version_files}")
         
-        # Smart version detection based on replay data patterns
+
         detected_version = detect_version_from_replay_data(replay_data, version_files)
         
         if detected_version and os.path.exists(os.path.join(emulated_dir, detected_version)):
@@ -110,7 +110,7 @@ def get_version():
             return jsonify({'version': detected_version})
         else:
             print(f"Smart detection failed, using latest version")
-            return jsonify({'version': LATEST_VERSION if os.path.exists(os.path.join('emulated_versions', LATEST_VERSION)) else FALLBACK_VERSION})
+            return jsonify({'version': LATEST_VERSION if os.path.exists(os.path.join('game_versions', LATEST_VERSION)) else FALLBACK_VERSION})
             
     except Exception as e:
         print(f"Get version error: {str(e)}")
@@ -124,9 +124,9 @@ def detect_version_from_replay_data(replay_data, available_versions):
     print(f"[VERSION DETECT] Analyzing replay data length: {len(replay_data)}")
     print(f"[VERSION DETECT] Sample data: {replay_data[:100]}...")
     
-    # Modern replay detection - check for complex patterns first
+
     if len(replay_data) > 800:
-        # Very modern replays with complex encoding
+
         if any(pattern in replay_data for pattern in ['TBcD', 'ZX7', 'BFr', 'GsZ', 'wgi', 'EUw', 'PLc', 'wDC', 'UIU']):
             print(f"[VERSION DETECT] Modern complex replay detected")
             candidates = ['latest_version.html', 'version3N.html', 'version37.html', 'version3F.html']
@@ -145,21 +145,21 @@ def detect_version_from_replay_data(replay_data, available_versions):
         
         {'pattern': lambda d: 400 <= len(d) < 800 and any(c in d for c in 'VFNcsk'), 'versions': ['version2N.html', 'version1N.html', 'version-V.html']},
         
-        # Older versions
+
         {'pattern': lambda d: 'c' in d and d.count('c') > 2, 'versions': ['version2c.html', 'version1c.html', 'version-c.html']},
         {'pattern': lambda d: 's' in d and d.count('s') > 3, 'versions': ['version2s.html', 'version1s.html', 'version0s.html', 'version-s.html']},
         {'pattern': lambda d: 'k' in d and d.count('k') > 2, 'versions': ['version0k.html', 'version-k.html']},
         
-        # Basic versions
+
         {'pattern': lambda d: len(d) < 400 and d.count('-') > len(d) * 0.2, 'versions': ['version-7.html', 'version-6.html', 'version-5.html']},
         {'pattern': lambda d: len(d) < 200, 'versions': ['version-4.html', 'version-3.html', 'version-2.html']},
     ]
     
-    # Try each rule
+
     for rule in version_rules:
         try:
             if rule['pattern'](replay_data):
-                # Find first available version from the rule
+
                 for version in rule['versions']:
                     if version in available_versions:
                         print(f"[VERSION DETECT] Pattern matched: {version} (data length: {len(replay_data)})")
@@ -170,7 +170,7 @@ def detect_version_from_replay_data(replay_data, available_versions):
     
     print(f"[VERSION DETECT] No specific pattern matched, using enhanced heuristic")
     
-    # Enhanced fallback heuristic
+
     data_len = len(replay_data)
     has_upper = any(c.isupper() for c in replay_data)
     has_lower = any(c.islower() for c in replay_data)
@@ -187,7 +187,7 @@ def detect_version_from_replay_data(replay_data, available_versions):
     else:
         candidates = ['version-4.html', 'version-3.html', 'version-2.html', 'version-1.html']
     
-    # Return first available candidate
+
     for candidate in candidates:
         if candidate in available_versions:
             print(f"[VERSION DETECT] Enhanced heuristic selected: {candidate}")
@@ -210,13 +210,13 @@ def play_replay():
         if not replay_link:
             return jsonify({'success': False, 'message': 'Replay link required'})
         
-        # Extract replay data from link
+
         replay_data = extract_replay_data(replay_link)
         print(f"Extracted data: {replay_data[:50] if replay_data else 'None'}...")
         
-        # Determine which game version to use
-        latest_path = os.path.join('emulated_versions', LATEST_VERSION)
-        fallback_path = os.path.join('emulated_versions', FALLBACK_VERSION)
+
+        latest_path = os.path.join('game_versions', LATEST_VERSION)
+        fallback_path = os.path.join('game_versions', FALLBACK_VERSION)
         
         if os.path.exists(latest_path):
             game_version = LATEST_VERSION
@@ -279,8 +279,8 @@ def terms_of_service():
         <title>Terms of Service - TerriReplay</title>
         <style>
             body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-            h1 { color: #4a6bff; }
-            h2 { color: #333; margin-top: 30px; }
+            h1 { color:
+            h2 { color:
         </style>
     </head>
     <body>
@@ -321,8 +321,8 @@ def privacy_policy():
         <title>Privacy Policy - TerriReplay</title>
         <style>
             body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-            h1 { color: #4a6bff; }
-            h2 { color: #333; margin-top: 30px; }
+            h1 { color:
+            h2 { color:
         </style>
     </head>
     <body>
@@ -375,17 +375,17 @@ def create_account():
             print(f"[ACCOUNT CREATION] Database connection failed for {username}")
             return jsonify({'success': False, 'message': 'Database connection error'})
         
-        # Check if collection (username) already exists
+
         existing_collections = db.list_collection_names()
         print(f"[ACCOUNT CREATION] Existing collections: {existing_collections}")
         
         if username in existing_collections:
             return jsonify({'success': False, 'message': 'Username already exists'})
         
-        # Force create collection by inserting user data and sample documents
+
         user_collection = db[username]
         
-        # Insert user info document
+
         user_data = {
             '_id': 'user_info',
             'type': 'user_info',
@@ -397,7 +397,7 @@ def create_account():
             'total_folders': 1
         }
         
-        # Insert sample replay document to establish structure
+
         sample_replay = {
             'type': 'replay',
             'id': f"welcome_{int(datetime.utcnow().timestamp() * 1000)}",
@@ -409,7 +409,7 @@ def create_account():
             'welcome_replay': True
         }
         
-        # Insert sample folder document to establish structure
+
         sample_folder = {
             'type': 'folder',
             'id': f"examples_{int(datetime.utcnow().timestamp() * 1000)}",
@@ -419,7 +419,7 @@ def create_account():
             'welcome_folder': True
         }
         
-        # Insert all documents
+
         user_result = user_collection.insert_one(user_data)
         replay_result = user_collection.insert_one(sample_replay)
         folder_result = user_collection.insert_one(sample_folder)
@@ -428,19 +428,19 @@ def create_account():
         print(f"[ACCOUNT CREATION] Sample replay inserted with ID: {replay_result.inserted_id}")
         print(f"[ACCOUNT CREATION] Sample folder inserted with ID: {folder_result.inserted_id}")
         
-        # Verify collection was created
+
         updated_collections = db.list_collection_names()
         if username in updated_collections:
             print(f"[ACCOUNT CREATION] Collection '{username}' successfully created")
         else:
             print(f"[ACCOUNT CREATION] WARNING: Collection '{username}' not found after creation")
         
-        # Create indexes for better performance
+
         user_collection.create_index([('type', 1)])
         user_collection.create_index([('id', 1)])
         print(f"[ACCOUNT CREATION] Indexes created for collection '{username}'")
         
-        # Send Discord webhook
+
         send_discord_webhook(username)
         
         return jsonify({
@@ -471,7 +471,7 @@ def login():
         if db is None:
             return jsonify({'success': False, 'message': 'Database connection error'})
         
-        # Check if user collection exists
+
         if username not in db.list_collection_names():
             return jsonify({'success': False, 'message': 'Invalid username or password'})
         
@@ -481,7 +481,7 @@ def login():
         if not user_data or user_data.get('password') != password:
             return jsonify({'success': False, 'message': 'Invalid username or password'})
         
-        # Update last login
+
         user_collection.update_one(
             {'type': 'user_info', 'username': username},
             {'$set': {'last_login': datetime.utcnow()}}
@@ -522,7 +522,7 @@ def send_backup_webhook(username, replays, folders):
         
         folder_details = [f"• **{folder.get('name', f'Folder {i+1}')}**" for i, folder in enumerate(folders)]
         
-        # Get database verification
+
         db = get_db()
         db_stats = "N/A"
         if db is not None and username in db.list_collection_names():
@@ -1107,7 +1107,7 @@ def force_sync():
         
         user_collection = db[username]
         
-        # Force insert test replay
+
         test_doc = {
             'type': 'replay',
             'id': test_replay['id'],
@@ -1164,7 +1164,7 @@ def get_data():
         
         clean_replays = []
         for replay in replays:
-            if replay.get('link'):  # Only return replays with links
+            if replay.get('link'):
                 clean_replays.append({
                     'id': replay.get('id'),
                     'name': replay.get('name'),

@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeDiscordModal = document.getElementById('closeDiscordModal');
     const closeAccountModal = document.getElementById('closeAccountModal');
     const mobileCSS = document.getElementById('mobileCSS');
-
     const settingsBtn = document.getElementById('settingsBtn');
     const settingsModal = document.getElementById('settingsModal');
     const closeSettingsModal = document.getElementById('closeSettingsModal');
@@ -48,7 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let savedFolders = JSON.parse(localStorage.getItem('savedFolders') || '[]');
     let currentFolder = '';
     let syncInterval;
-
     const foldersContainer = document.getElementById('foldersContainer');
     const replaysContainer = document.getElementById('replaysContainer');
     const breadcrumb = document.getElementById('breadcrumb');
@@ -100,7 +98,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('💾 [SETTINGS] Hide zoom buttons:', hideZoomButtonsCheckbox.checked);
         });
     }
-    // Load font size setting
     const savedFontSize = localStorage.getItem('fontSize') || 'medium';
     fontSizeRadios.forEach(radio => {
         if (radio.value === savedFontSize) radio.checked = true;
@@ -111,8 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    
-    // Load resolution setting
     const savedResolution = localStorage.getItem('resolution') || 'medium';
     resolutionRadios.forEach(radio => {
         if (radio.value === savedResolution) radio.checked = true;
@@ -123,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-    
     if (resetSettingsBtn) {
         resetSettingsBtn.addEventListener('click', () => {
             if (confirm('Are you sure you want to reset all settings to default?')) {
@@ -140,7 +134,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
     if (showLoginBtn) showLoginBtn.addEventListener('click', showLoginForm);
     if (showSignupBtn) showSignupBtn.addEventListener('click', showSignupForm);
     if (backFromLogin) backFromLogin.addEventListener('click', showAccountOptions);
@@ -183,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sendReplayPlayedWebhook(replayName, replayLink);
         gameTitle.textContent = 'Loading Replay...';
         showGameModal();
-        // Don't show loading spinner so we can see the automation
+
         fetch('/get_version', {
             method: 'POST',
             headers: {
@@ -223,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return '';
     }
     function loadGameVersion(version, replayData, replayLink, replayName) {
-        const versionPath = `/emulated_versions/${version}`;
+        const versionPath = `/game_versions/${version}`;
         gameFrame.style.opacity = '0';
         gameFrame.src = versionPath;
         gameFrame.onload = () => {
@@ -334,18 +327,18 @@ document.addEventListener('DOMContentLoaded', () => {
             clickElement(gameMenuButton);
             await sleep(500);
             
-            // Check if any settings need to be applied (always check settings to ensure correct state)
+
             const placeBalanceEnabled = localStorage.getItem('placeBalanceAbove') === 'true';
             const hideZoomButtonsEnabled = localStorage.getItem('hideZoomButtons') === 'true';
             const fontSize = localStorage.getItem('fontSize');
             const resolution = localStorage.getItem('resolution');
             
-            // Always go to settings to verify and apply correct state
+
             console.log('⚙️ [SETTINGS] Checking and applying all settings...');
             try {
                 console.log('⚙️ [SETTINGS] Settings need to be applied, going to settings...');
                 
-                // Find Settings button
+
                 const settingsButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
                     btn.textContent.includes('⚙️') && btn.textContent.includes('Settings')
                 );
@@ -358,7 +351,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 clickElement(settingsButton);
                 await sleep(500);
                 
-                // Check for Accept button that might appear
+
                 const acceptButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
                     btn.textContent.includes('✅') && btn.textContent.includes('Accept')
                 );
@@ -368,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     await sleep(500);
                 }
                 
-                // Apply Place Balance Above setting
+
                 try {
                     const placeBalanceHeader = Array.from(iframeDoc.querySelectorAll('h2')).find(h2 => 
                         h2.textContent && h2.textContent.includes('Place Balance Above')
@@ -393,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             const isEnabled = currentState.startsWith('🟢');
                             const isDisabled = currentState.startsWith('⬜');
                             
-                            // Click to match desired state
+
                             if (placeBalanceEnabled && isDisabled) {
                                 console.log('✅ [SETTINGS] Enabling Place Balance Above (white -> green)...');
                                 clickElement(activatedToggle);
@@ -415,7 +408,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('❌ [SETTINGS] Error applying Place Balance Above:', e);
                 }
                 
-                // Apply Hide Zoom Buttons setting
+
                 try {
                     const hideZoomHeader = Array.from(iframeDoc.querySelectorAll('h2')).find(h2 => 
                         h2.textContent && h2.textContent.includes('Hide Zoom Buttons')
@@ -461,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('❌ [SETTINGS] Error applying Hide Zoom Buttons:', e);
                 }
                 
-                // Apply Font Size setting
+
                 try {
                     const fontSizeHeader = Array.from(iframeDoc.querySelectorAll('h2')).find(h2 => 
                         h2.textContent && h2.textContent.includes('Minimum Font Size')
@@ -507,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('❌ [SETTINGS] Error applying Font Size:', e);
                 }
                 
-                // Apply Resolution setting
+
                 try {
                     const resolutionHeader = Array.from(iframeDoc.querySelectorAll('h2')).find(h2 => 
                         h2.textContent && h2.textContent.includes('Resolution')
@@ -553,7 +546,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error('❌ [SETTINGS] Error applying Resolution:', e);
                 }
                 
-                // Find Back button
+
                 try {
                     const backButton = Array.from(iframeDoc.querySelectorAll('button')).find(btn => 
                         btn.textContent && (btn.textContent.includes('⬅️') || btn.textContent.includes('Back'))
@@ -561,7 +554,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     if (!backButton) {
                         console.warn('⚠️ [SETTINGS] Back button not found, trying alternative methods...');
-                        // Try pressing Escape key as fallback
+
                         const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
                         iframeDoc.dispatchEvent(escapeEvent);
                         await sleep(500);
@@ -572,7 +565,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } catch (e) {
                     console.error('❌ [SETTINGS] Error with Back button:', e);
-                    // Try Escape key as last resort
+
                     try {
                         const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
                         iframeDoc.dispatchEvent(escapeEvent);
@@ -583,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (settingsError) {
                 console.error('❌ [SETTINGS] Critical error in settings application:', settingsError);
-                // Try to exit settings with Escape key
+
                 try {
                     const escapeEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
                     iframeDoc.dispatchEvent(escapeEvent);
@@ -1629,15 +1622,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
     function editReplay(replayId, newName, newFolder) {
         console.log('🔧 [EDIT REPLAY] === STARTING EDIT ===');
         console.log('🔧 [EDIT REPLAY] ID:', replayId, 'New name:', newName, 'New folder:', newFolder);
         console.log('🔧 [EDIT REPLAY] Current savedReplays length:', savedReplays.length);
-        
         const replayIndex = savedReplays.findIndex(r => r.id === replayId);
         console.log('🔧 [EDIT REPLAY] Found replay at index:', replayIndex);
-        
         if (replayIndex !== -1) {
             const oldName = savedReplays[replayIndex].name;
             const oldFolder = savedReplays[replayIndex].folder;
@@ -1661,7 +1651,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 clearInterval(monitoringInterval);
                 console.log('🔧 [EDIT REPLAY] ⏸️ STOPPED monitoring interval');
             }
-            
             loadReplays();
             showCenterAlert('Replay updated successfully', 'success');
             
@@ -1943,14 +1932,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 console.error('[SYNC FAILED]:', result.message);
-                // Only show critical sync errors, not routine ones
+
                 if (result.message && !result.message.includes('connection') && !result.message.includes('timeout')) {
                     showCustomAlert('Sync failed: ' + result.message, 'error');
                 }
             }
         } catch (e) {
             console.error('[SYNC ERROR]:', e);
-            // Don't show error alerts for network issues to avoid spam
+
             if (!e.message.includes('fetch') && !e.message.includes('HTTP')) {
                 showCustomAlert('Sync error: ' + e.message, 'error');
             }
@@ -1979,7 +1968,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const dbFolders = data.folders || [];
                 console.log(`[SYNC FROM DB] Got ${dbReplays.length} replays, ${dbFolders.length} folders from database`);
                 
-                // Only update if we got valid data
+
                 if (Array.isArray(dbReplays) && Array.isArray(dbFolders)) {
                     savedReplays = dbReplays;
                     savedFolders = dbFolders;
@@ -2049,24 +2038,16 @@ document.addEventListener('DOMContentLoaded', () => {
     window.cancelCreateFolder = null;
     window.confirmRenameFolder = null;
     window.cancelRenameFolder = null;
-    
     async function emergencyFallback(iframeDoc, replayData) {
         try {
             console.log('[EMERGENCY] Starting emergency fallback automation');
-            
-            // Wait for page to fully load
             await sleep(1000);
-            
-            // Try to find any textarea or input
             let textarea = iframeDoc.querySelector('textarea') || iframeDoc.querySelector('input[type="text"]');
-            
             if (textarea) {
                 console.log('[EMERGENCY] Found input field, pasting data directly');
                 textarea.value = replayData;
                 textarea.dispatchEvent(new Event('input', { bubbles: true }));
                 textarea.dispatchEvent(new Event('change', { bubbles: true }));
-                
-                // Try to find launch button
                 const buttons = Array.from(iframeDoc.querySelectorAll('button'));
                 const launchBtn = buttons.find(btn => 
                     btn.textContent.toLowerCase().includes('launch') ||
@@ -2074,31 +2055,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.textContent.toLowerCase().includes('start') ||
                     btn.textContent.toLowerCase().includes('go')
                 );
-                
                 if (launchBtn) {
                     console.log('[EMERGENCY] Found launch button, clicking');
                     clickElement(launchBtn);
                 }
-                
                 return true;
             }
-            
-            // Try clicking anywhere on the page to activate it
             console.log('[EMERGENCY] No input found, trying page activation');
             const body = iframeDoc.body;
             if (body) {
                 body.click();
                 await sleep(500);
-                
-                // Try keyboard shortcuts
                 const shortcuts = ['r', 'R', 'Escape', 'Enter', 'm', 'M'];
                 for (const key of shortcuts) {
                     const keyEvent = new KeyboardEvent('keydown', { key, bubbles: true });
                     iframeDoc.dispatchEvent(keyEvent);
                     body.dispatchEvent(keyEvent);
                     await sleep(200);
-                    
-                    // Check if textarea appeared
                     textarea = iframeDoc.querySelector('textarea') || iframeDoc.querySelector('input[type="text"]');
                     if (textarea) {
                         console.log(`[EMERGENCY] Textarea appeared after ${key} key`);
@@ -2108,15 +2081,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-            
             console.log('[EMERGENCY] All emergency strategies failed');
             return false;
-            
         } catch (e) {
             console.error('[EMERGENCY] Error:', e);
             return false;
         }
     }
-
-
 });
