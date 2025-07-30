@@ -1,4 +1,3 @@
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -20,17 +19,11 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
-
-# Virtual Environment
 venv/
 ENV/
-
-# IDE files
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# OS specific files
 .DS_Store
 Thumbs.db
