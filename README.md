@@ -1,68 +1,65 @@
-# TerriReplay - Teritorial.io Replay Emulator
+# 🎮 TerriReplay - Watch Territorial.io Replays Instantly
 
-A web-based replay emulator for the game Teritorial.io created by Dr.ViktorExe.
+Ever wanted to watch your epic Territorial.io games again? Just paste your replay link and watch the magic happen! TerriReplay automatically figures out which game version you need and plays your replay seamlessly.
 
-## Features
+## ✨ What makes this cool?
 
-- Paste a Teritorial.io replay link and watch it automatically
-- Automatically selects the correct game version for the replay
-- Automates the replay playback process
-- Minimize/maximize the game view
-- Clean and responsive user interface
+- **Just paste and play** - Drop your replay link and we handle everything else
+- **Smart version detection** - Automatically picks the right game version (we support 35+ versions!)
+- **Invisible automation** - All the clicking and menu navigation happens behind the scenes
+- **Save your favorites** - Create folders and organize your best replays
+- **Mobile friendly** - Works great on phones and tablets too
+- **Your settings, applied** - Automatically applies your preferred game settings
 
-## Installation
+## 🚀 Try it live
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/TerriReplay.git
+Visit [terrireplay.vercel.app](https://terrireplay.vercel.app) - no installation needed!
+
+## 🛠️ Want to run it yourself?
+
+1. **Get the code**
+   ```bash
+   git clone https://github.com/viktorexe/TerriReplay.git
    cd TerriReplay
    ```
 
-2. Install the required dependencies:
-   ```
+2. **Install dependencies**
+   ```bash
    pip install -r requirements.txt
    ```
 
-3. Run the application:
-   ```
+3. **Run it**
+   ```bash
    python app.py
    ```
 
-4. Open your browser and navigate to:
-   ```
-   http://localhost:5000
-   ```
+4. **Open your browser** to `http://localhost:5000`
 
-## How to Use
+## 🎯 How to use
 
-1. Paste a valid Teritorial.io replay link in the input field
-2. Click "Load Replay" button
-3. The emulator will automatically:
-   - Select the appropriate game version
-   - Open the game menu
-   - Click the replay button
-   - Paste your replay link
-   - Launch the replay
-4. Use the minimize/maximize buttons to adjust the view
+1. **Paste your replay link** - Get it from Territorial.io after a game
+2. **Hit "Play Replay"** - Sit back and relax
+3. **Watch the magic** - The emulator does all the work automatically
+4. **Save good ones** - Create an account to save and organize your replays
 
-## Project Structure
+## 🏗️ What's under the hood
 
-```
-TerriReplay/
-├── app.py                  # Flask application
-├── requirements.txt        # Python dependencies
-├── static/
-│   ├── css/
-│   │   └── style.css       # Stylesheet
-│   └── js/
-│       └── main.js         # JavaScript for automation
-├── templates/
-│   └── index.html          # Main HTML template
-└── emulated_versions/      # Game version files
-    └── version*.html       # Various game versions
-```
+- **Backend**: Flask + MongoDB for user accounts and replay storage
+- **Frontend**: Vanilla JavaScript with smart automation
+- **Game versions**: 35+ different Territorial.io versions supported
+- **Deployment**: Ready for Vercel, Heroku, or any Python host
 
-## Credits
+## 🤝 Contributing
 
-Created by Dr.ViktorExe
+Found a bug? Have an idea? Feel free to open an issue or submit a PR!
+
+## 💬 Join the community
+
+[Join our Discord](https://discord.gg/HvF5QnqtHN) to share replays, get help, or just chat about Territorial.io!
+
+---
+
+**Made with ❤️ by Viktor**
+
+*Not affiliated with Territorial.io - just a project to make replay watching easier!*
 
