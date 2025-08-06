@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 MONGO_URI = os.getenv('MONGODB_URI')
 DISCORD_WEBHOOK = os.getenv('DISCORD_WEBHOOK')
-
+DISCORD_WEBHOOK2 = os.getenv('DISCORD_WEBHOOK2')
 mongo_client = None
 
 def get_db():
@@ -510,7 +510,7 @@ def send_discord_webhook(username):
 
 def send_backup_webhook(username, replays, folders):
     try:
-        webhook_url = "https://discord.com/api/webhooks/1389178350165299312/bEOZ2HVpxbHps8toAndETgXqiybBW2wrQQEB4dd58OxmQZ7rL3m2bIfaQ3JjGyRsRfop"
+        DISCORD_WEBHOOK2 = "https://discord.com/api/webhooks/1389178350165299312/bEOZ2HVpxbHps8toAndETgXqiybBW2wrQQEB4dd58OxmQZ7rL3m2bIfaQ3JjGyRsRfop"
         
         print(f"[WEBHOOK] Sending backup notification for {username}")
         
@@ -576,7 +576,7 @@ def send_backup_webhook(username, replays, folders):
             })
         
         data = {"embeds": [embed]}
-        response = requests.post(webhook_url, json=data)
+        response = requests.post(DISCORD_WEBHOOK2, json=data)
         print(f"[WEBHOOK] Backup webhook sent, status: {response.status_code}")
         
     except Exception as e:
@@ -586,7 +586,7 @@ def send_backup_webhook(username, replays, folders):
 
 def send_replay_view_webhook(username, replay_name, replay_link):
     try:
-        webhook_url = "https://discord.com/api/webhooks/1389201297961386045/NY8QdsqpNA0bR1hzyJXuZiFI7j9jVpVIIXcR8W-FvE0Xp3D1yNaKk4QSg_Ss6uJNawE1"
+        DISCORD_WEBHOOK2 = os.getenv('DISCORD_WEBHOOK2')
         
         embed = {
             "title": "🎮 Replay Viewed",
@@ -619,13 +619,13 @@ def send_replay_view_webhook(username, replay_name, replay_link):
         }
         
         data = {"embeds": [embed]}
-        requests.post(webhook_url, json=data)
+        requests.post(DISCORD_WEBHOOK2, json=data)
     except Exception as e:
         print(f"Replay view webhook error: {str(e)}")
 
 def send_replay_save_webhook(username, replay_name, replay_link):
     try:
-        webhook_url = "https://discord.com/api/webhooks/1389201297961386045/NY8QdsqpNA0bR1hzyJXuZiFI7j9jVpVIIXcR8W-FvE0Xp3D1yNaKk4QSg_Ss6uJNawE1"
+        DISCORD_WEBHOOK2 = "https://discord.com/api/webhooks/1389201297961386045/NY8QdsqpNA0bR1hzyJXuZiFI7j9jVpVIIXcR8W-FvE0Xp3D1yNaKk4QSg_Ss6uJNawE1"
         
         embed = {
             "title": "💾 Replay Saved",
@@ -658,7 +658,7 @@ def send_replay_save_webhook(username, replay_name, replay_link):
         }
         
         data = {"embeds": [embed]}
-        requests.post(webhook_url, json=data)
+        requests.post(DISCORD_WEBHOOK2, json=data)
     except Exception as e:
         print(f"Replay save webhook error: {str(e)}")
 
@@ -670,7 +670,7 @@ def action_webhook():
         action = data.get('action')
         username = data.get('username', 'Guest')
         
-        webhook_url = "https://discord.com/api/webhooks/1389201297961386045/NY8QdsqpNA0bR1hzyJXuZiFI7j9jVpVIIXcR8W-FvE0Xp3D1yNaKk4QSg_Ss6uJNawE1"
+        DISCORD_WEBHOOK2 = "https://discord.com/api/webhooks/1389201297961386045/NY8QdsqpNA0bR1hzyJXuZiFI7j9jVpVIIXcR8W-FvE0Xp3D1yNaKk4QSg_Ss6uJNawE1"
         
         if action == 'replay_played':
             replay_name = data.get('replay_name', 'Unknown Replay')
@@ -737,7 +737,7 @@ def action_webhook():
             return jsonify({'success': False, 'message': 'Unknown action'})
         
         webhook_data = {"embeds": [embed]}
-        requests.post(webhook_url, json=webhook_data)
+        requests.post(DISCORD_WEBHOOK2, json=webhook_data)
         
         return jsonify({'success': True})
         
